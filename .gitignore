@@ -19,6 +19,10 @@
 
 ### eZp related //start
 ezp/var
-ezp/settings/override/site.ini
-ezp/settings/override/solr.ini
+ezp/extension/ezpedia/settings/settings/override/site.ini
+ezp/extension/ezpedia/settings/settings/override/solr.ini
+ezp/extension/ezfind/java/logs
+ezp/extension/ezpedia/sql/ezpedia.dump.auto.sql
+ezp/extension/ezpedia/sql/ezpedia.dump.auto.sql.tar.gz
+ezp/sitemap_en.xml
 ### eZp related //end
