@@ -1,0 +1,24 @@
+# .svn dirs of subversion
+.svn/
+# desktop services store file on mac os x
+\.DS_Store
+# jedit backup files
+\#*#
+# jedit marker files
+\.*.marks
+# unix user trash dirs
+.Trash-*/
+# merge conflict files
+*\.orig
+# phpstorm project files
+.idea
+#eclipse stuff
+\.project
+\.buildpath
+.settings/
+
+### eZp related //start
+ezp/var
+ezp/settings/override/site.ini
+ezp/settings/override/solr.ini
+### eZp related //end
