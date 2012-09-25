@@ -1,0 +1,58 @@
+eZ Comments change log
+
+1.2.0
+ - Fixed #017598: eZComments : Fatal error during add comment on a untranslated content
+ - Fixed #017243: tc-118 (Oracle) Adding comments gives an DB error using the Article with Comments class in Oracle
+
+1.1.0 Final
+
+1.1.0 RC1
+ - Fixed bug #017268: TC-124 (Ez Comments) Updating a comment on eZ Webin raises an error
+
+1.1.0Alpha,Beta2
+ - Fixed bug #16644: Improve field handling in website field
+ - Implemented enhancement #016659 (ezcomments: redirect to commented object page on success)
+ - Implemented enhancement #016655: ezcomments: improve handling of commenter name
+ - Implemented enhancement #016673: ezcomments: add fetch functions to fetch latest comments, my latest comments
+ - Corrected {/if} lost in template for reCAPTCHA support
+ - Added reCAPTCHA support
+ - Added extension ordering support that ezcomments should be before ezwebin
+ - Fixed bug #016539: Cronjob for sending for one notification email to show multiple comments fails
+ - Fixed bug #016653: ezcomments: name of db schema def file is wrong
+
+1.0.0 Final - released 2010/3/30
+
+1.0.0RC
+ - Fixed bug #16447: after adding to class, it cannot saved again
+ - Fixed bug #16423: missing ezurl at redirection var and other html errors
+ - Fixed bug #16403: PHP warning when updating a comment
+ - Fixed bug #16361: notification_body.tpl is not translatable
+
+1.0.0Beta2
+ - Fixed bug #16378: view is not working / wrong ini setting is taken
+ - Fixed bug: the 'from' of activation email is not from setting
+ - Corrected user text in add, edit, setting, subscription
+ - Fix bug #16371: when email is hidden, notification should be hidden
+ - Fixed bug #16362: error in schema.sql
+ - Fixed bug #16349: When email is hidden, the email field is still in edit form
+ - Added translation support for form validation
+ - Fixed bug that error occurs when a subscriber comments on a subsribed content without checking 'notify me'.
+ - Fixed the email field doesn't work
+ - Added German translation (made by Georg Franz)
+ - Fixed bug #16304: ezcomments: washing of name required
+ - Fixed bug #16303: ezcomments - redirection not working
+ - Fixed bug #16294: ezcomments: username and email are cached wrongly when posting comment
+ - Added commentor ip into database table when commenting
+ - Changed context of translation to make context consistent
+ - Fixed bug #16276: ezcomments: cannot create translation
+
+1.0.0Beta1
+ - Fixed bug #16218: Check for an already present ezcomments attribute in class edit
+ - Fixed bug: the eZ Comments extension information is not shown in ezinfo/about.
+ - Fixed bug #16164: If the content is deleted, comments of the content are still there. Also applied for deleting Comment attribute and deleting class with Comment attribute.
+ - Fixed bug: comment doesn't work when a Comment attribute is added into existing class
+ - Made the validation of adding commment and edit comment consistent (reuse class ezcomFormTool).
+ - Added cache support in comment/view
+ - Removed 'notification' field in ezcomComment persistent object and database
+ - Changed the license header in code
+ - Fixed bug: if a subscriber is disabled in database, he can still subscribe comment.

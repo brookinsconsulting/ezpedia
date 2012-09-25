@@ -1,0 +1,24 @@
+# m h  dom mon dow   command
+# This must be set to the directory where eZ Publish is installed.
+EZPUBLISHROOT=/var/ezpedia
+
+# Location of the PHP Command Line Interface binary.
+PHP=/usr/bin/php
+
+# Instruct cron to run the main set of cronjobs
+# at 6:35am every day
+35 6 * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -q 2>&1
+
+# Instruct cron to run the "infrequent" set of cronjobs
+# at 5:20am every Monday
+20 5 * * 1 cd $EZPUBLISHROOT && $PHP runcronjobs.php infrequent -q 2>&1
+
+# Instruct cron to run the "frequent" set of cronjobs
+# every 15 minutes
+0,15,30,45 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php frequent -q 2>&1
+
+0,15,30,45 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -q 2>&1
+
+05,10,15,20,25,30,35,40,45,50,55 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php notification -q 2>&1
+
+05,10,15,20,25,30,35,40,45,50,55 * * * * cd $EZPUBLISHROOT && /etc/init.d/solr start

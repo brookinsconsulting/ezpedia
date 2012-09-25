@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# eZ Find init script for RHEL and CENTOS.
+# 
+# Usage:
+# 
+# Set the correct SOLR_HOME value, and copy this file to /etc/init.d
+# Symlink to /etc/init.d/solr to /etc/rc3.d/S70solr and /etc/rc5.d/S70solr
+#
+# Example:
+# cp solr /etc/init.d/solr
+# cd /etc/init.d && chmod 755 solr
+# cd /etc/rc3.d && ln -s ../init.d/solr S70solr
+# cd /etc/rc5.d && ln -s ../init.d/solr S70solr
+# cd /etc/rc3.d && ln -s ../init.d/solr K70solr
+# cd /etc/rc5.d && ln -s ../init.d/solr K70solr
+
+DESC="Solr indexing server"
+NAME=solr
+SOLR_HOME= # Insert Solr path here, example: /var/www/ezpublish/extension/ezfind/java
+JAVA_HOME= # Set java home here if java is not available in /usr/bin/java or /usr/local/bin/java
+
+source /etc/rc.d/init.d/functions
+
+RETVAL=0
+
+start() {
+    echo -n $"Starting $DESC ($NAME): "
+    for JAVA in "$JAVA_HOME/bin/java" "/usr/bin/java" "/usr/local/bin/java"
+      do
+      if [ -x $JAVA ]
+	  then
+	  break
+      fi
+    done
+    if [ ! -x $JAVA ]
+	then
+	echo "Unable to locate java. Please set JAVA_HOME environment variable."
+	exit
+    fi
+    CURRENT_DIR=`pwd`
+    cd $SOLR_HOME
+    daemon --check $NAME --pidfile /var/run/solr.pid nohup $JAVA -jar start.jar > /dev/null 2>&1 &
+    RETVAL=$?
+    sleep 1 # Sleep 1 second, to make sure java is registered.
+    pid=`pidof java`
+    echo $pid > /var/run/solr.pid
+    cd $CURRENT_DIR
+    echo
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$NAME
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Shutting down $DESC ($NAME): "
+    killproc -p /var/run/solr.pid $NAME
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$NAME
+    return $RETVAL
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}
+
+reload() {
+    echo -n $"Reloading $DESC ($NAME): "
+    killproc -p /var/run/solr.pid $NAME -HUP
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    restart
+    ;;
+  reload)
+    reload
+    ;;
+  status)
+    status -p /var/run/solr.pid $NAME
+    RETVAL=$?
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart|reload|status}"
+    RETVAL=1
+esac
+
+exit $RETVAL

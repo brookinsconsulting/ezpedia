@@ -1,0 +1,42 @@
+# m h  dom mon dow   command
+# This must be set to the directory where eZ Publish is installed.
+EZPUBLISHROOT=/var/ezpedia
+
+# Location of the PHP Command Line Interface binary.
+PHP=/usr/bin/php
+
+# Instruct cron to run the main set of cronjobs
+# at 6:35am every day
+35 6 * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -q 2>&1
+
+# Instruct cron to run the "infrequent" set of cronjobs
+# at 5:20am every Monday
+20 5 * * 1 cd $EZPUBLISHROOT && $PHP runcronjobs.php infrequent -q 2>&1
+
+# Instruct cron to run the "frequent" set of cronjobs
+# every 15 minutes
+05,25,40,55 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php frequent -q 2>&1
+
+# Regularly run default crontjobs
+0,15,30,45 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -q 2>&1
+
+# Disabled till post 4.2 upgrade to fix nice url + viewcount statistics updates
+# 15,20,25,30,45,50,55 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php updateviewcount -q 2>&1
+
+# Regularly regenerate (or attempt to) to include newly created articles
+27,57 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php googlesitemaps -q 2>&1
+
+# Regularly check and update nice urls for renamed articles
+17,46 * * * * cd $EZPUBLISHROOT && $PHP bin/php/updateniceurls.php 2>&1
+
+# Regularly check and send notifications to users
+03,13,23,33,43,53,58 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php notification -q 2>&1
+## * * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php notification -q 2>&1
+
+# Restart solr backend (java service) regularly (or attempt to) to prevent user from seeing service fail
+05,10,15,20,25,30,35,40,45,50,55 * * * * cd $EZPUBLISHROOT && /etc/init.d/solr start
+
+# Make an overriting backup of the master external database
+35 5 * * * cd $EZPUBLISHROOT && cd extension/ezpedia/sql/ && mysqldump -u ezpedia -h mysql.master ezpedia_live --password=kgflop\!52369\. > ezpedia.dump.auto.sql && tar -zcf ezpedia.dump.auto.sql.tar.gz ezpedia.dump.auto.sql
+
+# fin crontab

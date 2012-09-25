@@ -1,0 +1,66 @@
+ eZ Comments extension installation documentation
+
+ (For more document and questions please visit http://projects.ez.no/ezcomments)
+ 
+ About eZ Comments
+ ===================
+ 
+eZ Comments introduces a number features which extend the functionality for commenting on content online. These features are the following:
+* the possibility of editing own & other's comments
+* better anonymous users handling
+* improved control over subscriptions to follow comments via notifications
+* developer options regarding the comments form
+* administrator options for good access and restriction policies
+* administrator options for editing and deleting comments. 
+ 
+ Requirements
+ ================
+ 
+ - ezjscore
+ - eZ Publish 4.3 or later version. eZ Comments's permission part doesn't work well in previous eZ Publish version. 
+ 
+ Installation
+ ================
+ 1) Copy ezcomments into 'extension' folder
+  
+ 2) Install database
+    Execute the sql file in sql/databasetype/schema.sql. Currently supported databases are Mysql, PostgreSQL and Oracle. The example command line in mysql is
+    $ mysql --host=<mysql_host> --port=<port> -u <mysql_user> -p<mysql_password> <database> < extension/ezcomments/sql/mysql/schema.sql
+    
+ 3) Activate ezcomments
+   In administrator user interface, click 'setup' tab->'extensions' menu, select 'ezcomments', click button 'Apply Changes'.
+   or in settings/override/site.ini.append.php, add acivation configuration under "ExtensionSettings" section:
+     [ExtensionSettings]
+     ActiveExtensions[]=ezcomments
+
+ 4) Regenerate autoloads
+    In administrator user interface, click 'setup' tab->'extensions' menu, select 'ezcomments', click button 'Regenerate autoload arrays for extensions',
+    or in eZ Publish installation folder, run "php bin/php/ezpgenerateautoloads.php -e"
+    
+ 5) Clear cache
+    Clear INI and template caches. (from admin 'Setup' tab or commandline)
+ 
+ Quick manual
+ =================
+ 1) Create a content with commenting feature
+     - Create a class (in 'Setup' tab->'Classes'), 'article_comment' for instance
+     - Create a content with class 'article_comment'
+     - View the content in front end
+     
+ 2) Set permission for reading, posting
+    After 1) by default only administrator can post comment, for non-administrator users, we need to set permission.
+    - Go to 'Roles and policies' (from 'Setup' tab->'Roles and policies' or 'User accounts'->'Roles and policies')
+    - Click one role name, 'Anonymous' for instance, then edit the role by click 'Edit' button
+    - Add one policy with module 'comment' and function 'read' by these steps:
+      - Click 'New policy'
+      - Select 'comment' from module list in step one
+      - Click 'Grant access to one function'
+      - Select 'read' in the function list
+      - Click 'Grant full access' 
+      - Click 'OK' button in the policy wizard page
+      - Click 'OK' button in Edit Role page
+    - Add one policy with module 'comment' and function 'add', which is similar to function 'read' (only difference is selecting 'add' in the function list).
+    
+ 3) Post comment in the content view page as in 1)
+
+ 

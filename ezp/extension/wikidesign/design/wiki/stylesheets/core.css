@@ -1,0 +1,288 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Arial, Sans-Serif;
+    font-size: 0.8em;
+}
+
+a img
+{
+    border: none;
+}
+
+div.break
+{
+    clear: both;
+}
+
+#allcontent
+{
+    margin: 0;
+    padding: 0;
+}
+
+/* TOP */
+
+#topmenu 
+{
+    font-size: 90%;
+    padding: 0.3em 1em 0.5em 1em;
+    text-align: right;
+}
+
+#topmenu img
+{
+    vertical-align: bottom;
+}
+
+#topmenu ul
+{
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    margin-right: 2em;
+}
+
+#topmenu li
+{
+    margin-left: 5em;
+    display: inline;
+}
+
+/* COLUMNS */
+
+#columns {
+    padding: 1em 0 0 0;
+}
+
+/* LEFT */
+#leftmenu
+{
+    float: left;
+    width: 16%;
+}
+
+#wiki_title
+{
+    text-align: center;
+    margin-bottom: 2em;
+}
+
+#maincontent
+{
+    margin-left: 17%;
+}
+
+.menubox
+{
+    margin-bottom: 1em;
+    padding: 0;
+}
+
+.menubox-content
+{
+    padding: 1em 0.5em 1em 0.5em;
+}
+
+.menubox-content ul
+{
+    list-style-type: square;
+    margin: 0;
+    padding-left: 2em;
+}
+
+.menubox li
+{
+    margin-bottom: 0.3em;
+}
+
+.menubox-content ul.languages
+{
+    list-style-type: none;
+    margin: 0;
+    padding-left: 1em;
+}
+
+.menubox-content p {
+    font-size: 0.8em;
+    margin: 0 0 1em 0;
+}
+
+.menubox-content div.block {
+    margin-bottom: 0;
+}
+
+
+/* MAIN */
+#maincontent
+{
+    padding: 0 2em 2em 2em;
+}
+
+input.default-button
+{
+    font-weight: bold;
+}
+
+.block
+{
+    margin-bottom: 2em;
+}
+
+.buttonblock
+{
+    margin-top: 2em;
+}
+
+fieldset {
+    margin: 1em 0;
+}
+
+div#maincontent div.content-translation div.block div.original
+{
+    background-color: #ecece4;
+    margin: 0.5em 0 0.5em 0;
+    padding: 0.2em;
+    border: 1px dashed #bfbeb6;
+}
+
+div#maincontent label
+{
+    display: block;
+}
+
+table.list
+{
+    width: 99%;
+}
+
+div.class-wiki-namespace li a
+{
+    font-size: 1.4em;
+}
+
+
+/* FORUM */
+
+table.forum
+{
+    margin: 1em 0;
+}
+
+table.forum p
+{
+    margin: 0;
+}
+
+table.forum td.message p
+{
+    margin: 1em 0;
+}
+
+table.forum td, table.forum th
+{
+    padding: 0.2em 0.5em;
+}
+
+div.infoline p
+{
+    float: left;
+    margin-right: 1em;
+}
+
+div.infoline
+{
+    margin: -0.5em 0 -0.5em 0;
+}
+
+table.forum div.attribute-byline p.author, table.forum div.attribute-byline p.date
+{
+    display: block;
+}
+
+table.forum th
+{
+    text-align: left;
+}
+
+table.forum td.message p.date
+{
+    font-size: 0.8em;
+    border-bottom: 1px solid #aaa;
+}
+
+div.content-view-children table.forum th.topic
+{
+    width: 45%;
+}
+
+div.content-view-children table.forum th.replies
+{
+    width: 10%;
+}
+
+div.content-view-children table.forum th.lastreply
+{
+    width: 45%;
+}
+
+div.content-view-children table.forum th.author
+{
+    width: 12%;
+}
+
+table.forum p.author
+{
+    font-weight: bold;
+}
+
+div.content-view-children table.forum th.message
+{
+    width: 75%;
+}
+
+table.forum tr.bglight td, table.forum tr.bgdark td
+{
+    border-top: 1px solid;
+}
+
+
+
+
+/* NAVIGATORS */
+
+div.content-navigator
+{
+    display: block;
+}
+
+div.content-navigator div
+{
+    display: inline;
+    text-align: center;
+}
+
+div.content-navigator div.content-navigator-separator, div.content-navigator div.content-navigator-separator-disabled
+{
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+div.content-navigator div.content-navigator-arrow
+{
+    font-size: 150%;
+}
+
+/* FOOTER */
+#footer
+{
+    margin-top: 1em;
+    padding: 1em;
+    text-align: center;
+}
+
+#footer p
+{
+    font-size: 0.8em;
+    margin: 0.6em 0;
+}

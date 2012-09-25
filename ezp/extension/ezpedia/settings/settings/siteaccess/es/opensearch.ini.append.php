@@ -1,0 +1,16 @@
+<?php /*
+
+[OpenSearchSettings]
+DescriptionList[]
+DescriptionList[]=ezpedia
+DescriptionList[]=ezpedia_google
+
+[OpenSearch_ezpedia]
+URL=http://pubsvn.ez.no/community/tools/browser_opensearch_plugins/ezpedia.xml
+Title=eZpedia
+
+[OpenSearch_ezpedia_google]
+URL=http://pubsvn.ez.no/community/tools/browser_opensearch_plugins/ezpedia_via_google.xml
+Title=eZpedia (via Google)
+
+*/ ?>

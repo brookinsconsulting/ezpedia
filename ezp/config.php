@@ -1,0 +1,1 @@
+extension/ezpedia/files/config.php

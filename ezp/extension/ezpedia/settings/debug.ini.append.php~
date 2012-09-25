@@ -1,0 +1,14 @@
+<?php /*
+
+#?ini charset="iso-8859-1"?
+
+[DebugSettings]
+ConditionDebug=enabled
+
+[GeneralCondition]
+kernel-policy-limitation=enabled
+kernel-siteaccess=enabled
+kernel-user=enabled
+module-run=enabled
+
+*/ ?>

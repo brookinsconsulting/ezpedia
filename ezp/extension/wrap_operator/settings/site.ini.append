@@ -1,0 +1,5 @@
+#?ini charset="iso-8859-1"?
+
+[TemplateSettings]
+ExtensionAutoloadPath[]=wrap_operator
+# AutoloadPathList[]=extension/wrap_operator/autoloads
