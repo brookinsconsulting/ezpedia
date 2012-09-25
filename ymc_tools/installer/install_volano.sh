@@ -1,5 +1,6 @@
 #!/bin/bash
 
+### THIS IS AN ADAPTED VERSION FOR EZPEDIA ###
 
 param_count=$#
 pathToTheCodeDir="$(dirname $1)/ezp"
@@ -36,11 +37,27 @@ function volanoInstallerParamChecks
 function volanoInstallerLinkVarStorage
 {
   echo "-> Replacing downloaded var/storage dir"
-  rm -rf var/storage
+
+  if [ ! -d "var/plain_site" ]; then
+    mkdir -p var/plain_site
+    chmod 777 var/plain_site
+    chown www-data:www-data var/plain_site
+  fi
+
+  if [ -e "var/storage" ]; then
+    mv var/storage $var/storage_backup_$(date +%s)
+  fi
+
+  if [ -e "var/plain_site/storage" ]; then
+    mv var/plain_site/storage $var/plain_site/storage_backup_$(date +%s)
+  fi
+
   if [ $(echo $pathToTheVarStorageDir | grep -c -E -e '^/') -le 0 ]; then
-    ln -s ../$pathToTheVarStorageDir var/storage
+    ln -s ../$pathToTheVarStorageDir/var/storage var/storage
+    ln -s ../$pathToTheVarStorageDir/var/plain_site/storage var/plain_site/storage
   else
-    ln -s $pathToTheVarStorageDir var/storage
+    ln -s $pathToTheVarStorageDir/var/storage var/storage
+    ln -s $pathToTheVarStorageDir/var/plain_site/storage var/plain_site/storage
   fi
 }
 
