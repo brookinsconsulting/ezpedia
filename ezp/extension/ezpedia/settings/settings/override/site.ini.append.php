@@ -1,16 +1,14 @@
 <?php /* #?ini charset="utf-8"?
 
+### NOTE: Do not modify this file, unless you want to change settings in PRODUCTION!
+
+
 [DatabaseSettings]
 DatabaseImplementation=ezmysql
-Server=mysql.master
-# Server=mysql.test
-User=ezpedia
-# User=ezpedia_test
-# Password=kdlop.37927!
-Password=kgflop!52369.
-Database=ezpedia_live
-# Database=ezpedia_experimental
-# Database=ezpedia_dev
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Server=localhost
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#User=someuser
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Password=somepassword
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Database=somedatabase
 Charset=
 Socket=disabled
 
