@@ -1,8 +1,9 @@
 {*?template charset=utf-8?*}
 {* Require jQuery, using JS Core *}
 {ezscript_require( array( 'ezjsc::jquery',
+                        'jquery-migrate-1.1.1.min.js',
                         'ezjsc::jqueryio',
-                        'jquery-ui-1.8.9.custom.min.js',
+                        'ezjsc::jqueryUI',
                         'ezie.namespaces.js',
                         'ezie.js',
                         'ezie.ezconnect.success_default.js',
@@ -49,7 +50,7 @@
                         'colorpicker/utils.js',
                         'vtip-min.js',
                         'wait.js',
-                        'ezie.js', )
+                        'ezie.js' )
                         )
 }
 
@@ -225,7 +226,7 @@
                         </div>
                         <div class="sectionContent">
                             <ul class="filters">
-                                <li><a href="" id="ezie_flip_hor" title={'Horizontal Flip'|i18n('design/standard/ezie')}">{'Horizontal Flip'|i18n('design/standard/ezie')}</a></li>
+                                <li><a href="" id="ezie_flip_hor" title="{'Horizontal Flip'|i18n('design/standard/ezie')}">{'Horizontal Flip'|i18n('design/standard/ezie')}</a></li>
                                 <li><a href="" id="ezie_flip_ver" title="{'Vertical Flip'|i18n('design/standard/ezie')}">{'Vertical Flip'|i18n('design/standard/ezie')}</a></li>
                                 <li class="more"><a href="" id="ezie_rotation" title="{'Rotation'|i18n('design/standard/ezie')}">{'Rotation'|i18n('design/standard/ezie')}</a></li>
                                 <li class="more"><a href="" id="ezie_crop" title="Crop">{'Crop'|i18n('design/standard/ezie')}</a><span id="ezie_alternative_crop_text">{'Perform Crop'|i18n('design/standard/ezie')}</span></li>

@@ -1,6 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="hr_HR">
+<context>
+    <name>comments/comment/menu</name>
+    <message>
+        <source>eZ Comments</source>
+        <translation>eZ Comments</translation>
+    </message>
+    <message>
+        <source>Comments list</source>
+        <translation>Lista komentara</translation>
+    </message>
+</context>
+<context>
+    <name>design/admin/parts/user/menu</name>
+    <message>
+        <source>Change the left menu width to small size.</source>
+        <translation>Promijeni širinu lijevog menija na malu veličinu.</translation>
+    </message>
+    <message>
+        <source>Small</source>
+        <translation>Malo</translation>
+    </message>
+    <message>
+        <source>Medium</source>
+        <translation>Srednje</translation>
+    </message>
+    <message>
+        <source>Change the left menu width to large size.</source>
+        <translation>Promijeni širinu lijevog menija na veliku veličinu.</translation>
+    </message>
+    <message>
+        <source>Large</source>
+        <translation>Veliko</translation>
+    </message>
+    <message>
+        <source>Change the left menu width to medium size.</source>
+        <translation>Promijeni širinu lijevog menija na srednju veličinu.</translation>
+    </message>
+</context>
 <context>
     <name>design/ezwebin/user/edit</name>
     <message>
@@ -55,8 +93,8 @@
         <translation>eZ Comments upozorenje: reCAPTCHA ključ nije ispravan.</translation>
     </message>
     <message>
-        <source>Please get a reCAPTCHA key from &lt;a href=&quot;https://admin.recaptcha.net/recaptcha/createsite&quot; target=&quot;_blank&quot;&gt;https://admin.recaptcha.net/recaptcha/createsite&lt;/a&gt; then set it up in eZ Comments, or disable CAPTCHA feature.</source>
-        <translation>Zatražite reCAPTCHA ključ na &lt;a href=&quot;https://admin.recaptcha.net/recaptcha/createsite&quot; target=&quot;_blank&quot;&gt;https://admin.recaptcha.net/recaptcha/createsite&lt;/a&gt; i upišite ga u postavke, ili onemogućite CAPTCHA funkcionalnost.</translation>
+        <source>Please get a reCAPTCHA key from &lt;a href=&quot;https://www.google.com/recaptcha/admin/create&quot; target=&quot;_blank&quot;&gt;https://www.google.com/recaptcha/admin/create&lt;/a&gt; then set it up in eZ Comments, or disable CAPTCHA feature.</source>
+        <translation>Zatražite reCAPTCHA ključ na &lt;a href=&quot;https://www.google.com/recaptcha/admin/create&quot; target=&quot;_blank&quot;&gt;https://www.google.com/recaptcha/admin/create&lt;/a&gt; i upišite ga u postavke, ili onemogućite CAPTCHA funkcionalnost.</translation>
     </message>
     <message>
         <source>For more details please visit &lt;a href=&quot;http://projects.ez.no/ezcomments&quot; target=&quot;_blank&quot;&gt;http://projects.ez.no/ezcomments&lt;/a&gt;.</source>
@@ -212,7 +250,7 @@
     </message>
     <message>
         <source>reCAPTCHA API key missing.</source>
-        <translation>Nedostaje reCAPTCHA API ključ</translation>
+        <translation>Nedostaje reCAPTCHA API ključ.</translation>
     </message>
     <message>
         <source>The words you input are incorrect.</source>
@@ -333,7 +371,7 @@
     </message>
     <message>
         <source>Edit comment</source>
-        <translation>Uredi komentar.</translation>
+        <translation>Uredi komentar</translation>
     </message>
     <message>
         <source>Updating failed.</source>
@@ -341,10 +379,68 @@
     </message>
 </context>
 <context>
+    <name>ezcomments/comment/list</name>
+    <message>
+        <source>Comments list</source>
+        <translation>Lista komentara</translation>
+    </message>
+    <message>
+        <source>Select all comments</source>
+        <translation>Odaberi sve komentare</translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation>Komentar</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>Čvor</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>Zadnja promjena</translation>
+    </message>
+    <message>
+        <source>IP address</source>
+        <translation>IP adresa</translation>
+    </message>
+    <message>
+        <source>Edit comment</source>
+        <translation>Uredi komentar</translation>
+    </message>
+    <message>
+        <source>Remove selected</source>
+        <translation>Ukloni odabrano</translation>
+    </message>
+</context>
+<context>
     <name>ezcomments/comment/notification</name>
     <message>
         <source>New comment</source>
         <translation>Novi komentar</translation>
+    </message>
+</context>
+<context>
+    <name>ezcomments/comment/removecomments</name>
+    <message>
+        <source>Confirm comments removal</source>
+        <translation>Potvrdite uklanjanje komentara</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove selected comments?</source>
+        <translation>Jeste li sigurni da želite ukloniti odabrane komentare?</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Odustani</translation>
+    </message>
+    <message>
+        <source>Remove comments</source>
+        <translation>Ukloni komentare</translation>
     </message>
 </context>
 <context>

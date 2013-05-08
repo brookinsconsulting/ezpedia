@@ -5,9 +5,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -73,7 +73,7 @@ class eZOEXMLInput extends eZXMLInputHandler
      /**
      * $nativeCustomTags
      * List of custom tags that have a native xhtml counterpart.
-     * {@link eZOEInputParser::tagNameCustomHelper()} hendels
+     * {@link eZOEInputParser::tagNameCustomHelper()} handles
      * input parsing.
      *
      * @static
@@ -147,48 +147,54 @@ class eZOEXMLInput extends eZXMLInputHandler
         {
             self::$browserType = false;
             $userAgent = eZSys::serverVariable( 'HTTP_USER_AGENT' );
+            // Opera 9.6+
             if ( strpos( $userAgent, 'Presto' ) !== false &&
                  preg_match('/Presto\/([0-9\.]+)/i', $userAgent, $browserInfo ) )
             {
                 if ( $browserInfo[1] >= 2.1 )
                     self::$browserType = 'Presto';
             }
-            else if ( strpos( $userAgent, 'Opera' ) !== false &&
-                      preg_match('/Opera\/([0-9\.]+)/i', $userAgent, $browserInfo ) )
-            {
-                // Presto is not part of the user agent string on Opera < 9.6
-                if ( $browserInfo[1] >= 9.5 )
-                    self::$browserType = 'Presto';
-            }
+            // IE 8.0+
             else if ( strpos( $userAgent, 'Trident' ) !== false &&
                       preg_match('/Trident\/([0-9\.]+)/i', $userAgent, $browserInfo ) )
             {
                 if ( $browserInfo[1] >= 4.0 )
                     self::$browserType = 'Trident';
             }
+            // IE 6 & 7
             else if ( strpos( $userAgent, 'MSIE' ) !== false &&
                       preg_match('/MSIE[ \/]([0-9\.]+)/i', $userAgent, $browserInfo ) )
             {
-                // IE didn't have Trident in it's user agent string untill IE 8.0
                 if ( $browserInfo[1] >= 6.0 )
                     self::$browserType = 'Trident';
             }
+            // Firefox 3+
             else if ( strpos( $userAgent, 'Gecko' ) !== false &&
                       preg_match('/rv:([0-9\.]+)/i', $userAgent, $browserInfo ) )
             {
-                if ( $browserInfo[1] >= 1.8 )
+                if ( $browserInfo[1] >= 1.9 )
                     self::$browserType = 'Gecko';
             }
+            // Safari 4+ (and Chrome)
             else if ( strpos( $userAgent, 'WebKit' ) !== false &&
-                      strpos( $userAgent, 'Mobile' ) === false && // Mobile webkit does not have rich text editing support
+                      strpos( $userAgent, 'Mobile' ) === false &&
                       strpos( $userAgent, 'Android' ) === false &&
                       strpos( $userAgent, 'iPad' ) === false &&
                       strpos( $userAgent, 'iPhone' ) === false &&
                       strpos( $userAgent, 'iPod' ) === false &&
                       preg_match('/WebKit\/([0-9\.]+)/i', $userAgent, $browserInfo ) )
             {
-                if ( $browserInfo[1] >= 522.0 )
+                if ( $browserInfo[1] >= 528.16 )
                     self::$browserType = 'WebKit';
+            }
+            // iOS 5+
+            else if ( strpos( $userAgent, 'AppleWebKit' ) !== false &&
+                      strpos( $userAgent, 'Mobile' ) !== false &&
+                      strpos( $userAgent, 'Android' ) === false &&//@todo: remove when Android is supported in TinyMCE
+                      preg_match('/AppleWebKit\/([0-9\.]+)/i', $userAgent, $browserInfo ) )
+            {
+                if ( $browserInfo[1] >= 534.46 )
+                    self::$browserType = 'MobileWebKit';
             }
             if ( self::$browserType === false )
                 eZDebug::writeNotice( 'Browser not supported: ' . $userAgent, __METHOD__ );
@@ -227,13 +233,12 @@ class eZOEXMLInput extends eZXMLInputHandler
      * version
      *
      * @static
-     * @return string ezoe verion number
+     * @return string ezoe version number
      */
     public static function version()
     {
-        $info = ezoeInfo::info();
-        $version = $info['version'];
-        return $version;
+        $info = eZExtension::extensionInfo( 'ezoe' );
+        return $info['version'];
     }
 
      /**
@@ -581,11 +586,11 @@ class eZOEXMLInput extends eZXMLInputHandler
             if ( $lastChild && $lastChild->nodeName === 'paragraph' )
             {
                 $textChild = $lastChild->lastChild;
-                // $textChild->textContent == " " : string(2) whitespace in Opera
+                // $textChild->textContent == "??" : string(2) whitespace in Opera
                 if ( !$textChild ||
                      ( $lastChild->childNodes->length == 1 &&
                        $textChild->nodeType == XML_TEXT_NODE &&
-                       ( $textChild->textContent == " " || $textChild->textContent == ' ' || $textChild->textContent == '' || $textChild->textContent == '&nbsp;' ) ) )
+                       ( $textChild->textContent == "??" || $textChild->textContent == ' ' || $textChild->textContent == '' || $textChild->textContent == '&nbsp;' ) ) )
                 {
                     $parent->removeChild( $lastChild );
                 }
@@ -739,7 +744,7 @@ class eZOEXMLInput extends eZXMLInputHandler
             $output = str_replace( '<p></p>', '<p><br /></p>', $output );
         }
 
-        $output = str_replace( "\n", '', $output );
+        $output = str_replace( array( "\n", "\xC2\xA0" ), array( '', '&nbsp;' ), $output );
 
         if ( $output )
         {
@@ -1220,7 +1225,10 @@ class eZOEXMLInput extends eZXMLInputHandler
                     }
 
                     if ( $alignment === 'center' )
+                    {
                         $objectAttr .= ' align="middle"';
+                        $className .= ' ezoeAlignmiddle'; // align="middle" is not taken into account by browsers on img
+                    }
                     else if ( $alignment )
                         $objectAttr .= ' align="' . $alignment . '"';
 
@@ -1322,7 +1330,7 @@ class eZOEXMLInput extends eZXMLInputHandler
                 }
                 else if ( $inline )
                 {
-                    $imageUrl = self::getCustomAttrbute( $tag, 'image_url' );
+                    $imageUrl = self::getCustomAttribute( $tag, 'image_url' );
                     if ( $imageUrl === null || !$imageUrl )
                     {
                         $imageUrl = self::getDesignFile( $inline );
@@ -1330,6 +1338,13 @@ class eZOEXMLInput extends eZXMLInputHandler
                     }
                     $output .= '<img src="' . $imageUrl . '" class="ezoeItemCustomTag ' . $name .
                                '" type="custom"' . $customAttributePart . $styleString . ' />';
+                }
+                else if ( $tag->textContent === '' && !$tag->hasChildNodes() )
+                {
+                    // for empty custom tag, just put a paragraph with the name
+                    // of the custom tag in to handle it in the rich text editor
+                    $output .= '<div class="ezoeItemCustomTag ' . $name . '" type="custom"' .
+                                    $customAttributePart . $styleString . '><p>' . $name . '</p></div>';
                 }
                 else
                 {
@@ -1491,7 +1506,8 @@ class eZOEXMLInput extends eZXMLInputHandler
                         if ( $cellContent === '' )
                         {
                             // tinymce has some issues with empty content in some browsers
-                            $cellContent = '<br mce_bogus="1" />';
+                            if ( self::browserSupportsDHTMLType() != 'Trident' )
+                                $cellContent = '<p><br data-mce-bogus="1"/></p>';
                         }
                         if ( $tableCell->nodeName === 'th' )
                         {
@@ -1520,8 +1536,11 @@ class eZOEXMLInput extends eZXMLInputHandler
                     $customAttributePart .= ' style="width:' . $width . ';"';
                 }*/
 
-                if ( is_string( $border ) )
+                if ( $border !== '' && is_string( $border ) )
                 {
+                    if ( $border === '0%' )
+                        $border = '0';// Strip % if 0 to make sure TinyMCE shows a dotted border
+
                     $customAttributePart .= ' border="' . $border . '"';
                 }
 
@@ -1639,7 +1658,7 @@ class eZOEXMLInput extends eZXMLInputHandler
 
                 $attributes[] = 'href="' . $href . '"';
                 // Also set mce_href for use by OE to make sure href attribute is not messed up by IE 6 / 7
-                $attributes[] = 'mce_href="' . $href . '"';
+                $attributes[] = 'data-mce-href="' . $href . '"';
                 if ( $target != '' )
                 {
                     $attributes[] = 'target="' . $target . '"';
@@ -1742,7 +1761,7 @@ class eZOEXMLInput extends eZXMLInputHandler
     /*
      * Get custom attribute value
      */
-    public static function getCustomAttrbute( $tag, $attributeName )
+    public static function getCustomAttribute( $tag, $attributeName )
     {
         foreach ( $tag->attributes as $attribute )
         {
@@ -1815,7 +1834,7 @@ class eZOEXMLInput extends eZXMLInputHandler
      * Figgure out if a custom tag is inline or not based on content.ini settings
      *
      * @param string $name Tag name
-     * @return bool|string Return 'image' if tag is inline image, otherwise true/false.
+     * @return bool|string Return 'image' path if tag is inline image, otherwise true/false.
      */
     public static function customTagIsInline( $name )
     {

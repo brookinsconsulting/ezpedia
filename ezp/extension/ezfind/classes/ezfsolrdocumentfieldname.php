@@ -2,26 +2,24 @@
 //
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Find
-// SOFTWARE RELEASE: 1.0.x
-// COPYRIGHT NOTICE: Copyright (C) 2007 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE NAME: eZ Publish Community Project
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
 //   Public License as published by the Free Software Foundation.
-//
+// 
 //   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //   GNU General Public License for more details.
-//
+// 
 //   You should have received a copy of version 2.0 of the GNU General
 //   Public License along with this program; if not, write to the Free
 //   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //   MA 02110-1301, USA.
-//
-//
 // ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 //
 
@@ -38,12 +36,8 @@ class ezfSolrDocumentFieldName
     /**
      *Constructor
      */
-    function ezfSolrDocumentFieldName()
+    function __construct()
     {
-        if ( self::$LookupTable === null )
-        {
-            $this->loadLookupTable();
-        }
     }
 
     /**
@@ -57,22 +51,18 @@ class ezfSolrDocumentFieldName
      */
     public function lookupSchemaName( $baseName, $fieldType )
     {
-        $key = md5( $baseName . '_' . $fieldType );
-        if ( !empty( self::$LookupTable[$key] ) )
-        {
-            return self::$LookupTable[$key];
-        }
-
         $solrFieldName = $baseName . $this->getPostFix( $fieldType );
-        $this->saveEntry( $baseName, $fieldType, $solrFieldName );
         return $solrFieldName;
     }
 
     /**
+     * @deprecated since 2.1
      * Get instance of PHPCreator to use for storing and loading
      * look up table.
      *
      * @return eZPHPCreator return instance of eZPHPCreator
+     * @todo Refactor with ezcPhpGenerator
+     *       http://ezcomponents.org/docs/api/trunk/classtrees_PhpGenerator.html
      */
     protected function getPHPCreatorInstance()
     {
@@ -87,6 +77,7 @@ class ezfSolrDocumentFieldName
     }
 
     /**
+     * @deprecated since 2.1
      * Load name lookup table from PHP cache.
      *
      * Stores the looup table to member variable self::$LookupTable
@@ -107,6 +98,7 @@ class ezfSolrDocumentFieldName
     }
 
     /**
+     * @deprecated since 2.1
      * Save new entry to lookup table
      *
      * @param string Base name
@@ -149,7 +141,21 @@ class ezfSolrDocumentFieldName
                                   'text' => 't',
                                   'boolean' => 'b',
                                   'date' => 'dt',
-                                  'random' => 'random' );
+                                  'random' => 'random',
+                                  'keyword' => 'k',
+                                  'lckeyword' => 'lk',
+                                  'textgen' => 'tg',
+                                  'alphaOnlySort' => 'as',
+                                  'tint' => 'ti',
+                                  'tfloat' => 'tf',
+                                  'tdouble' => 'td',
+                                  'tlong' => 'tl',
+                                  'tdate' => 'tdt',
+                                  'geopoint' => 'gpt',
+                                  'geohash' => 'gh',
+                                  'mstring' => 'ms',
+                                  'mtext' => 'mt',
+                                  'texticu' => 'tu');
 
     static $DefaultType = 'string';
     static $PHPCreator = null;

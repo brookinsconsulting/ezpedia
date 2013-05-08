@@ -2,9 +2,10 @@
 /**
  * File containing the ezpLanguageSwitcherCapable interface
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
  */
 
 /**
@@ -18,7 +19,10 @@ interface ezpLanguageSwitcherCapable
      * Constructs a ezpLanguageSwitcherCapable object.
      *
      * The $params array is the module-params array returned in the switchlanguage/to
-     * view. This is used to construct the destination URL.
+     * view. In addition, the value in $params['QueryString'] might also be taken
+     * into account (if present) to keep the query string while redirecting to
+     * another language.
+     * This is used to construct the destination URL.
      *
      * @param array $params
      * @return ezpLanguageSwitcherCapable
@@ -66,17 +70,17 @@ interface ezpLanguageSwitcherCapable
      * <code>
      *     Array
      *    (
-     *        [eng] => Array
-     *            (
-     *                [url] => /switchlanguage/to/eng/Demo-content
-     *                [text] => Eng
-     *            )
+     *    ????????[eng] => Array
+     *    ????????????????(
+     *    ????????????????????????[url] => /switchlanguage/to/eng/Demo-content
+     *    ????????????????????????[text] => Eng
+     *    ????????????????)
      *
-     *        [nor] => Array
-     *            (
-     *                [url] => /switchlanguage/to/nor/Demo-content
-     *                [text] => Nor
-     *            )
+     *    ????????[nor] => Array
+     *    ????????????????(
+     *    ????????????????????????[url] => /switchlanguage/to/nor/Demo-content
+     *    ????????????????????????[text] => Nor
+     *    ????????????????)
      *    )
      *
      * </code>

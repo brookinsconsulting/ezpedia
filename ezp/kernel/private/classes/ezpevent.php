@@ -2,9 +2,9 @@
 /**
  * File containing the ezpEvent class.
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version  4.2011
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
  * @package kernel
  */
 
@@ -13,7 +13,7 @@
  *
  * @internal
  * @since 4.5.0
- * @version  4.2011
+ * @version  2013.4
  * @package kernel
  */
 class ezpEvent
@@ -41,6 +41,13 @@ class ezpEvent
     protected static $instance = null;
 
     /**
+     * Load global events from ini settings or not
+     *
+     * @var bool
+     */
+    protected $loadGlobalEvents;
+
+    /**
      * Constructer
      * In most cases you would want to use {@see getInstance()} instead
      *
@@ -48,11 +55,25 @@ class ezpEvent
      */
     public function __construct( $loadGlobalEvents = true )
     {
-        if ( $loadGlobalEvents )
+        $this->loadGlobalEvents = $loadGlobalEvents;
+    }
+
+    /**
+     * Registers the event listeners defined the site.ini files.
+     */
+    public function registerEventListeners()
+    {
+        if ( $this->loadGlobalEvents )
         {
             $listeners = eZINI::instance()->variable( 'Event', 'Listeners' );
             foreach ( $listeners as $listener )
             {
+                // $listener may be empty if some override logic has been involved
+                if ( $listener == "" )
+                {
+                    continue;
+                }
+
                 // format from ini is seperated by @
                 list( $event, $callback ) = explode( '@', $listener );
                 $this->attach( $event, $callback );
@@ -133,11 +154,16 @@ class ezpEvent
             return $value;
         }
 
+        $params = func_get_args();
+        // We delete the first param, which is the name of the filter
+        // in order to retrieve only params for the listener
+        array_shift( $params );
+
         foreach ( $this->listeners[$name] as $listener )
         {
-            $value = call_user_func( $listener, $value );
+            $params[0] = call_user_func_array( $listener, $params );
         }
-        return $value;
+        return $params[0];
     }
 
     /**

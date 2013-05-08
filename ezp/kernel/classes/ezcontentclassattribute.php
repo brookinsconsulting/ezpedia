@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZContentClassAttribute class
-//
-// Created on: <16-Apr-2002 11:08:14 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZContentClassAttribute class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZContentClassAttribute ezcontentclassattribute.php
@@ -105,7 +87,8 @@ class eZContentClassAttribute extends eZPersistentObject
                                          'identifier' => array( 'name' => 'Identifier',
                                                                 'datatype' => 'string',
                                                                 'default' => '',
-                                                                'required' => true ),
+                                                                'required' => true,
+                                                                'max_length' => 50 ),
                                          'placement' => array( 'name' => 'Position',
                                                                'datatype' => 'integer',
                                                                'default' => 0,
@@ -310,10 +293,9 @@ class eZContentClassAttribute extends eZPersistentObject
         $this->setAttribute( 'serialized_description_list', $this->DescriptionList->serializeNames() );
         $this->setAttribute( 'serialized_data_text', $this->DataTextI18nList->serializeNames() );
 
-        $stored = eZPersistentObject::store( $fieldFilters );
+        $stored = parent::store( $fieldFilters );
 
         // store the content data for this attribute
-        $info = $dataType->attribute( "information" );
         $dataType->storeClassAttribute( $this, $this->attribute( 'version' ) );
 
         return $stored;
@@ -360,10 +342,9 @@ class eZContentClassAttribute extends eZPersistentObject
         $this->setAttribute( 'serialized_description_list', $this->DescriptionList->serializeNames() );
         $this->setAttribute( 'serialized_data_text', $this->DataTextI18nList->serializeNames() );
 
-        eZPersistentObject::store();
+        parent::store();
 
         // store the content data for this attribute
-        $info = $dataType->attribute( "information" );
         $dataType->storeVersionedClassAttribute( $this, $version );
         $db->commit();
     }
@@ -382,7 +363,7 @@ class eZContentClassAttribute extends eZPersistentObject
             $db = eZDB::instance();
             $db->begin();
             $dataType->deleteStoredClassAttribute( $this, $this->Version );
-            eZPersistentObject::remove();
+            $this->remove();
             $db->commit();
             return true;
         }
@@ -968,6 +949,12 @@ class eZContentClassAttribute extends eZPersistentObject
         return self::$identifierHash;
     }
 
+    /**
+     * Initialize the attribute in the existing objects.
+     *
+     * @param mixed $objects not used, the existing objects are fetched if
+     *        necessary (depending on the datatype of the attribute).
+     */
     function initializeObjectAttributes( &$objects = null )
     {
         $classAttributeID = $this->ID;
@@ -1040,38 +1027,47 @@ class eZContentClassAttribute extends eZPersistentObject
         }
         else
         {
-            if ( !is_array( $objects ) )
+            $limit = 100;
+            $offset = 0;
+            while ( true )
             {
-                $objects = eZContentObject::fetchSameClassList( $classID );
-            }
-
-            foreach ( $objects as $object )
-            {
-                $contentobjectID = $object->attribute( 'id' );
-                $objectVersions = $object->versions();
-                // the start version ID, to make sure one attribute in different version has same id.
-                $startAttributeID = array();
-                foreach ( $objectVersions as $objectVersion )
+                $contentObjects = eZContentObject::fetchSameClassList( $classID, true, $offset, $limit );
+                if ( empty( $contentObjects ) )
                 {
-                    $translations = $objectVersion->translations( false );
-                    $version = $objectVersion->attribute( 'version' );
-                    foreach ( $translations as $translation )
+                    break;
+                }
+
+                foreach ( $contentObjects as $object )
+                {
+                    $contentobjectID = $object->attribute( 'id' );
+                    $objectVersions = $object->versions();
+                    // the start version ID, to make sure one attribute in different version has same id.
+                    $startAttributeID = array();
+                    foreach ( $objectVersions as $objectVersion )
                     {
-                        $objectAttribute = eZContentObjectAttribute::create( $classAttributeID, $contentobjectID, $version, $translation );
-                        if( array_key_exists( $translation, $startAttributeID ) )
+                        $translations = $objectVersion->translations( false );
+                        $version = $objectVersion->attribute( 'version' );
+                        foreach ( $translations as $translation )
                         {
-                            $objectAttribute->setAttribute( 'id', $startAttributeID[$translation] );
+                            $objectAttribute = eZContentObjectAttribute::create( $classAttributeID, $contentobjectID, $version, $translation );
+                            if( array_key_exists( $translation, $startAttributeID ) )
+                            {
+                                $objectAttribute->setAttribute( 'id', $startAttributeID[$translation] );
+                            }
+                            $objectAttribute->setAttribute( 'language_code', $translation );
+                            $objectAttribute->initialize();
+                            $objectAttribute->store();
+                            if( !array_key_exists( $translation, $startAttributeID ) )
+                            {
+                                $startAttributeID[$translation] = $objectAttribute->attribute( 'id' );
+                            }
+                            $objectAttribute->postInitialize();
                         }
-                        $objectAttribute->setAttribute( 'language_code', $translation );
-                        $objectAttribute->initialize();
-                        $objectAttribute->store();
-                        if( !array_key_exists( $translation, $startAttributeID ) )
-                        {
-                            $startAttributeID[$translation] = $objectAttribute->attribute( 'id' );
-                        }
-                        $objectAttribute->postInitialize();
                     }
                 }
+
+                $offset += $limit;
+                eZContentObject::clearCache();
             }
         }
     }

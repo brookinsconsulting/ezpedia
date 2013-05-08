@@ -1,4 +1,13 @@
 <?php
+/**
+ * File containing the eZFinishUserRegisterType class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
+
 /*!
   \class eZFinishUserRegisterType ezfinishuserregistertype.php
   \brief Event type for finishing register type
@@ -21,10 +30,10 @@ class eZFinishUserRegisterType extends eZWorkflowEventType {
         $objectID = $parameterList['object_id'];
         $object = eZContentObject::fetch( $objectID );
         // @todo: improve the possible performance.
-        if( $object->attribute( 'class_name' ) == 'user' )
+        if( $object->attribute( 'class_identifier' ) == 'user' )
         {
             $result = eZOperationHandler::execute( 'user', 'register', array( 'user_id' => $objectID ) );
-            return $result;
+            return $result['status'];
         }
     }
 

@@ -2,26 +2,24 @@
 //
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Find
-// SOFTWARE RELEASE: 1.0.x
-// COPYRIGHT NOTICE: Copyright (C) 2007 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE NAME: eZ Publish Community Project
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
 //   Public License as published by the Free Software Foundation.
-//
+// 
 //   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //   GNU General Public License for more details.
-//
+// 
 //   You should have received a copy of version 2.0 of the GNU General
 //   Public License along with this program; if not, write to the Free
 //   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //   MA 02110-1301, USA.
-//
-//
 // ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 //
 
@@ -61,6 +59,8 @@ class ezfSearchResultInfo
     {
         return array( 'facet_fields',
                       'facet_queries',
+                      'facet_dates',
+                      'facet_ranges',
                       'engine',
                       'hasError',
                       'error',
@@ -70,7 +70,10 @@ class ezfSearchResultInfo
                       // but a border case is present when "collation"
                       // is also a word searched for and not present in the
                       // spellcheck dictionary/index -- Solr php response writer "bug"
-                      'spellcheck_collation');
+                      'spellcheck_collation',
+                      'interestingTerms',
+                      'clusters'
+            );
     }
 
     /**
@@ -100,7 +103,7 @@ class ezfSearchResultInfo
                 {
                     return $this->ResultArray['error'];
                 }
-            };
+            }
 
             case 'facet_queries':
             {
@@ -116,7 +119,7 @@ class ezfSearchResultInfo
                 }
 
                 $facetArray = array();
-                foreach( $this->ResultArray['facet_counts']['facet_queries'] as $query => $count )
+                foreach ( $this->ResultArray['facet_counts']['facet_queries'] as $query => $count )
                 {
                     list( $field, $fieldValue ) = explode( ':', $query );
                     $fieldInfo = array( 'field' => $field,
@@ -144,7 +147,7 @@ class ezfSearchResultInfo
                 }
 
                 $facetArray = array();
-                foreach( $this->ResultArray['facet_counts']['facet_fields'] as $field => $facetField )
+                foreach ( $this->ResultArray['facet_counts']['facet_fields'] as $field => $facetField )
                 {
                     switch( $field )
                     {
@@ -155,19 +158,20 @@ class ezfSearchResultInfo
                                                 'count' => count( $facetField ),
                                                 'nameList' => array(),
                                                 'queryLimit' => array(),
+                                                'fieldList' => array(),
                                                 'countList' => array() );
-                            foreach( $facetField as $contentClassID => $count )
+                            foreach ( $facetField as $contentClassID => $count )
                             {
                                 if ( $contentClass = eZContentClass::fetch( $contentClassID ) )
                                 {
                                     $fieldInfo['nameList'][$contentClassID] = $contentClass->attribute( 'name' );
                                     $fieldInfo['queryLimit'][$contentClassID] = 'contentclass_id:' . $contentClassID;
                                     $fieldInfo['countList'][$contentClassID] = $count;
+                                    $fieldInfo['fieldList'][$contentClassID] = 'contentclass_id';
                                 }
                                 else
                                 {
-                                    eZDebug::writeWarning( 'Could not fetch eZContentClass: ' . $contentClassID,
-                                                           'ezfSearchResultInfo::attribute()' );
+                                    eZDebug::writeWarning( 'Could not fetch eZContentClass: ' . $contentClassID, __METHOD__ );
                                 }
                             }
                             $facetArray[] = $fieldInfo;
@@ -182,14 +186,17 @@ class ezfSearchResultInfo
                                                 'count' => count( $facetField ),
                                                 'nameList' => array(),
                                                 'queryLimit' => array(),
+                                                'fieldList' => array(),
                                                 'countList' => array() );
-                            foreach( $facetField as $installationID => $count )
+                            foreach ( $facetField as $installationID => $count )
                             {
                                 $fieldInfo['nameList'][$installationID] = isset( $siteNameMapList[$installationID] ) ?
                                     $siteNameMapList[$installationID] : $installationID;
                                 $fieldInfo['queryLimit'][$installationID] = 'installation_id:' . $installationID;
                                 $fieldInfo['countList'][$installationID] = $count;
+                                $fieldInfo['fieldList'][$installationID] = 'installation_id';
                             }
+                            $facetArray[] = $fieldInfo;
                         } break;
 
                         // author facet field
@@ -199,19 +206,20 @@ class ezfSearchResultInfo
                                                 'count' => count( $facetField ),
                                                 'nameList' => array(),
                                                 'queryLimit' => array(),
+                                                'fieldList' => array(),
                                                 'countList' => array() );
-                            foreach( $facetField as $ownerID => $count )
+                            foreach ( $facetField as $ownerID => $count )
                             {
                                 if ( $owner = eZContentObject::fetch( $ownerID ) )
                                 {
                                     $fieldInfo['nameList'][$ownerID] = $owner->attribute( 'name' );
                                     $fieldInfo['queryLimit'][$ownerID] = 'owner_id:' . $ownerID;
                                     $fieldInfo['countList'][$ownerID] = $count;
+                                    $fieldInfo['fieldList'][$ownerID] = 'owner_id';
                                 }
                                 else
                                 {
-                                    eZDebug::writeWarning( 'Could not fetch owner ( eZContentObject ): ' . $ownerID,
-                                                           'ezfSearchResultInfo::attribute()' );
+                                    eZDebug::writeWarning( 'Could not fetch owner ( eZContentObject ): ' . $ownerID, __METHOD__ );
                                 }
                             }
                             $facetArray[] = $fieldInfo;
@@ -224,11 +232,13 @@ class ezfSearchResultInfo
                                                 'count' => count( $facetField ),
                                                 'nameList' => array(),
                                                 'queryLimit' => array(),
+                                                'fieldList' => array(),
                                                 'countList' => array() );
-                            foreach( $facetField as $languageCode => $count )
+                            foreach ( $facetField as $languageCode => $count )
                             {
                                 $fieldInfo['nameList'][$languageCode] = $languageCode;
                                 $fieldInfo['queryLimit'][$languageCode] = 'language_code:' . $languageCode;
+                                $fieldInfo['fieldList'][$languageCode] = 'language_code';
                                 $fieldInfo['countList'][$languageCode] = $count;
                             }
                             $facetArray[] = $fieldInfo;
@@ -239,11 +249,13 @@ class ezfSearchResultInfo
                             $fieldInfo = array( 'field' => $attr,
                                                 'count' => count( $facetField ),
                                                 'queryLimit' => array(),
+                                                'fieldList' => array(),
                                                 'nameList' => array(),
                                                 'countList' => array() );
-                            foreach( $facetField as $value => $count )
+                            foreach ( $facetField as $value => $count )
                             {
                                 $fieldInfo['nameList'][$value] = $value;
+                                $fieldInfo['fieldList'][$value] = $field;
                                 $fieldInfo['queryLimit'][$value] = $field . ':' . $value;
                                 $fieldInfo['countList'][$value] = $count;
                             }
@@ -281,7 +293,7 @@ class ezfSearchResultInfo
                 {
                     // work around border case if 'collation' is searched for but does not exist in the spell check index
                     // the collation string is the last element of the suggestions array
-                    return end($this->ResultArray['spellcheck']['suggestions']);
+                    return end( $this->ResultArray['spellcheck']['suggestions'] );
 
                 }
                 else
@@ -296,6 +308,40 @@ class ezfSearchResultInfo
                 if ( isset( $this->ResultArray['interestingTerms'] ) )
                 {
                     return $this->ResultArray['interestingTerms'];
+                }
+                else
+                {
+                    return false;
+                }
+            } break;
+            case 'facet_dates':
+            {
+                if ( isset( $this->ResultArray['facet_dates'] ) )
+                {
+                    return $this->ResultArray['facet_dates'];
+                }
+                else
+                {
+                    return false;
+                }
+            } break;
+
+            case 'facet_ranges':
+            {
+                if ( isset( $this->ResultArray['facet_counts']['facet_ranges'] ) )
+                {
+                    return $this->ResultArray['facet_counts']['facet_ranges'];
+                }
+                else
+                {
+                    return false;
+                }
+            } break;
+            case 'clusters':
+            {
+                if ( isset( $this->ResultArray['clusters'] ) )
+                {
+                    return $this->ResultArray['clusters'];
                 }
                 else
                 {

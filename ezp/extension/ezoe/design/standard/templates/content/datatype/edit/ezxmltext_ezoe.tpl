@@ -66,8 +66,6 @@
     {ezscript( $dependency_js_list )}
     <!-- Init TinyMCE script -->
     <script type="text/javascript">
-    <!--
-
     var eZOeAttributeSettings, eZOeGlobalSettings = {ldelim}
         mode : "none",
         theme : "ez",
@@ -87,7 +85,7 @@
         theme_advanced_toolbar_floating : true,
         theme_advanced_resize_horizontal : false,
         theme_advanced_resizing : true,
-        valid_elements : "-strong/-b/-bold[class|customattributes],-em/-i/-emphasize[class|customattributes],span[id|type|class|title|customattributes|align|style|view|inline|alt],sub[class|type|customattributes|align],sup[class|type|customattributes|align],u[class|type|customattributes|align],pre[class|title|customattributes],ol[class|customattributes],ul[class|customattributes],li[class|customattributes],a[href|name|target|view|title|class|id|customattributes],p[class|customattributes|align|style],img[id|type|class|title|customattributes|align|style|view|inline|alt|src],table[class|border|width|id|title|customattributes|ezborder|bordercolor|align|style],tr,th[class|width|rowspan|colspan|customattributes|align|style],td[class|width|rowspan|colspan|customattributes|align|style],div[id|type|class|title|customattributes|align|style|view|inline|alt],h1[class|customattributes|align|style],h2[class|customattributes|align|style],h3[class|customattributes|align|style],h4[class|customattributes|align|style],h5[class|customattributes|align|style],h6[class|customattributes|align|style],br",
+        valid_elements : "-strong/b[class|customattributes],-em/i[class|customattributes],span[id|type|class|title|customattributes|align|style|view|inline|alt],sub[class|type|customattributes|align],sup[class|type|customattributes|align],u[class|type|customattributes|align],pre[class|title|customattributes],ol[class|customattributes],ul[class|customattributes],li[class|customattributes],a[href|name|target|view|title|class|id|customattributes],p[class|customattributes|align|style],img[id|type|class|title|customattributes|align|style|view|inline|alt|src],table[class|border|width|id|title|customattributes|ezborder|bordercolor|align|style],tr[class|customattributes],th[class|width|rowspan|colspan|customattributes|align|style],td[class|width|rowspan|colspan|customattributes|align|style],div[id|type|class|title|customattributes|align|style|view|inline|alt],h1[class|customattributes|align|style],h2[class|customattributes|align|style],h3[class|customattributes|align|style],h4[class|customattributes|align|style],h5[class|customattributes|align|style],h6[class|customattributes|align|style],br",
         valid_child_elements : "a[%itrans_na],table[tr],tr[td|th],ol/ul[li],h1/h2/h3/h4/h5/h6/pre/strong/b/p/em/i/u/span/sub/sup/li[%itrans|#text]div/pre/td/th[%btrans|%itrans|#text]",
         // cleanup : false,
         // cleanup_serializer : 'xml',
@@ -133,6 +131,14 @@
         paste_preprocess : function(pl, o) {ldelim}
             // Strip <a> HTML tags from clipboard content (Happens on Internet Explorer)
             o.content = o.content.replace( /(\s[a-z]+=")<a\s[^>]+>([^<]+)<\/a>/gi, '$1$2' );
+            // Strip namespaced tags, avoids issues with Word's "Smart Tags"
+            o.content = o.content.replace(/<\/?[^<>\s]+:[^<>]+>/g, '');
+        {rdelim},
+        paste_postprocess: function(pl, o) {ldelim}
+            // removes \n after <br />, this is for paste of text
+            // with soft carriage return from Word in Firefox
+            // see issue http://issues.ez.no/18702
+            o.node.innerHTML = o.node.innerHTML.replace(/<br\s?.*\/?>\n/gi,'<br>'); 
         {rdelim}
 
     {rdelim};
@@ -167,7 +173,6 @@
     }
 
     {/literal}
-    //-->
     </script>
     {/run-once}
 
@@ -182,8 +187,6 @@
             <input class="button{if $layout_settings['buttons']|contains('disable')} hide{/if}" type="submit" name="CustomActionButton[{$attribute.id}_disable_editor]" value="{'Disable editor'|i18n('design/standard/content/datatype')}" />
         {/if}
         <script type="text/javascript">
-        <!--
-
         eZOeAttributeSettings = eZOeGlobalSettings;
         eZOeAttributeSettings['ez_attribute_id'] = {$attribute.id};
         eZOeAttributeSettings['theme_advanced_buttons1'] = "{$layout_settings['buttons']|implode(',')}";
@@ -191,8 +194,6 @@
         eZOeAttributeSettings['theme_advanced_toolbar_location'] = "{$layout_settings['toolbar_location']}";
 
         eZOeToggleEditor( '{$attribute_base}_data_text_{$attribute.id}', eZOeAttributeSettings );
-
-        -->
         </script>
     </div>
 <!-- End editor -->

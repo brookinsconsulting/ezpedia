@@ -2,9 +2,10 @@
 /**
  * File containing the language_switcher template operator
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
  */
 
 class ezpLanguageSwitcherOperator
@@ -43,6 +44,10 @@ class ezpLanguageSwitcherOperator
                 {
                     return;
                 }
+
+                // Append original query string if no query string has already been passed in $destination
+                if ( strpos( $destination, '?' ) === false )
+                    $destination .= eZSys::queryString();
 
                 $className = $ini->variable( 'RegionalSettings', 'LanguageSwitcherClass' );
                 $operatorValue = call_user_func( array( $className, 'setupTranslationSAList' ), $destination );

@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZContentObjectTrashNode class
-//
-// Created on: <20-Sep-2006 00:00:00 rl>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZContentObjectTrashNode class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZContentObjectTrashNode ezcontentobjecttrashnode.php
@@ -168,13 +147,23 @@ class eZContentObjectTrashNode extends eZContentObjectTreeNode
         $db->begin();
 
         $contentObject = $this->attribute( 'object' );
-        $contentobjectAttributes = $contentObject->allContentObjectAttributes( $contentObject->attribute( 'id' ) );
-        foreach ( $contentobjectAttributes as $contentobjectAttribute )
+        $offset = 0;
+        $limit = 20;
+        while (
+            $contentobjectAttributes = $contentObject->allContentObjectAttributes(
+                $contentObject->attribute( 'id' ), true,
+                array( 'limit' => $limit, 'offset' => $offset )
+            )
+        )
         {
-            $dataType = $contentobjectAttribute->dataType();
-            if ( !$dataType )
-                continue;
-            $dataType->trashStoredObjectAttribute( $contentobjectAttribute );
+            foreach ( $contentobjectAttributes as $contentobjectAttribute )
+            {
+                $dataType = $contentobjectAttribute->dataType();
+                if ( !$dataType )
+                    continue;
+                $dataType->trashStoredObjectAttribute( $contentobjectAttribute );
+            }
+            $offset += $limit;
         }
 
         $db->commit();
@@ -188,11 +177,6 @@ class eZContentObjectTrashNode extends eZContentObjectTreeNode
         $db->begin();
         $db->query( "DELETE FROM ezcontentobject_trash WHERE contentobject_id='$contentObjectID'" );
         $db->commit();
-    }
-
-    static function fetchListForObject( $objectID, $asObject = true, $offset = false, $limit = false )
-    {
-        return false;
     }
 
     /*
@@ -230,13 +214,6 @@ class eZContentObjectTrashNode extends eZContentObjectTreeNode
             return null;
         }
 
-        $useVersionName     = true;
-        $versionNameTables  = eZContentObjectTreeNode::createVersionNameTablesSQLString ( $useVersionName );
-        $versionNameTargets = eZContentObjectTreeNode::createVersionNameTargetsSQLString( $useVersionName );
-        $versionNameJoins   = eZContentObjectTreeNode::createVersionNameJoinsSQLString  ( $useVersionName, false, false, false, 'ezcot' );
-
-        $languageFilter = ' AND ' . eZContentLanguage::languagesSQLFilter( 'ezcontentobject' );
-
         $objectNameFilterSQL = eZContentObjectTreeNode::createObjectNameFilterConditionSQLString( $objectNameFilter );
 
         $limitation = ( isset( $params['Limitation']  ) && is_array( $params['Limitation']  ) ) ? $params['Limitation']: false;
@@ -253,29 +230,30 @@ class eZContentObjectTrashNode extends eZContentObjectTreeNode
                         ezcontentobject.*,
                         ezcot.*,
                         ezcontentclass.serialized_name_list as class_serialized_name_list,
-                        ezcontentclass.identifier as class_identifier
-                        $versionNameTargets
+                        ezcontentclass.identifier as class_identifier,
+                        ezcontentobject_name.name as name,
+                        ezcontentobject_name.real_translation
                         $sortingInfo[attributeTargetSQL] ";
         }
         $query .= "FROM
-                        ezcontentobject_trash ezcot,
-                        ezcontentobject,
-                        ezcontentclass
-                        $versionNameTables
+                        ezcontentobject_trash ezcot
+                        INNER JOIN ezcontentobject ON ezcot.contentobject_id = ezcontentobject.id
+                        INNER JOIN ezcontentclass ON ezcontentclass.version = 0 AND ezcontentclass.id = ezcontentobject.contentclass_id
+                        INNER JOIN ezcontentobject_name ON (
+                            ezcot.contentobject_id = ezcontentobject_name.contentobject_id AND
+                            ezcot.contentobject_version = ezcontentobject_name.content_version
+                        )
                         $sortingInfo[attributeFromSQL]
                         $attributeFilter[from]
                         $sqlPermissionChecking[from]
                    WHERE
-                        ezcontentclass.version=0 AND
-                        ezcot.contentobject_id = ezcontentobject.id  AND
-                        ezcontentclass.id = ezcontentobject.contentclass_id AND
                         $sortingInfo[attributeWhereSQL]
                         $attributeFilter[where]
-                        $versionNameJoins
+                        " . eZContentLanguage::sqlFilter( 'ezcontentobject_name', 'ezcontentobject' ) . "
                         $sqlPermissionChecking[where]
                         $objectNameFilterSQL
-                        $languageFilter
-                        ";
+                        AND " . eZContentLanguage::languagesSQLFilter( 'ezcontentobject' );
+
         if ( !$asCount && $sortingInfo['sortingFields'] && strlen( $sortingInfo['sortingFields'] ) > 5  )
             $query .= " ORDER BY $sortingInfo[sortingFields]";
 
@@ -314,6 +292,9 @@ class eZContentObjectTrashNode extends eZContentObjectTreeNode
         return eZContentObjectTrashNode::trashList( $params, true );
     }
 
+    /**
+     * @return eZContentObjectTreeNode|null
+     */
     function originalParent()
     {
         if ( $this->originalNodeParent === 0 )
@@ -351,6 +332,28 @@ class eZContentObjectTrashNode extends eZContentObjectTreeNode
         $path = $this->attribute( 'path_identification_string' );
         $path = substr( $path, 0, strrpos( $path, '/') );
         return $path;
+    }
+
+    /**
+     * @param $contentObjectID
+     * @param bool $asObject
+     * @param bool $contentObjectVersion
+     * @return eZContentObjectTrashNode|null
+     */
+    public static function fetchByContentObjectID( $contentObjectID, $asObject = true, $contentObjectVersion = false )
+    {
+        $conds = array( 'contentobject_id' => $contentObjectID );
+        if ( $contentObjectVersion !== false )
+        {
+            $conds['contentobject_version'] = $contentObjectVersion;
+        }
+
+        return self::fetchObject(
+            self::definition(),
+            null,
+            $conds,
+            $asObject
+        );
     }
 
     protected $originalNodeParent = 0;

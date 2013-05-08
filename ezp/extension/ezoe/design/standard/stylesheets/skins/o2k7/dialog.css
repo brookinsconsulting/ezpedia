@@ -68,7 +68,6 @@ td.charmap, #charmap a {width:18px; height:18px; color:#000; border:1px solid #A
 #charmap #codeN {font-size:10px; font-family:Arial,Helvetica,sans-serif; text-align:center}
 #charmap #codeV {font-size:40px; height:80px; border:1px solid #AAA; text-align:center}
 
-
 /* Source */
 .wordWrapCode {vertical-align:middle; border:1px none #000000; background:transparent;}
 .mceActionPanel {margin-top:5px;}
@@ -84,7 +83,6 @@ td.charmap, #charmap a {width:18px; height:18px; color:#000; border:1px solid #A
 .tabs a:link, .tabs a:visited, .tabs a:hover {color:black;}
 
 /* Panels */
-.panel_wrapper div.panel {display:none;}
 .panel_wrapper div.current {display:block; width:100%; height:auto; overflow:visible;}
 .panel_wrapper {border:1px solid #919B9C; border-top:0px; padding:10px; padding-top:5px; clear:both; background:white;}
 .panel_wrapper div.current:after /* Terminate floating elements flow */
@@ -115,11 +113,12 @@ h3 {font-size:14px;}
 #plugintable, #about #plugintable td {border:1px solid #919B9C;}
 #plugintable {width:96%; margin-top:10px;}
 #pluginscontainer {height:290px; overflow:auto;}
-#colorpicker #preview {float:right; width:50px; height:14px;line-height:1px; border:1px solid black; margin-left:5px;}
+#colorpicker #preview {display:inline-block; padding-left:40px; height:14px; border:1px solid black; margin-left:5px; margin-right: 5px}
+#colorpicker #previewblock {position: relative; top: -3px; padding-left:5px; padding-top: 0px; display:inline}
+#colorpicker #preview_wrapper { text-align:center; padding-top:4px; white-space: nowrap}
 #colorpicker #colors {float:left; border:1px solid gray; cursor:crosshair;}
 #colorpicker #light {border:1px solid gray; margin-left:5px; float:left;width:15px; height:150px; cursor:crosshair;}
 #colorpicker #light div {overflow:hidden;}
-#colorpicker #previewblock {float:right; padding-left:10px; height:20px;}
 #colorpicker .panel_wrapper div.current {height:175px;}
 #colorpicker #namedcolors {width:150px;}
 #colorpicker #namedcolors a {display:block; float:left; width:10px; height:10px; margin:1px 1px 0 0; overflow:hidden;}
@@ -254,6 +253,17 @@ div.object-right /* Used for floating images and other content elements to the r
     margin: 0.25em 0 0.25em 0.25em;
     float: right;
     clear: right;
+}
+
+div.object-center
+{
+    text-align:center;
+    margin: 0.25em 0 0.25em 0;
+}
+
+div.object-none
+{
+    margin: 0.25em 0.25em 0.25em 0;
 }
 
 div.split

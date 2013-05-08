@@ -1,8 +1,8 @@
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Image Editor extension for eZ Publish
-// SOFTWARE RELEASE: 1.3.0-dev
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE: 5.1.0-rc1
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -87,13 +87,15 @@ ezie.gui.config.zoom_impl = function() {
             jImgBlock.css('margin-top', '0px');
         }
 
-        if (selection != null) {
+        //if there is fist layer, meaning the select button has been clicked.
+        // This can solve the issue of clicking zoom after clicking select button but not doing selection.
+        // ref: http://issues.ez.no/IssueView.php?Id=18302
+        if ( $('.jcrop-tracker:first') ) {
             $.log('2| sel opts :' + selectionOptions);
             ezie.gui.config.bind.set_tool_select(selection, selectionOptions, ezie.gui.config.bind.select_last_was_wm);
             if (selectionData) {
                 $('.jcrop-tracker:first').html(selectionData);
             }
-
         }
 
         $.log('new zoom = ' + zoom + "% on ["+realWidth+" x "+realHeight+"]");

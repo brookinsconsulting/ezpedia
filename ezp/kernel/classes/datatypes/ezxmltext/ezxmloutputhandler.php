@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZXMLOutputHandler class
-//
-// Created on: <06-Nov-2002 15:10:02 wy>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZXMLOutputHandler class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZXMLOutputHandler ezxmloutputhandler
@@ -107,7 +86,7 @@ class eZXMLOutputHandler
             } break;
             case 'aliased_handler':
             {
-                if ( $this->AliasHandler === null )
+                if ( $this->AliasedHandler === null )
                 {
                     $this->AliasedHandler = eZXMLText::inputHandler( $this->XMLData,
                                                                       $this->AliasedType,
@@ -130,7 +109,8 @@ class eZXMLOutputHandler
     function &viewTemplateName()
     {
         $name = 'ezxmltext';
-        $suffix = $this->viewTemplateSuffix();
+        $contentobjectAttribute = false;
+        $suffix = $this->viewTemplateSuffix( $contentobjectAttribute );
         if ( $suffix !== false )
         {
             $name .= '_' . $suffix;
@@ -262,7 +242,17 @@ class eZXMLOutputHandler
 
         if ( count( $relatedObjectIDArray ) > 0 )
         {
-            $this->ObjectArray = eZContentObject::fetchIDArray( $relatedObjectIDArray );
+            if ( $this->ContentObjectAttribute instanceof eZContentObjectAttribute )
+            {
+                $this->ObjectArray = eZContentObject::fetchIDArray(
+                    $relatedObjectIDArray, true,
+                    $this->ContentObjectAttribute->attribute( 'language_code' )
+                );
+            }
+            else
+            {
+                $this->ObjectArray = eZContentObject::fetchIDArray( $relatedObjectIDArray );
+            }
         }
 
         $nodeIDArray = array_merge(

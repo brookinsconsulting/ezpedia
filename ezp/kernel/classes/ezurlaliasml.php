@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZURLAlias class
-//
-// Created on: <24-Jan-2007 16:36:24 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZURLAlias class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZURLAliasML ezurlaliasml.php
@@ -215,7 +194,7 @@ class eZURLAliasML extends eZPersistentObject
      */
     function setAttribute( $name, $value )
     {
-        eZPersistentObject::setAttribute( $name, $value );
+        parent::setAttribute( $name, $value );
         if ( $name == 'text' )
         {
             $this->TextMD5 = md5( eZURLAliasML::strtolower( $value ) );
@@ -258,7 +237,7 @@ class eZURLAliasML extends eZPersistentObject
                 $this->ActionType = 'nop';
         }
 
-        eZPersistentObject::store( $fieldFilters );
+        parent::store( $fieldFilters );
     }
 
     /*!
@@ -1068,6 +1047,7 @@ class eZURLAliasML extends eZPersistentObject
         $filterSQL = trim( eZContentLanguage::languagesSQLFilter( 'ezurlalias_ml', 'lang_mask' ) );
         $query = "SELECT id, parent, lang_mask, text, action FROM ezurlalias_ml WHERE ( {$filterSQL} ) AND action in ( {$actionStr} ) AND is_original = 1 AND is_alias=0";
         $rows = $db->arrayQuery( $query );
+        $objects = eZContentObject::fetchByNodeID( $actionValues );
         $actionMap = array();
         foreach ( $rows as $row )
         {
@@ -1077,18 +1057,16 @@ class eZURLAliasML extends eZPersistentObject
             $actionMap[$action][] = $row;
         }
 
-        if ( $locale !== null && is_string( $locale ) && !empty( $locale ) )
+        // Ordered map, keys ensure uniqueness but the order in which the elements are introduced is important
+        $prioritizedLanguages = array();
+        foreach ( eZContentLanguage::prioritizedLanguages() as $language )
         {
-            $selectedLanguage = eZContentLanguage::fetchByLocale( $locale );
-            $prioritizedLanguages = $selectedLanguage !== false ? array( $selectedLanguage ): eZContentLanguage::prioritizedLanguages();
-        }
-        else
-        {
-            $prioritizedLanguages = eZContentLanguage::prioritizedLanguages();
+            $prioritizedLanguages[$language->attribute( "id" )] = $language;
         }
 
         $path = array();
         $lastID = false;
+        $lastActionValue = end( $actionValues );
         foreach ( $actionValues as $actionValue )
         {
             $action = $actionName . ":" . $actionValue;
@@ -1099,19 +1077,30 @@ class eZURLAliasML extends eZPersistentObject
             }
             $actionRows = $actionMap[$action];
             $defaultRow = null;
-            foreach( $prioritizedLanguages as $language )
+
+            if ( $lastActionValue === $actionValue && $locale !== null && is_string( $locale ) && !empty( $locale ) )
+            {
+                $selectedLanguage = eZContentLanguage::fetchByLocale( $locale );
+                // Add $selectedLanguage on top of $prioritizedLanguages to take it into account with the highest priority
+                if ( $selectedLanguage instanceof eZContentLanguage )
+                {
+                    $prioritizedLanguages = array( $selectedLanguage->attribute( "id" ) => $selectedLanguage ) + $prioritizedLanguages;
+                }
+            }
+
+            foreach ( $prioritizedLanguages as $languageId => $language )
             {
                 foreach ( $actionRows as $row )
                 {
                     $langMask   = (int)$row['lang_mask'];
-                    $wantedMask = (int)$language->attribute( 'id' );
+                    $wantedMask = (int)$languageId;
                     if ( ( $wantedMask & $langMask ) > 0 )
                     {
                         $defaultRow = $row;
                         break 2;
                     }
-                    // If the 'always available' bit is set then choose it as the default
-                    if ( ($langMask & 1) > 0 )
+                    // If the 'always available' bit is set AND it corresponds to the main language, then choose it as the default
+                    if ( $langMask & 1 && $objects[$actionValue]->attribute( 'initial_language_id' ) & $langMask )
                     {
                         $defaultRow = $row;
                     }
@@ -1232,7 +1221,7 @@ class eZURLAliasML extends eZPersistentObject
             $table     = "e" . $i;
             $langMask  = trim( eZContentLanguage::languagesSQLFilter( $table, 'lang_mask' ) );
 
-            $selects[] = eZURLAliasML::generateFullSelect( $table, $i, $len );
+            $selects[] = eZURLAliasML::generateFullSelect( $table );
             $tables[]  = "ezurlalias_ml " . $table;
             $conds[]   = eZURLAliasML::generateGlobCond( $table, $prevTable, $i, $langMask, $glob );
             $prevTable = $table;
@@ -1650,8 +1639,20 @@ class eZURLAliasML extends eZPersistentObject
             }
             else
             {
-                $uriString = eZURLAliasML::actionToUrl( $action );
-                $return = true;
+                // See http://issues.ez.no/19062
+                // If $uriString matches a nop action, we need to check if we also match a wildcard
+                // since we might want to translate it.
+                // Default action for nop actions is to display the root node "/" (see eZURLAliasML::actionToURL())
+                if ( strpos( $action, 'nop') !== false && eZURLWildcard::wildcardExists( $uriString ) )
+                {
+                    $return = false;
+                }
+                else
+                {
+                    $uriString = eZURLAliasML::actionToUrl( $action );
+                    $return = true;
+                }
+
             }
 
             if ( $uri instanceof eZURI )
@@ -1814,6 +1815,10 @@ class eZURLAliasML extends eZPersistentObject
             if ( !$linkCheck )
             {
                 $query .= " AND is_original = 1";
+            }
+            if ( $db->databaseName() === 'mysql' )
+            {
+                $query .= ' LOCK IN SHARE MODE';
             }
             $rows = $db->arrayQuery( $query );
             if ( count( $rows ) == 0 )
@@ -2168,7 +2173,7 @@ class eZURLAliasML extends eZPersistentObject
      'What is this?' => 'What-is-this'
      'This & that' => 'This-that'
      'myfile.tpl' => 'Myfile-tpl',
-     'øæå' => 'oeaeaa'
+     '??????' => 'oeaeaa'
      \endexample
     */
     static public function convertToAlias( $urlElement, $defaultValue = false )
@@ -2206,7 +2211,7 @@ class eZURLAliasML extends eZPersistentObject
      'What is this?' => 'What-is-this'
      'This & that' => 'This-that'
      'myfile.tpl' => 'Myfile-tpl',
-     'øæå' => 'oeaeaa'
+     '??????' => 'oeaeaa'
      \endexample
 
      \note Provided for creating url alias as they were before 3.10. Also used to make path_identification_string.

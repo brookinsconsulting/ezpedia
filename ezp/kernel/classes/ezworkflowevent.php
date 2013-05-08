@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZWorkflowEvent class
-//
-// Created on: <16-Apr-2002 11:08:14 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZWorkflowEvent class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 //!! eZKernel
 //! The class eZWorkflowEvent does
@@ -193,13 +175,13 @@ class eZWorkflowEvent extends eZPersistentObject
 
     function attributes()
     {
-        return array_merge( eZPersistentObject::attributes(), $this->eventType()->typeFunctionalAttributes() );
+        return array_merge( parent::attributes(), $this->eventType()->typeFunctionalAttributes() );
     }
 
     function hasAttribute( $attr )
     {
         $eventType = $this->eventType();
-        return eZPersistentObject::hasAttribute( $attr ) or
+        return parent::hasAttribute( $attr ) or
                in_array( $attr, $eventType->typeFunctionalAttributes() );
     }
 
@@ -211,7 +193,7 @@ class eZWorkflowEvent extends eZPersistentObject
             return $eventType->attributeDecoder( $this, $attr );
         }
 
-        return eZPersistentObject::attribute( $attr );
+        return parent::attribute( $attr );
     }
 
     function eventType()
@@ -263,7 +245,7 @@ class eZWorkflowEvent extends eZPersistentObject
     {
         $db = eZDB::instance();
         $db->begin();
-        $stored = eZPersistentObject::store( $fieldFilters );
+        $stored = parent::store( $fieldFilters );
 
         $eventType = $this->eventType();
         if ( $eventType instanceof eZWorkflowEventType )
@@ -287,7 +269,7 @@ class eZWorkflowEvent extends eZPersistentObject
     {
         $db = eZDB::instance();
         $db->begin();
-        $stored = eZPersistentObject::store( $fieldFilters );
+        $stored = parent::store( $fieldFilters );
 
         $eventType = $this->eventType();
         if ( $eventType instanceof eZWorkflowEventType )

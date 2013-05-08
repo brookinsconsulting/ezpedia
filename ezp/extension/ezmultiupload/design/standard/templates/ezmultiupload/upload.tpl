@@ -21,9 +21,9 @@
                 uploadURL: "{concat( 'ezmultiupload/upload/', $parent_node.node_id )|ezurl( 'no' )}",
                 uploadVars: {ldelim}
                                 '{$session_name}': '{$session_id}',
-                                'UserSessionHash': '{$user_session_hash}',
                                 //'XDEBUG_SESSION_START': 'XDEBUG_ECLIPSE',
-                                'UploadButton': 'Upload'
+                                'UploadButton': 'Upload',
+                                'ezxform_token': '@$ezxFormToken@'
                             {rdelim},
                 // Filter is passed on to uploader.setFileFilter() in ez.MultiUpload
                 fileType: [{ldelim} description:"{'Allowed Files'|i18n('extension/ezmultiupload')|wash('javascript')}", extensions:'{$file_types}' {rdelim}],
@@ -35,8 +35,7 @@
             {rdelim};
             YAHOO.ez.MultiUpload.init();
         {rdelim},
-        timeout: 10000,
-        combine: true
+        timeout: 10000
     {rdelim}, "js");
 {rdelim})();
 </script>

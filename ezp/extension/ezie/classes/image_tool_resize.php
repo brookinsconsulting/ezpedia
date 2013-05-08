@@ -2,9 +2,9 @@
 /**
 * File containing the eZIEImageToolResize class.
 * 
-* @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
-* @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
-* @version 1.3.0-dev
+* @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+* @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+* @version 5.1.0-rc1
 * @package ezie
 */
 class eZIEImageToolResize extends eZIEImageAction
@@ -42,7 +42,7 @@ class eZIEImageToolResize extends eZIEImageAction
     */
     static function resize( $src, $dst, $width, $height )
     {
-        $imageconverter = new eZIEezcImageConverter( self::filter( $height, $width ) );
+        $imageconverter = new eZIEezcImageConverter( self::filter( $width, $height ) );
         $imageconverter->perform( $src, $dst );
     }
 

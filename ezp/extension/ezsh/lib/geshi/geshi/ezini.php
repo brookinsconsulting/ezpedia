@@ -1,17 +1,21 @@
 <?php
 /*************************************************************************************
- * ini.php
+ * ezini.php
  * --------
  * Author: deguix (cevo_deguix@yahoo.com.br)
  * Author: ggiunta (gg@ez.no)
  * Copyright: (c) 2005 deguix
- * Release Version: 1.0.8.1
+ * Release Version: 1.3.0
+ * SVN Revision Version: $Id$
  * Date Started: 2005/03/27
+ * License: GNU General Public License v2.0
  *
  * eZ Publish INI language file for GeSHi.
  *
  * CHANGES
  * -------
+ * 2010/05/04
+ *   - updated for GeSHi 1.0.87 (better display of invalid lines)
  * 2008/12/17
  *   -  complete revamp of syntax rules, now 100% regexp based:
  *     - fixed highlighting of array values where the key is a string
@@ -25,10 +29,15 @@
  * 2005/04/05 (1.0.0)
  *   -  First Release
  *
- * TODO (updated 2008/12/17)
+ * TODO (updated 2010/05/04)
  * -------------------------
- *   -  Add highlighting of charset declarator
- *   -  Verify why usage of semicolon makes strings bold
+ *   -  see the test.tpl file, plus @todo tags later on
+ *   -  Add highlighting of charset declarator token
+ *   -  verify why usage of semicolon makes strings bold (both in values and comments)
+ *   -  fix parsing of first line: is it highlited? (eg. not if it is comments)
+ *   -  do not highlight a value when there are errors in the setting name
+ *   -  highlight extra brackets if present in the setting name
+ *   -  highlight also ending chars in value when it has both starting and ending ones
  *
  *************************************************************************************
  *
@@ -133,7 +142,7 @@ $language_data = array (
             GESHI_REPLACE => '\\1',
             GESHI_MODIFIERS => 'm',
             GESHI_BEFORE => '',
-            GESHI_AFTER => '2'
+            GESHI_AFTER => '\\2'
             ),
         3 => array( // bad line: space after setting name
             GESHI_SEARCH => '^([\w_*@-]*)([\w_*@-][ \t]+)(.*)$',
@@ -168,7 +177,7 @@ $language_data = array (
             GESHI_REPLACE => '\\2',
             GESHI_MODIFIERS => 'm',
             GESHI_BEFORE => '\\1',
-            GESHI_AFTER => ''
+            GESHI_AFTER => '\\3'
             ),
         8 => array( // most likely bad line: space after setting value
             GESHI_SEARCH => '^([^#=]+=)([^ \t\n]+[ \t]+)$',

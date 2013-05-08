@@ -2,9 +2,10 @@
 /**
  * File containing the ezpLanguageSwitcher class
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
  */
 
 /**
@@ -17,6 +18,7 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
 {
     protected $origUrl;
     protected $userParamString;
+    protected $queryString;
 
     protected $destinationSiteAccess;
     protected $destinationLocale;
@@ -42,6 +44,8 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
         {
             $this->userParamString .= "/($key)/$value";
         }
+
+        $this->queryString = isset( $params['QueryString'] ) ? $params['QueryString'] : '';
     }
 
     /**
@@ -155,13 +159,21 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
 
         $this->baseDestinationUrl = rtrim( $this->baseDestinationUrl, '/' );
 
-        if ( $GLOBALS['eZCurrentAccess']['type'] === eZSiteAccess::TYPE_URI )
+        $ini = eZINI::instance();
+
+        if ( $GLOBALS['eZCurrentAccess']['type'] === eZSiteAccess::TYPE_URI &&
+             !( $ini->variable( 'SiteAccessSettings', 'RemoveSiteAccessIfDefaultAccess' ) === "enabled" &&
+                $ini->variable( 'SiteSettings', 'DefaultAccess' ) == $this->destinationSiteAccess ) )
         {
             $finalUrl = $this->baseDestinationUrl . '/' . $this->destinationSiteAccess . '/' . $urlAlias;
         }
         else
         {
             $finalUrl = $this->baseDestinationUrl . '/' . $urlAlias;
+        }
+        if ( $this->queryString != '' )
+        {
+            $finalUrl .= '?' . $this->queryString;
         }
         return $finalUrl;
     }
@@ -201,7 +213,7 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
 
             default:
                 $host = $saIni->variable( 'SiteSettings', 'SiteURL' );
-                $host = "http://{$host}/";
+                $host = eZSys::serverProtocol()."://".$host;
                 break;
         }
         $this->baseDestinationUrl = "{$host}{$indexFile}";
@@ -236,9 +248,11 @@ class ezpLanguageSwitcher implements ezpLanguageSwitcherCapable
             {
                 $switchLanguageLink .= $url;
             }
-            $ret[$siteAccessName] = array( 'url' => $switchLanguageLink,
-                                           'text' => $translationName
-                                         );
+            $ret[$siteAccessName] = array(
+                'url' => $switchLanguageLink,
+                'text' => $translationName,
+                'locale' => eZSiteAccess::getIni( $siteAccessName )->variable( 'RegionalSettings', 'ContentObjectLocale' )
+             );
         }
         return $ret;
     }

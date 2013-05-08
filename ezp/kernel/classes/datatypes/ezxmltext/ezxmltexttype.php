@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZXMLTextType class
-//
-// Created on: <06-May-2002 20:02:55 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZXMLTextType class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZXMLTextType ezxmltexttype
@@ -155,6 +137,9 @@ class eZXMLTextType extends eZDataType
      * are registered in the ezurl_object_link table, and thus retained, if
      * previous versions of an object are removed.
      *
+     * It also checks for embedded objects in other languages xml, and makes
+     * sure the matching object relations are stored for the publish version.
+     *
      * @param eZContentObjectAttribute $contentObjectAttribute
      * @param eZContentObject $object
      * @param array $publishedNodes
@@ -180,21 +165,17 @@ class eZXMLTextType extends eZDataType
                                                                 $currentVersion->attribute( 'version' ),
                                                                 $languageList );
 
-        foreach ( $attributeArray as $attr )
+        foreach ( $attributeArray as $attribute )
         {
-            $xmlText = eZXMLTextType::rawXMLText( $attr );
+            $xmlText = eZXMLTextType::rawXMLText( $attribute );
+
             $dom = new DOMDocument( '1.0', 'utf-8' );
-            $success = $dom->loadXML( $xmlText );
-
-            if ( !$success )
-            {
+            if ( !$dom->loadXML( $xmlText ) )
                 continue;
-            }
 
-            $linkNodes = $dom->getElementsByTagName( 'link' );
+            // urls
             $urlIdArray = array();
-
-            foreach ( $linkNodes as $link )
+            foreach ( $dom->getElementsByTagName( 'link' ) as $link )
             {
                 // We are looking for external 'http://'-style links, not the internal
                 // object or node links.
@@ -206,9 +187,58 @@ class eZXMLTextType extends eZDataType
 
             if ( count( $urlIdArray ) > 0 )
             {
-                eZSimplifiedXMLInput::updateUrlObjectLinks( $attr, $urlIdArray );
+                eZSimplifiedXMLInput::updateUrlObjectLinks( $attribute, $urlIdArray );
+            }
+
+            // linked objects
+            $linkedObjectIdArray = $this->getRelatedObjectList( $dom->getElementsByTagName( 'link' ) );
+
+            // embedded objects
+            $embeddedObjectIdArray = array_merge(
+                $this->getRelatedObjectList( $dom->getElementsByTagName( 'embed' ) ),
+                $this->getRelatedObjectList( $dom->getElementsByTagName( 'embed-inline' ) )
+            );
+
+            if ( !empty( $embeddedObjectIdArray ) )
+            {
+                $object->appendInputRelationList( $embeddedObjectIdArray, eZContentObject::RELATION_EMBED );
+            }
+
+            if ( !empty( $linkedObjectIdArray ) )
+            {
+                $object->appendInputRelationList( $linkedObjectIdArray, eZContentObject::RELATION_LINK );
+            }
+            if ( !empty( $linkedObjectIdArray ) || !empty( $embeddedObjectIdArray ) )
+            {
+                $object->commitInputRelations( $currentVersion->attribute( 'version' ) );
+            }
+
+        }
+    }
+
+    /**
+     * Extracts ids of embedded/linked objects in an eZXML DOMNodeList
+     * @param DOMNodeList $domNodeList
+     * @return array
+     */
+    private function getRelatedObjectList( DOMNodeList $domNodeList )
+    {
+        $embeddedObjectIdArray = array();
+        foreach( $domNodeList as $embed )
+        {
+            if ( $embed->hasAttribute( 'object_id' ) )
+            {
+                $embeddedObjectIdArray[] = $embed->getAttribute( 'object_id' );
+            }
+            elseif ( $embed->hasAttribute( 'node_id' ) )
+            {
+                if ( $object = eZContentObject::fetchByNodeID( $embed->getAttribute( 'node_id' ) ) )
+                {
+                    $embeddedObjectIdArray[] = $object->attribute( 'id' );
+                }
             }
         }
+        return $embeddedObjectIdArray;
     }
 
     /*!
@@ -454,7 +484,7 @@ class eZXMLTextType extends eZDataType
             $textDom = $section->firstChild;
         }
 
-        if ( $textDom and $textDom->hasChildNodes )
+        if ( $textDom && $textDom->hasChildNodes() )
         {
             $text = $textDom->firstChild->textContent;
         }
@@ -723,20 +753,15 @@ class eZXMLTextType extends eZDataType
                     continue;
                 }
 
-                $nodeID = $nodeArray['node_id'];
-                $node->setAttribute( 'node_id', $nodeID );
+                $node->setAttribute( 'node_id', $nodeArray['node_id'] );
                 $node->removeAttribute( 'node_remote_id' );
                 $modified = true;
 
                 // add as related object
                 if ( $contentObject )
                 {
-                    $node = eZContentObjectTreeNode::fetch( $nodeID, false, false );
-                    if ( $node )
-                    {
-                        $relationType = $node->nodeName == 'link' ? eZContentObject::RELATION_LINK : eZContentObject::RELATION_EMBED;
-                        $contentObject->addContentObjectRelation( $node['contentobject_id'], $objectAttribute->attribute( 'version' ), 0, $relationType );
-                    }
+                    $relationType = $node->nodeName == 'link' ? eZContentObject::RELATION_LINK : eZContentObject::RELATION_EMBED;
+                    $contentObject->addContentObjectRelation( $nodeArray['contentobject_id'], $objectAttribute->attribute( 'version' ), 0, $relationType );
                 }
             }
         }

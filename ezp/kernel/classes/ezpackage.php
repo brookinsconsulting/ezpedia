@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZPackage class
-//
-// Created on: <23-Jul-2003 12:34:55 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZPackage class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \defgroup package The package manager system
@@ -524,7 +503,7 @@ class eZPackage
     {
         if ( function_exists( 'md5_file' ) )
         {
-            if ( file_exists( $file ) )
+            if ( is_file( $file ) )
             {
                 return md5_file( $file );
             }
@@ -1788,21 +1767,21 @@ class eZPackage
 
                             if ( $requiredPriority !== null )
                             {
-                                $type = $package->attribute( 'priority' );
+                                $priority = $package->attribute( 'priority' );
                                 if ( $priority != $requiredPriority )
                                     continue;
                             }
 
                             if ( $requiredExtension !== null )
                             {
-                                $type = $package->attribute( 'extension' );
+                                $extension = $package->attribute( 'extension' );
                                 if ( $extension != $requiredExtension )
                                     continue;
                             }
 
                             if ( $requiredVendor !== null )
                             {
-                                $type = $package->attribute( 'vendor' );
+                                $vendor = $package->attribute( 'vendor' );
                                 if ( $vendor != $requiredVendor )
                                     continue;
                             }
@@ -1963,7 +1942,7 @@ class eZPackage
             return;
         if ( !$this->isInstalled() )
             return;
-        $uninstallItems = $this->uninstallItemsList();
+        $uninstallItems = $this->installItemsList();
         if ( !isset( $installParameters['path'] ) )
             $installParameters['path'] = false;
 
@@ -2754,10 +2733,10 @@ class eZPackage
             $installNode->appendChild( $installItemNode );
 
             if ( $installItem['os'] )
-                $installItemNode->setAttribute( 'os', $installIItem['os'] );
+                $installItemNode->setAttribute( 'os', $installItem['os'] );
 
             if ( $installItem['name'] )
-                $installItemNode->setAttribute( 'name', $installIItem['name'] );
+                $installItemNode->setAttribute( 'name', $installItem['name'] );
 
             if ( $installItem['filename'] )
             {

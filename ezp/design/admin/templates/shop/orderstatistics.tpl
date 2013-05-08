@@ -1,19 +1,20 @@
 <form action={'/shop/statistics'|ezurl} method="post" name="Statistics">
 
 <div class="context-block">
-{* DESIGN: Header START *}<div class="box-header"><div class="box-tc"><div class="box-ml"><div class="box-mr"><div class="box-tl"><div class="box-tr">
+{* DESIGN: Header START *}<div class="box-header"><div class="box-ml">
 
-<h1 class="context-title">{'Product statistics [%count]'|i18n( 'design/admin/shop/orderstatistics',, hash( '%count', $statistic_result[0].product_list|count  ) )}</h1>
+<h1 class="context-title">{'Product statistics (%count)'|i18n( 'design/admin/shop/orderstatistics',, hash( '%count', $statistic_result[0].product_list|count  ) )}</h1>
 
 {* DESIGN: Mainline *}<div class="header-mainline"></div>
 
-{* DESIGN: Header END *}</div></div></div></div></div></div>
+{* DESIGN: Header END *}</div></div>
 
 {* DESIGN: Content START *}<div class="box-ml"><div class="box-mr"><div class="box-content">
 
 {section show=$statistic_result[0].product_list}
 
 {def $currency = false()
+     $currencies = hash()
      $locale = false()
      $symbol = false()
      $quantity_text = ''
@@ -23,10 +24,10 @@
 
 <table class="list" cellspacing="0">
 <tr>
-	<th class="wide">{'Product'|i18n( 'design/admin/shop/orderstatistics' )}</th>
-	<th class="tight">{'Quantity'|i18n( 'design/admin/shop/orderstatistics' )}</th>
-	<th class="tight">{'Total (ex. VAT)'|i18n( 'design/admin/shop/orderstatistics' )}</th>
-	<th class="tight">{'Total (inc. VAT)'|i18n( 'design/admin/shop/orderstatistics' )}</th>
+    <th class="wide">{'Product'|i18n( 'design/admin/shop/orderstatistics' )}</th>
+    <th class="tight">{'Quantity'|i18n( 'design/admin/shop/orderstatistics' )}</th>
+    <th class="tight">{'Total (ex. VAT)'|i18n( 'design/admin/shop/orderstatistics' )}</th>
+    <th class="tight">{'Total (inc. VAT)'|i18n( 'design/admin/shop/orderstatistics' )}</th>
 </tr>
 {section var=Products loop=$statistic_result[0].product_list sequence=array( bglight, bgdark )}
 
@@ -36,10 +37,15 @@
          br_tag = ''}
 
     {foreach $Products.product_info as $currency_code => $info}
-        {if $currency_code}
-            {set currency = fetch( 'shop', 'currency', hash( 'code', $currency_code ) )}
+        {if is_set( $currencies[$currency_code] )}
+            {set currency = $currencies[$currency_code]}
         {else}
-            {set currency = false()}
+            {if $currency_code}
+                {set currency = fetch( 'shop', 'currency', hash( 'code', $currency_code ) )}
+            {else}
+                {set currency = false()}
+            {/if}
+            {set currencies = $currencies|merge( hash( $currency_code, $currency ) )}
         {/if}
 
         {if $currency}
@@ -61,13 +67,15 @@
     {/foreach}
 
     <tr class="{$Products.sequence}">
-        {if and( $Products.product, $Products.product.main_node )}
-            {let node_url=$Products.product.main_node.url_alias}
-                <td class="name">{$Products.product.class_identifier|class_icon( small, $Products.product.class_name )}&nbsp;{if $node_url}<a href={$node_url|ezurl}>{/if}{$Products.product.name|wash}{if $node_url}</a>{/if}</td>
-            {/let}
-        {else}
-            <td class="name">{false()|class_icon( small )}&nbsp;{$Products.name|wash}</td>
-        {/if}
+        {def $product_node=$Products.product.main_node}
+            {if and( $Products.product, $product_node )}
+                {let node_url=$product_node.url_alias}
+                    <td class="name">{$Products.product.class_identifier|class_icon( small, $Products.product.class_name )}&nbsp;{if $node_url}<a href={$node_url|ezurl}>{/if}{$Products.product.name|wash}{if $node_url}</a>{/if}</td>
+                {/let}
+            {else}
+                <td class="name">{false()|class_icon( small )}&nbsp;{$Products.name|wash}</td>
+            {/if}
+        {undef $product_node}
         <td class="number" align="right">{$quantity_text}</td>
         <td class="number" align="right">{$sum_ex_vat_text}</td>
         <td class="number" align="right">{$sum_inc_vat_text}</td>
@@ -80,11 +88,15 @@
      br_tag = ''}
 
 {foreach $statistic_result[0].total_sum_info as $currency_code => $info}
-
-    {if $currency_code}
-        {set currency = fetch( 'shop', 'currency', hash( 'code', $currency_code ) )}
+    {if is_set( $currencies[$currency_code] )}
+        {set currency = $currencies[$currency_code]}
     {else}
-        {set currency = false()}
+        {if $currency_code}
+            {set currency = fetch( 'shop', 'currency', hash( 'code', $currency_code ) )}
+        {else}
+            {set currency = false()}
+        {/if}
+        {set currencies = $currencies|merge( hash( $currency_code, $currency ) )}
     {/if}
     {if $currency}
         {set locale = $currency.locale
@@ -124,7 +136,7 @@
 {* DESIGN: Content END *}</div></div></div>
 
 <div class="controlbar">
-{* DESIGN: Control bar START *}<div class="box-bc"><div class="box-ml"><div class="box-mr"><div class="box-tc"><div class="box-bl"><div class="box-br">
+{* DESIGN: Control bar START *}<div class="box-bc"><div class="box-ml">
 <div class="block">
 
 <select name="Year" title="{'Select the year for which you want to view statistics.'|i18n( 'design/admin/shop/orderstatistics' )}">
@@ -144,7 +156,7 @@
 <input class="button" type="submit" name="View" value="{'Show'|i18n( 'design/admin/shop/orderstatistics' )}" title="{'Update the list using the values specified by the menus to the left.'|i18n( 'design/admin/shop/orderstatistics' )}" />
 
 </div>
-{* DESIGN: Control bar END *}</div></div></div></div></div></div>
+{* DESIGN: Control bar END *}</div></div>
 </div>
 
 </div>

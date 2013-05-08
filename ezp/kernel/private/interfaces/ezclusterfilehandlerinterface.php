@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZClusterFileHandlerInterface interface
-//
-// <creation-tag>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZClusterFileHandlerInterface interface.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package lib
+ */
 
 /**
  * Cluster file handlers interface
@@ -253,11 +235,6 @@ interface eZClusterFileHandlerInterface
     public function name();
 
     /**
-     * @note has severe performance issues
-     */
-    public function fileDeleteByRegex( $dir, $fileRegex );
-
-    /**
      * @note has some severe performance issues
      */
     public function fileDeleteByWildcard( $wildcard );
@@ -395,19 +372,15 @@ interface eZClusterFileHandlerInterface
      * This method indicates if the cluster file handler requires binary files
      * to be purged in order to be physically deleted
      *
-     * @since 4.3
-     * @deprecated Deprecated as of 4.5, use {@link eZClusterFileHandlerInterface::requiresPurge()} instead.
-     * @return bool
-     */
-    public function requiresBinaryPurge();
-
-    /**
-     * This method indicates if the cluster file handler requires binary files
-     * to be purged in order to be physically deleted
-     *
      * @since 4.5
      * @return bool
      */
     public function requiresPurge();
+
+    /**
+     * Indicates if the handler supports the stalecache feature
+     * @return bool true if it does, false otherwise
+     */
+    public function hasStaleCacheSupport();
 }
 ?>

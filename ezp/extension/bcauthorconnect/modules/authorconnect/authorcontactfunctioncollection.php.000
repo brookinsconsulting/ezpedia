@@ -1,0 +1,149 @@
+<?php
+
+class AuthorContactFunctionCollection
+{
+    function AuthorContactFunctionCollection()
+    {
+    }
+
+    function fetchAuthorContactForm( $user_id, $node_id )
+    {
+
+        include_once( 'kernel/classes/ezcontentobject.php' );
+        include_once( 'kernel/common/template.php' );
+
+        $parameters = array( 'user_id' => $user_id,
+                             'node_id' => $node_id );
+
+        if ( isset( $parameters['user_id'] ) )
+            $userID = $parameters['user_id'];
+
+        if ( isset( $parameters['node_id'] ) )
+            $nodeID = $parameters['node_id'];
+
+        // Test current user id is not same as anonymous user id
+        if ( $userID != 44 )
+        {
+            $user = eZUser::fetch( $userID );
+            if ( !$user )
+                return $Module->handleError( EZ_ERROR_KERNEL_NOT_FOUND, 'kernel' );
+
+            // print_r($user);
+
+            if ( $user->isLoggedIn() )
+            {
+                /* $Module =& $Params['Module']; $parameters = $Params['Parameters']; */
+
+                $nodeID = 0;
+                $userID = 0;
+
+                $http = eZHTTPTool::instance();
+                $tpl = templateInit();
+
+                if ( isset( $parameters['validation'] ) )
+                {
+                    $validation = $parameters['validation'];
+                }
+                else
+                {
+                    $validation['processed'] = false;
+                }
+
+                /*
+                  if ( isset( $parameters['user_id'] ) )
+                       $userID = $parameters['user_id'];
+
+                   if ( isset( $parameters['node_id'] ) )
+                       $nodeID = $parameters['node_id'];
+
+                   if ( !$user )
+                       return $Module->handleError( EZ_ERROR_KERNEL_NOT_FOUND, 'kernel' );
+                */
+
+                $object = $user->attribute( 'contentobject' );
+
+                if ( !$object )
+                    return $Module->handleError( EZ_ERROR_KERNEL_NOT_FOUND, 'kernel' );
+
+                $authorName = $object->attribute( 'name' );
+                $contentObjectID = $object->attribute( 'id' );
+                // print_r($object);
+
+                $tpl->setVariable( 'name', $authorName );
+                $tpl->setVariable( 'redirect_uri', false );
+
+                $email = $user->Email;
+                $tpl->setVariable( 'email', $email );
+
+                // Fetch content object
+                $nodeObject = eZContentObject::fetchByNodeID( $node_id );
+                $nodeObjectName = $nodeObject->attribute('name');
+                $subject = 'Re: '. $nodeObjectName;
+                $tpl->setVariable( 'subject', $subject );
+
+                $tpl->setVariable( 'message', false );
+
+        /*
+        if ( isset( $parameters['name'] ) )
+        {
+            $name = $parameters['name'];
+            $tpl->setVariable( 'name', $name );
+        }
+
+        if ( isset( $parameters['user_redirect_uri'] ) )
+        {
+            $userRedirectURI = $parameters['user_redirect_uri'];
+            $tpl->setVariable( 'redirect_uri', $userRedirectURI );
+        }
+        else
+        {
+            if( isset( $GLOBALS['HTTP_SERVER_VARS']['HTTP_REFERER'] ) )
+            {
+                $userRedirectURI = $GLOBALS['HTTP_SERVER_VARS']['HTTP_REFERER'];
+                $tpl->setVariable( 'redirect_uri', $userRedirectURI );
+            }
+        }
+
+        if ( isset( $parameters['email'] ) )
+        {
+            $email = $parameters['email'];
+            $tpl->setVariable( 'email', $email );
+        }
+
+        if ( isset( $parameters['subject'] ) )
+        {
+            $subject = $parameters['subject'];
+            $tpl->setVariable( 'subject', $subject );
+        }
+
+        if ( isset( $parameters['message'] ) )
+        {
+            $message = $parameters['message'];
+            $tpl->setVariable( 'message', $message );
+        }
+        */
+
+                $tpl->setVariable( 'author_name', $authorName );
+                $tpl->setVariable( 'object_id', $contentObjectID );
+                $tpl->setVariable( 'node_id', $nodeID );
+                $tpl->setVariable( 'validation', $validation );
+
+        /*
+        $Result = array();
+        $Result['content'] = $tpl->fetch( 'design:authorcontact/form.tpl' );
+        $Result['left_menu'] = 'design:authorcontact/left_info.tpl';
+        $Result['path'] = array( array( 'url' => false,
+                                 'text' => ezi18n( 'extension/authorcontact', 'Contact ' ) . $authorName ) );
+        */
+
+                $result = $tpl->fetch( 'design:authorcontact/form.tpl' );
+        }
+        else
+        {
+            $result = ' ';
+            return array( 'result' => $result );
+
+        }
+}
+
+?>

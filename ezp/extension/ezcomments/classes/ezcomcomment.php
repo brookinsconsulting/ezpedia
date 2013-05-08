@@ -2,8 +2,8 @@
 /**
  * File containing ezcomComment class
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
  *
  */
 
@@ -179,7 +179,10 @@ class ezcomComment extends eZPersistentObject
     {
         $cond = array();
         $cond['contentobject_id'] = $contentObjectID;
-        $cond['language_id'] = $languageID;
+        if ( $languageID !== false )
+        {
+            $cond['language_id'] = $languageID;
+        }
         if( !is_null( $status ) )
         {
             $cond['status'] = $status;

@@ -1,0 +1,22 @@
+Bugfixes
+========
+- Fix EZP-20224: Impossible to set default selection item on relation attribute
+- Make sure mysqli driver honors persistent connections (and behaves better in master-slave mode when 1st connection fails)
+- Fixed EZP-19684: Search engine doesn't handle curly quotes correctly (part 2)
+
+Enhancements
+============
+- Fixed travis settings to avoid timeout while cloning the repository
+- Update kernel/classes/datatypes/ezxmltext/ezxmloutputhandler.php
+- Fix EZP-20251: Unable to run functional tests if legacy stack is involved
+- Removed class_exists check for Composer CLassLoader
+
+Pull requests
+=============
+- #526: from patrickallaert/EZP-19684
+- #530: from gggeek/issue_20245
+- #531: from dpobel/symfony_functional_tests
+- #534: from npanau/patch-1
+
+Miscellaneous
+=============

@@ -1,0 +1,25 @@
+Wrap Operator extension README
+==============================
+
+=== Description
+
+Essentially, this is a simple wrapper operator to directly call any system and user-defined functions in template.
+
+It does not concern me much if doing so is good idea or 'pfui' as someone said on the #ezpublish channel.  Undoubtedly
+care has to be taken to avoid security and caching problems, etc.  But it makes life a lot easier for me because i
+dont have to write unexisting text processing functions in template language and dont need to set up separate
+extension to every small operator i need.  It's a swiss army knife - you can cut your hand but noone is forcing you to :)
+
+    
+=== Thoughts
+
+I am not sure exactly what datatypes can be passed to functions from template like this.  Should work ok for
+integers, strings and boolean i think.  If you are more informed about ez internals, please comment.
+
+Using wrap_user_func with return_output=true() should enable easy embedding of existing php applications in
+templates, called through the user function.  I have tested just simple test case but maybe someone can think of something
+more useful and post specific instructions..
+
+Comments and suggestions for improvement are very welcome.  Either post on forum or talk to zurgutt on #ezpublish irc
+channel on irc.freenode.net.
+

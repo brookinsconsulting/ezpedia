@@ -6,13 +6,13 @@
                                            'css', array()
                                            )}
 <script type="text/javascript">
-<!--
 var contentType = '{$content_type}', classFilter = [];
 
 {foreach $class_filter_array as $class_filter}
     classFilter.push('{$class_filter}');
 {/foreach}
 
+eZOEPopupUtils.settings.browseImageAlias = "{ezini( 'EditorSettings', 'BrowseImageAlias', 'ezoe.ini' )|wash( 'javascript' )}";
 {literal}
 
 tinyMCEPopup.onInit.add( function(){
@@ -42,8 +42,6 @@ eZOEPopupUtils.settings.browseClassGenerator = function( n, hasImage ){
         return 'node_not_image';
     return 'node_not_image node_fadeout';
 };
-
--->
 </script>
 {/literal}
 

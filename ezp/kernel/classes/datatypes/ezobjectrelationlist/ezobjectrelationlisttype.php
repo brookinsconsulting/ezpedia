@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZObjectRelationListType class
-//
-// Created on: <16-Apr-2002 11:08:14 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZObjectRelationListType class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZObjectRelationListType ezobjectrelationlisttype.php
@@ -59,76 +41,100 @@ class eZObjectRelationListType extends eZDataType
     */
     function validateObjectAttributeHTTPInput( $http, $base, $contentObjectAttribute )
     {
-        $inputParameters = $contentObjectAttribute->inputParameters();
-        $contentClassAttribute = $contentObjectAttribute->contentClassAttribute();
-        $parameters = $contentObjectAttribute->validationParameters();
-        if ( isset( $parameters['prefix-name'] ) and
-             $parameters['prefix-name'] )
-            $parameters['prefix-name'][] = $contentClassAttribute->attribute( 'name' );
-        else
-            $parameters['prefix-name'] = array( $contentClassAttribute->attribute( 'name' ) );
-
-        $status = eZInputValidator::STATE_ACCEPTED;
         $postVariableName = $base . "_data_object_relation_list_" . $contentObjectAttribute->attribute( "id" );
+        if ( $http->hasPostVariable( $postVariableName ) && !( $contentObjectAttribute->validateIsRequired() && $http->postVariable( $postVariableName ) == array( "no_relation" ) ) )
+        {
+            return eZInputValidator::STATE_ACCEPTED;
+        }
+
         $contentClassAttribute = $contentObjectAttribute->contentClassAttribute();
 
         // Check if selection type is not browse
         $classContent = $contentClassAttribute->content();
+
         if ( $classContent['selection_type'] != 0 )
         {
-            $selectedObjectIDArray = $http->hasPostVariable( $postVariableName ) ? $http->postVariable( $postVariableName ) : false;
-            if ( $contentObjectAttribute->validateIsRequired() and $selectedObjectIDArray === false )
+            if (
+                $contentObjectAttribute->validateIsRequired()
+                && ( !$http->hasPostVariable( $postVariableName ) || $http->postVariable( $postVariableName ) == array( "no_relation" ) )
+            )
             {
-                $contentObjectAttribute->setValidationError( ezpI18n::tr( 'kernel/classes/datatypes',
-                                                                     'Missing objectrelation list input.' ) );
+                $contentObjectAttribute->setValidationError(
+                    ezpI18n::tr(
+                        'kernel/classes/datatypes',
+                        'Missing objectrelation list input.'
+                    )
+                );
                 return eZInputValidator::STATE_INVALID;
             }
-            return $status;
+            return eZInputValidator::STATE_ACCEPTED;
         }
 
+        // The following code is only there for the support of [BackwardCompatibilitySettings]/AdvancedObjectRelationList
+        // which happens only when $classContent['selection_type'] == 0
         $content = $contentObjectAttribute->content();
-        if ( $contentObjectAttribute->validateIsRequired() and count( $content['relation_list'] ) == 0 )
+        if ( $contentObjectAttribute->validateIsRequired() && empty( $content['relation_list'] ) )
         {
-            $contentObjectAttribute->setValidationError( ezpI18n::tr( 'kernel/classes/datatypes',
-                                                                 'Missing objectrelation list input.' ) );
+            $contentObjectAttribute->setValidationError(
+                ezpI18n::tr(
+                    'kernel/classes/datatypes',
+                    'Missing objectrelation list input.'
+                )
+            );
             return eZInputValidator::STATE_INVALID;
         }
 
-        for ( $i = 0; $i < count( $content['relation_list'] ); ++$i )
+        $status = eZInputValidator::STATE_ACCEPTED;
+        $inputParameters = $contentObjectAttribute->inputParameters();
+        $parameters = $contentObjectAttribute->validationParameters();
+        if ( isset( $parameters['prefix-name'] ) && $parameters['prefix-name'] )
+            $parameters['prefix-name'][] = $contentClassAttribute->attribute( 'name' );
+        else
+            $parameters['prefix-name'] = array( $contentClassAttribute->attribute( 'name' ) );
+
+        foreach ( $content['relation_list'] as $relationItem )
         {
-            $relationItem = $content['relation_list'][$i];
-            if ( $relationItem['is_modified'] )
+            if ( !$relationItem['is_modified'] )
             {
-                $subObjectID = $relationItem['contentobject_id'];
-                $subObjectVersion = $relationItem['contentobject_version'];
-                $attributeBase = $base . '_ezorl_edit_object_' . $subObjectID;
-                $object = eZContentObject::fetch( $subObjectID );
-                if ( $object )
+                continue;
+            }
+
+            $subObjectID = $relationItem['contentobject_id'];
+            $object = eZContentObject::fetch( $subObjectID );
+
+            if ( !$object )
+            {
+                continue;
+            }
+
+            $attributes = $object->contentObjectAttributes(
+                true,
+                $relationItem['contentobject_version'],
+                $contentObjectAttribute->attribute( 'language_code' )
+            );
+
+            $validationResult = $object->validateInput(
+                $attributes,
+                $base . '_ezorl_edit_object_' . $subObjectID,
+                $inputParameters,
+                $parameters
+            );
+            $content['temp'][$subObjectID] = array(
+                'require-fixup' => $validationResult['require-fixup'],
+                'attributes' => $attributes,
+                'object' => $object,
+            );
+            foreach ( $validationResult['status-map'] as $statusItem )
+            {
+                $statusValue = $statusItem['value'];
+                if ( $statusValue == eZInputValidator::STATE_INTERMEDIATE && $status == eZInputValidator::STATE_ACCEPTED )
                 {
-                    $attributes = $object->contentObjectAttributes( true,
-                                                                    $subObjectVersion,
-                                                                    $contentObjectAttribute->attribute( 'language_code' ) );
-
-                    $validationResult = $object->validateInput( $attributes, $attributeBase,
-                                                                $inputParameters, $parameters );
-                    $inputValidated = $validationResult['input-validated'];
-                    $content['temp'][$subObjectID]['require-fixup'] = $validationResult['require-fixup'];
-                    $statusMap = $validationResult['status-map'];
-                    foreach ( $statusMap as $statusItem )
-                    {
-                        $statusValue = $statusItem['value'];
-                        if ( $statusValue == eZInputValidator::STATE_INTERMEDIATE and
-                             $status == eZInputValidator::STATE_ACCEPTED )
-                            $status = eZInputValidator::STATE_INTERMEDIATE;
-                        else if ( $statusValue == eZInputValidator::STATE_INVALID )
-                        {
-                            $contentObjectAttribute->setHasValidationError( false );
-                            $status = eZInputValidator::STATE_INVALID;
-                        }
-                    }
-
-                    $content['temp'][$subObjectID]['attributes'] = $attributes;
-                    $content['temp'][$subObjectID]['object'] = $object;
+                    $status = eZInputValidator::STATE_INTERMEDIATE;
+                }
+                else if ( $statusValue == eZInputValidator::STATE_INVALID )
+                {
+                    $contentObjectAttribute->setHasValidationError( false );
+                    $status = eZInputValidator::STATE_INVALID;
                 }
             }
         }
@@ -249,28 +255,23 @@ class eZObjectRelationListType extends eZDataType
             }
         }
 
-        $reorderedRelationList    = array();
-        // Contains existing priorities
-        $existsPriorities = array();
-
-        for ( $i = 0, $c = count( $content['relation_list'] ); $i < $c; ++$i )
+        // Indexing priorities by object id
+        // and make sure each priority is unique
+        $existingPriorities = array();
+        $prioritiesByContentObjectId = array();
+        foreach ( $selectedObjectIDArray as $k => $id )
         {
-            $priorities[$contentObjectAttributeID][$i] = (int) $priorities[$contentObjectAttributeID][$i];
-            $existsPriorities[$i] = $priorities[$contentObjectAttributeID][$i];
-
-            // Change objects' priorities providing their uniqueness.
-            for ( $j = 0; $j < $c; ++$j )
+            $priority = (int)$priorities[$contentObjectAttributeID][$k];
+            while ( isset( $existingPriorities[$priority] ) )
             {
-                if ( $i == $j ) continue;
-                if ( $priorities[$contentObjectAttributeID][$i] == $priorities[$contentObjectAttributeID][$j] )
-                {
-                    $index = $priorities[$contentObjectAttributeID][$i];
-                    while ( in_array( $index, $existsPriorities ) )
-                        ++$index;
-                    $priorities[$contentObjectAttributeID][$j] = $index;
-                }
+                $priority++;
             }
-            $relationItem = $content['relation_list'][$i];
+            $prioritiesByContentObjectId[$id] = $priority;
+            $existingPriorities[$priority] = $priority;
+        }
+
+        foreach ( $content['relation_list'] as &$relationItem )
+        {
             if ( $relationItem['is_modified'] )
             {
                 $subObjectID = $relationItem['contentobject_id'];
@@ -289,21 +290,23 @@ class eZObjectRelationListType extends eZDataType
                     $content['temp'][$subObjectID]['object'] = $object;
                 }
             }
-            if ( isset( $priorities[$contentObjectAttributeID][$i] ) )
-                $relationItem['priority'] = $priorities[$contentObjectAttributeID][$i];
-            $reorderedRelationList[$relationItem['priority']] = $relationItem;
+            $relationItem['priority'] = $prioritiesByContentObjectId[$relationItem['contentobject_id']];
         }
-        ksort( $reorderedRelationList );
-        unset( $content['relation_list'] );
-        $content['relation_list'] = array();
-        reset( $reorderedRelationList );
-        $i = 0;
-        while ( list( $key, $relationItem ) = each( $reorderedRelationList ) )
+
+        usort(
+            $content['relation_list'],
+            function ( $a, $b )
+            {
+                return $a['priority'] - $b['priority'];
+            }
+        );
+        $p = 1;
+        foreach ( $content['relation_list'] as &$relationItem )
         {
-            $content['relation_list'][] = $relationItem;
-            $content['relation_list'][$i]['priority'] = $i + 1;
-            ++$i;
+            $relationItem['priority'] = $p;
+            $p++;
         }
+
         $contentObjectAttribute->setContent( $content );
         return true;
     }
@@ -1138,6 +1141,21 @@ class eZObjectRelationListType extends eZDataType
         }
 
         $hostObject = $contentObjectAttribute->attribute( 'object' );
+        $hostObjectID = $hostObject->attribute( 'id' );
+
+        // Do not try removing the object if present in trash
+        // Only objects being really orphaned (not even being in trash) should be removed by this method.
+        // See issue #019457
+        if (
+            (int)eZPersistentObject::count(
+                eZContentObjectTrashNode::definition(),
+                array( "contentobject_id" => $hostObjectID )
+            ) > 0
+        )
+        {
+            return;
+        }
+
         $hostObjectVersions = $hostObject->versions();
         $isDeletionAllowed = true;
 
@@ -1150,7 +1168,7 @@ class eZObjectRelationListType extends eZDataType
                 $relationAttribute = eZPersistentObject::fetchObjectList( eZContentObjectAttribute::definition(),
                                                                            null,
                                                                            array( 'version' => $version->attribute( 'version' ),
-                                                                                  'contentobject_id' => $hostObject->attribute( 'id' ),
+                                                                                  'contentobject_id' => $hostObjectID,
                                                                                   'contentclassattribute_id' => $contentObjectAttribute->attribute( 'contentclassattribute_id' ) ) );
 
                 if ( count( $relationAttribute ) > 0 )
@@ -1215,9 +1233,23 @@ class eZObjectRelationListType extends eZDataType
         return $relationItem;
     }
 
-    function appendObject( $objectID, $priority, $contentObjectAttribute )
+    /**
+     * Generate array with object relation info
+     *
+     * @param integer $objectID The id of the object to add as relation
+     * @param integer $priority The priortity of the relation
+     * @param eZContentObjectAttribute $contentObjectAttribute Not used
+     * @return array|null A array containing relation information or null if object does not exist
+     */
+    public function appendObject( $objectID, $priority, $contentObjectAttribute )
     {
         $object = eZContentObject::fetch( $objectID );
+
+        if ( null === $object )
+        {
+            return;
+        }
+
         $class = $object->attribute( 'content_class' );
         $sectionID = $object->attribute( 'section_id' );
         $relationItem = array( 'identifier' => false,
@@ -1589,8 +1621,10 @@ class eZObjectRelationListType extends eZDataType
         if ( count( $objectAttributeContent['relation_list'] ) > 0 )
         {
             $target = $objectAttributeContent['relation_list'][0];
-            $targetObject = eZContentObject::fetch( $target['contentobject_id'], false );
-            return $targetObject['name'];
+            $targetObject = eZContentObject::fetch( $target['contentobject_id'] );
+            $attributeLanguage = $contentObjectAttribute->attribute( 'language_code' );
+            $targetObjectName = $targetObject->name( false, $attributeLanguage );
+            return $targetObjectName;
         }
         else
         {

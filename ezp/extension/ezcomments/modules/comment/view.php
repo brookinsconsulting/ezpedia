@@ -2,12 +2,11 @@
 /**
  * File containing logic of comment view(comment/view in uri)
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
  *
  */
 
-require_once( 'kernel/common/template.php' );
 $http = eZHTTPTool::instance();
 
 // fetch the content object
@@ -41,7 +40,7 @@ if ( is_null( $objectAttribute ) )
     return;
 }
 
-$tpl = templateInit();
+$tpl = eZTemplate::factory();
 $tpl->setVariable( 'contentobject', $contentObject );
 $tpl->setVariable( 'node', $contentObject->mainNode() );
 $tpl->setVariable( 'objectattribute', $objectAttribute );

@@ -2,26 +2,24 @@
 //
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Find
-// SOFTWARE RELEASE: 2.0.x
-// COPYRIGHT NOTICE: Copyright (C) 2007 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE NAME: eZ Publish Community Project
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
 //   Public License as published by the Free Software Foundation.
-//
+// 
 //   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //   GNU General Public License for more details.
-//
+// 
 //   You should have received a copy of version 2.0 of the GNU General
 //   Public License along with this program; if not, write to the Free
 //   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //   MA 02110-1301, USA.
-//
-//
 // ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 //
 
@@ -36,18 +34,13 @@
 
 class ezfSolrDocumentFieldXML extends ezfSolrDocumentFieldBase
 {
-    public function isCollection()
-    {
-        return false;
-    }
-
     /**
      *
      * @param text $text
      * @return text
      *
      * instead of walking thorugh the dom tree, strip all xml/html like
-     * this is more brute force, but hlps in the case of html literal blocks
+     * this is more brute force, but helps in the case of html literal blocks
      * which are returned verbatim by ezxml attribute meta data function
      */
     public function strip_html_tags( $text )
@@ -83,28 +76,14 @@ class ezfSolrDocumentFieldXML extends ezfSolrDocumentFieldBase
             "\n\$0", "\n\$0", "\n"
             ),
             $text );
-        return strip_tags( $text );
+        $text = strip_tags( $text );
+
+        return html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
     }
 
-    /**
-     * Get collection data. Returns list of ezfSolrDocumentFieldBase documents.
-     *
-     * @return array List of ezfSolrDocumentFieldBase objects.
-     */
-    public function getCollectionData()
-    {
-
-    }
 
     /**
-     * Get data to index, and field name to use. Returns an associative array
-     * with field name and field value.
-     * Example:
-     * <code>
-     * array( 'field_name_i' => 123 );
-     * </code>
-     *
-     * @return array Associative array with fieldname and value.
+     * @see ezfSolrDocumentFieldBase::getData()
      */
     public function getData()
     {
@@ -113,36 +92,29 @@ class ezfSolrDocumentFieldXML extends ezfSolrDocumentFieldBase
 
         switch ( $contentClassAttribute->attribute( 'data_type_string' ) )
         {
-        	case 'ezxmltext' :
-        	{
-                // $xmlData = $this->ContentObjectAttribute->attribute( 'content' )->attribute( 'xml_data' );
-                $xmlData = $this->ContentObjectAttribute->attribute( 'content' )->attribute( 'output' )->attribute( 'output_text' );
-        	} break;
+            case 'ezxmltext' :
+            {
+            // $xmlData = $this->ContentObjectAttribute->attribute( 'content' )->attribute( 'xml_data' );
+            $xmlData = $this->ContentObjectAttribute->attribute( 'content' )->attribute( 'output' )->attribute( 'output_text' );
+            } break;
 
-        	case 'ezmatrix' :
+            case 'ezmatrix' :
             {
                 $xmlData = $this->ContentObjectAttribute->attribute( 'content' )->xmlString();
             } break;
 
+            case 'eztext' :
+            {
+                $xmlData = $this->ContentObjectAttribute->attribute( 'data_text' );
+            } break;
+
             default:
-        	{
-        		return array( $fieldName => '' );
-        	} break;
+            {
+                    return array( $fieldName => '' );
+            } break;
         }
         $cleanedXML = $this->strip_html_tags( $xmlData );
         return array( $fieldName => $cleanedXML );
-    }
-
-    /**
-     * Get ezfSolrDocumentFieldBase instances for all attributes of specified eZContentObjectVersion
-     *
-     * @param eZContentObjectVersion Instance of eZContentObjectVersion to fetch attributes from.
-     *
-     * @return array List of ezfSolrDocumentFieldBase instances.
-     */
-    function getBaseList( eZContentObjectVersion $objectVersion )
-    {
-
     }
 }
 

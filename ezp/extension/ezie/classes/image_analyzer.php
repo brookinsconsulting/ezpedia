@@ -3,27 +3,33 @@
  * File containing the eZIEImageAnalyzer class
  * This class overrides ezcImageAnalyzer in order to support the ezpublish cluster constraints
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version 1.3.0-dev
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version 5.1.0-rc1
  * @package ezie
  */
 class eZIEImageAnalyzer extends ezcImageAnalyzer
 {
+    protected $deleteLocal = true;
+
     /**
      * Constructor overload
      * Creates a local copy of the image so that it can be analyzed
      *
      * @param string $file
      */
-    public function __construct( $file )
+    public function __construct( $file, $deleteLocal = true )
     {
         $clusterHandler = eZClusterFileHandler::instance( $file );
         $clusterHandler->fetch();
 
         parent::__construct( $file );
 
-        $clusterHandler->deleteLocal();
+        $this->deleteLocal = $deleteLocal;
+        if( $this->deleteLocal )
+        {
+            $clusterHandler->deleteLocal();
+        }
     }
 
     /**
@@ -39,7 +45,10 @@ class eZIEImageAnalyzer extends ezcImageAnalyzer
 
         parent::analyzeImage();
 
-        $clusterHandler->deleteLocal();
+        if( $this->deleteLocal )
+        {
+            $clusterHandler->deleteLocal();
+        }
     }
 }
 

@@ -1,0 +1,386 @@
+Bugfixes
+========
+eZ Publish 5
+------------
+- EZP-19982: Rename Github Repository's to reflect eZ Publish 5 structure
+- EZP-20334: - Error in runCallback example in GETTING_STARTED file.
+
+eZ Publish Legacy Stack (LS)
+----------------------------
+- EZP-18506: Undefined txtHour[0] warning when using Date Picker
+- EZP-18662: switchlanguage doesn't respect RemoveSiteAccessIfDefaultAccess (patch proposed)
+- EZP-19161: Remove redundant indexes/keys
+- EZP-19576: SSLSubtree changes not taken into account
+- EZP-19649: eZ DFS sql error storing image files when path contains apostrophe (urlalias_iri)
+- EZP-19982: Rename Github Repository's to reflect eZ Publish 5 structure
+- EZP-20199: ezlupdate generates invalid xml for template files
+- EZP-20226: Transaction Error: duplicate entry in ezsearch_search_phrase
+- EZP-20289: Symfony CSRF protection not integrated with legacy
+- EZP-20300: In cases when left panel is hidden:  - Hiding left panels separator.  - Wrapping main content into "maincontent" and "maincontent-design" divs.  - Preventing unwanted CSS changes in the head.  - Removing "maincontent-desing" left margin in the head.
+
+eZ Publish Kernel & APIs
+------------------------
+- EZP-19161: Remove redundant indexes/keys
+- EZP-19982: Rename Github Repository's to reflect eZ Publish 5 structure
+- EZP-20084: ezwebin : front end siteaccesses don't share same session
+- EZP-20163: Remove loadRolesByGroupId from SPI and Implementation and Tests
+- EZP-20221: - Socket information for Database Connection is not propagated to legacy
+- EZP-20287: - eZP 5.0 Kernel errors falls back to eZ Demo
+- EZP-20289: Symfony CSRF protection not integrated with legacy
+- EZP-20298: - Confusing phpdoc documentation in UrlAlias Criterion
+- EZP-20299: - Small typo in phpdoc for ContentTypeId Criterion
+- EZP-20314: - Wrong phpdoc in handle methods of many criterionHandlers
+- EZP-20361: Try to fix travis failures by using authenticated github user
+- EZP-20385: added ez_render_fielddefinition_settings() Twig function
+- EZP-20413: "LanguageCode" criterion is not working for $repository->searchService.
+- EZP-20420: - Small CS issue in Repository/Values/Content/Location class
+- EZP-20428: - Canot define new ImageMagick filters in ezpublish.yml
+
+Enhancements
+============
+eZ Publish 5
+------------
+- EZP-20389: - Implement old .tpl engine as a real Symfony template engine
+
+eZ Publish Legacy Stack (LS)
+----------------------------
+- EZP-20194: Providing DB upgrade scripts
+
+eZ Publish Kernel & APIs
+------------------------
+- EZP-20317: - Add content type identifier criterion
+- EZP-20389: - Implement old .tpl engine as a real Symfony template engine
+
+Pull requests
+=============
+eZ Publish 5
+------------
+- 29: from crevillo/EZP-20334
+- 32: from patrickallaert/EZP-19982
+- 33: from lolautruche/eztemplate_symfony_engine
+- 36: from sanaghadevman/patch-1
+- 37: from ezrobot/patch-1
+- 38: from tothimre/master
+- 39: from SylvainGuittard/master
+
+eZ Publish Legacy Stack (LS)
+----------------------------
+- 506: from darylounet/patch-1
+- 525: from patrickallaert/EZP-20194
+- 527: from patrickallaert/EZP-19649
+- 529: from pspanja/EZP-20239
+- 532: from patrickallaert/EZP-20226
+- 533: from patrickallaert/EZP-18662
+- 535: from Tharkun/EZP-20164_oe-ligature-url-aliases
+- 538: from patrickallaert/EZP-20199
+- 539: from patrickallaert/EZP-19161
+- 543: from darylounet/patch-cs
+- 544: from ezsystems/EZP-20300
+- 547: from patrickallaert/EZP-19982
+- 552: from ezsystems/sf_csrf_align
+- 555: from Heliopsis-HQ/section_identifier_override_rebased
+- 557: from ezsystems/fix-EZP-19576
+
+eZ Publish Kernel & APIs
+------------------------
+- 170: from ezsystems/EZP-19884
+- 191: from patrickallaert/performanceMerged
+- 195: from patrickallaert/EZP-19161
+- 199: from crevillo/EZP-20298
+- 200: from crevillo/EZP-20299
+- 201: from ezsystems/EZP-20097-RefactorRelations
+- 202: from crevillo/EZP-20314-2
+- 203: from crevillo/ContentTypeIdentifier-criterion
+- 204: from crevillo/EZP-20314-2
+- 205: from ezsystems/PersistenceFieldType
+- 206: from ezsystems/globalTwigHelper
+- 207: from ezsystems/EZP-20106-PathIdentificationString
+- 208: from patrickallaert/EZP-20361
+- 209: from patrickallaert/EZP-19982
+- 211: from ezsystems/legacy_csrf_inject
+- 212: from patrickallaert/EZP-20084
+- 213: from lolautruche/eztemplate_symfony_engine
+- 214: from ezsystems/error_fallback
+- 216: from crevillo/EZP-20420
+- 217: from patrickallaert/solr-test
+- 218: from ezsystems/EZP-20400-RemoveContentInfo-ContentType
+- 219: from ezsystems/EZP-20419-FixTestsWithPHP533
+- 223: from ezsystems/compound_siteaccess_matcher
+- 224: from crevillo/EZP-20437
+- 226: from ezsystems/package-rename
+- 227: from ezsystems/EZP-20336-RedirectAfterLocationMove
+- 228: from joaoinacio/EZP-20413
+- 230: from patrickallaert/solr-part1
+- 231: from pedroresende/EZP-19923_Missing_Config
+- 232: from ezsystems/EZP-19884-fixIsMainLanguage
+
+Miscellaneous
+=============
+eZ Publish 5
+------------
+- Update INSTALL.md
+- Updated ezpublish-kernel deps
+- Update composer.lock file to reflect latests changes
+- Update composer.json deps on ezpublish-kernel
+- Upgrade to Symfony 2.2.0-RC2
+- EZP-20238 - Upgrade to Symfony 2.2
+- Updated dependencies.
+- Changed: welcome 2013
+
+eZ Publish Legacy Stack (LS)
+----------------------------
+- Removed: dead ezcontentobject_link.op_code usage
+- Added: issue number to removed feature description
+- Removed: ezcontentobject_link.op_code column
+- Added: ezcontentobject_link cleanup queries for MySQL
+- dbupdate: added queries to cleanup ezcontentboject_link table
+- Described removed feature
+- Fixed: version no 1 not recognized as draft
+- Removed: op_code handling for relations
+- Added doc/features file for the sslzones cache ID
+- Update .travis.yml to test PHP 5.3.3
+- Added missing doc/features/5.0/event.txt
+- Changed: welcome 2013
+- Check section type in eZContentObject::sectionIdentifier
+- fixing eZContentObject::sectionIdentifier method
+- Revert "fixing an obvious but oddly unnoticed error"
+- delete temp file
+- fixing an obvious but oddly unnoticed error
+- load section as object
+- adding section_identifier key to node_view_gui template function
+- Corrected code style from previous pull request http://git.io/yI8l4A thx @crevillo
+- EZP-20284 - Added a BC note about change of behaviour for extended attribute filters, after fix for EZP-19158
+- Added final bytes support (eg "bytes=-500") see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
+- Fixed #20164 : oe ligature is transformed wrong in url aliases
+- Corrected codestyle
+- Added stricter checking like suggested in https://github.com/ezsystems/ezpublish/pull/506#issuecomment-10550894
+- Merge remote-tracking branch 'upstream/master' into patch-1
+- Debug empty $endOffset for http range
+
+eZ Publish Kernel & APIs
+------------------------
+- Added: fixture for Solr test
+- Added: priority sort clause and solr index
+- Added: Passing testsuites to Solr integration tests
+- Fixed: sorting on a location property must be on the main one
+- Added: main location information in Solr
+- Added: support for some multi valued field in Solr
+- Fixed: correct some fixture data for Solr integration tests
+- Added: deleteContent() search backend operation
+- Changed: throw an Exception if Solr status != 200
+- Added: hardcoded high query limit
+- Added: implementing offset and limit in Solr queries
+- Changed: reducing usage of temporary variables
+- Changed: using integers for STATUS_* constants
+- Changed: reindex everything from db between tests
+- Changed: adapted tests to be system independent
+- Fixed: unescaped \ in strings
+- Changed: using colors for all tests
+- CS: imports cleanup
+- Fixed: typo
+- CS: space must be used after keyword
+- Fixed: wrong doc comment
+- Fixed mainLanguage detection in ContentService
+- Fix missing fieldtypes
+- test was using incorrect language code
+- Change .travis.yml to try to make sure composer is up-to-date
+- Merge branch 'master' into EZP-19884
+- Fixed: move PHP 5.3.3 workaround to the right place
+- Merge branch 'master' into EZP-19884
+- Attempt to fix occasional segmentation faults with PHP 5.3.3
+- Merge branch 'master' into EZP-20097-RefactorRelations
+- Merge branch 'master' into EZP-20106-PathIdentificationString
+- Update Symfony deps to 2.2.0-RC2
+- Fixed paths in configuration files to match repository rename
+- Update to Symfony 2.2.0-RC2
+- Merge branch 'master' into EZP-20336-RedirectAfterLocationMove
+- Enable UrlAliasRouter::matchRequest() to redirect history path to current path
+- Update composer.lock file
+- Update composer.json
+- Update composer package name
+- Removed Core ContentInfo, promoted API ContentInfo from abstract to concrete
+- Updated ContentExtension tests for ContentInfo->contentType removal
+- Merge branch 'master' into EZP-20400-RemoveContentInfo-ContentType
+- Fixed CS issues
+- Merge branch 'fielddefinition_settings'
+- Fixed field type identifier caching issue in the Content extension
+- Added integration tests for ez_render_field twig function
+- Added integration tests for ez_render_fielddefinition_settings twig function
+- EZP-20399 - Added PHPDoc
+- Fixed Typo
+- EZP-20437 - Php Warning while clearing caches from console
+- EZP-20399 - Implement compound siteaccess matcher
+- Attempt to fix segfaults with PHP 5.3.3 by reordering tests
+- Merge branch 'master' into EZP-20097-RefactorRelations
+- EZP-20399 - Implemented a siteaccess MatcherBuilder service instead of doing the job in the router, to make it reusable
+- Fixed: avoid searching for the same field twig blocks again and again
+- Updated phpdoc: since FieldType refactoring Persistence Handler is not provided in external Field storage
+- Fixed: sync phpdoc and interface with refactoring
+- Fixed: using  in a closure doesn't work with all supported PHP versions
+- Changed: assertions to account for differently ordered resultset returned by PDO with PHP 5.3.3 and 5.4
+- Fixed: comparing ArrayObjects in PHP 5.3.3
+- Removed: suite() methods from tests, wrecking PHPUnit with PHP 5.3.3 in come cases
+- EZP-20399 - Added the possibility to use a siteaccess matcher as a service.
+- EZP-20399 - Injecting the logger into SiteAccess\Router
+- Changed: welcome 2013
+- Fixed: calling getFieldTypeIdentifier() should not crash the app
+- Added: some build exclusion for travis
+- Added: PHP 5.5 partially for travis
+- Added: configuration for integration tests with Solr
+- Fixed: removed deprecated properties
+- Remove ContentInfo->contentType: Repository
+- Remove ContentInfo->contentType: REST
+- Remove ContentInfo->contentType: MVC
+- Remove ContentInfo->contentType: API
+- Added: services to test in Solr integration tests
+- Fixed: Solr Search Handler refactored with changes made in the PAPI
+- Fixed: testLoadSubUserGroups() not testing correctly sub user groups
+- Fixed: the sortClauses of a Query must always be an array
+- Fixed: Unable to convert the value as a string
+- Changed: reordered results as per 8131dbb3ef140fb3a49c2352582f1f3702771400
+- Changed: removed duplicated directory separator
+- PHPDOC: Try to mark internal ValueObject methods as internal
+- Fix some @package doxygen issues
+- Fixed: typos
+- Merge branch 'master' into EZP-19884
+- Merge branch 'master' into EZP-20106-PathIdentificationString
+- Merge branch 'master' into EZP-20097-RefactorRelations
+- Moved: relation processing tests to FieldType integration tests
+- Removed: processing relations on location swap (separate issue)
+- CS: fixed spacing issues
+- CS: fixed double space
+- CS: if conditions over several lines
+- EZP-20238 - Replace deprecated render Twig tag by the corresponding function
+- Permission criteria: Support role limitations with no policies
+- CS: fixed some issues not reported yet by ezcs standard
+- Fixed: global config mapping
+- Merge branch 'master' into EZP-20097-RefactorRelations
+- Fixed: Legacy Storage composite entries not expanded, simplified if expression
+- Tested: RelationProcessor
+- Fixed: unexisting Relation type in code example
+- Merge branch 'symfony2.2'
+- EZP-20238 - Use normalizeKeys( false ) in config tree to avoid key normalization whenever needed
+- Permission critieria: Skip on empty limitation list
+- Add index information to Invalid Criterion Exception
+- Add some inline doc on permission criteria handling
+- Tested: slug converter
+- Update composer config
+- EZP-20238 - Comply to deprecation of using a filename with Yaml::parse()
+- EZP-20238 - Comply to new format for routes (forward compatibility)
+- EZP-20238 - Removed custom Twig chain loader
+- EZP-20238 - Ensure to match a siteaccess only for a master request
+- EZP-20238 - Replaced usage of Symfony\Component\HttpKernel\Log\LoggerInterface (deprecated) in favor of PSR-3
+- Add more information on Invalid Criterion Argument Exception
+- Fixed minor cs issue API\SectionService
+- Updated: refactor remove relations block for simplicity and clarity
+- Fixed: combined if blocks
+- Merge branch 'master' into EZP-20097-RefactorRelations
+- Merge branch 'master' into EZP-20106-PathIdentificationString
+- Updated tests to use slug converter
+- Integrated slug converter
+- Added: empty test class for slug converter
+- Implemented: slug converter
+- EZP-20238 - LocationAwareStore is now based on Symfony\Component\HttpKernel\HttpCache\Store
+- EZP-20238 - Updating Symfony dependency
+- EZP-19948 - Added tests
+- Cleanup: field type registry integration
+- Integrated field type registry with inmemory storage
+- Updated: injecting field type registry to inmemory handler, removed injecting field type config to storages
+- Integrated FieldTypeRegistry
+- Merge branch 'master' into EZP-19884
+- Tested: updating path identification string from updateMetadata()
+- Fixed: properly hint parameters
+- Fixed: default text for path identification string
+- Update path identification string of all content locations
+- Removed: Legacy Storage specific SPI call
+- Added: language id parameter to loadLocationEntries()
+- Updated: changed parameter name and convertToAlias() visibility
+- Added: new dependencies for ContentHandler
+- Updated: update path_identification_string from updateMetadata()
+- Fixed: transform only when commands are set
+- Fixed: correct path to transformation rules
+- EZP-19948 - Expose config resolver
+- EZP-19948 - Expose legacy meta information from content module, including css/js from ezjscore
+- EZP-19948 - Added base legacy helper
+- EZP-19948 - Simplified Twig global load, directly from an extension
+- Tested: Handler::getFieldTypeRegistry()
+- Updated: fixed failing and implemented missing tests
+- Fixed: create existing field in new version for untranslatable field in man language
+- Updated: inject Language Handler through constructor
+- Fixed phpdoc, changed property name
+- Fixed funny code flow
+- EZP-19948 - Registered "ezpublish" global variable in Twig
+- EZP-19948 - Fixed missing argument to ezpublish.twig.global_helper.core service
+- EZP-19948 - Added base GlobalHelper class and defined it as a service
+- Added new test suite to the configuration
+- Added: FieldTypeRegistry to buildLegacyEngine()
+- Fixed: returning object instance
+- Tested: FieldTypeRegistry
+- Updated: SPI FieldType integration tests use FieldTypeRegistry
+- Added: getFieldTypeRegistry() method
+- Added: register() method
+- Cs: Added new line at the end of files
+- Added: FieldType registry to settings.ini and Legacy Handler
+- Added: FieldType registry
+- Added: Persistence FieldType interface and implementation
+- Changed test name to follow nomenclature
+- Optimize away unneded use of getFieldDefinition() during content loading
+- Removed: deprecated method
+- Merge branch 'master' into EZP-19884
+- Updated: changed order of how creating, updating and copying is done, added copying to createExistingFieldsInNewVersion()
+- Implemented: StorageHandler::copyFieldData()
+- Implemented: default implementation of copyLegacyField()
+- Updated: prepared for FieldStorage::copyLegacyField() #2
+- Updated: prepared for FieldStorage::copyLegacyField()
+- Merge branch 'master' into EZP-19884
+- Removed: external storage config for Relation and RelationList from Core bundle
+- Merge branch 'master' into EZP-20097-RefactorRelations
+- Fix boostraping legacy in functional tests, check existence of EZCBASE_ENABLED
+- Fixed: handling empty array of links URLs
+- Added: integration tests for processing field relations
+- Implemented: process relations on swapping Locations
+- Implemented: process relations on Content create and update
+- Implemented: RelationProcessor
+- Added: second parameter to ContentHandler interface
+- Removed: external storage for Relation and RelationList field types
+- Added: new method FieldType::getRelations()
+- Added: second parameter to ContentGateway::deleteRelation()
+- Fix indentation on .travis.yml git depth param
+- Changed: applying index changes to other DB implementations
+- Changed: The way to generate unique table name alias
+- Use join for subtree criterion queries
+- Documented optimization hacks as such
+- Removed more overly complex getIdentifier calls
+- Removed wrong type hints
+- Docs
+- Docs and more unification
+- Fixed: integration tests not correctly written
+- Fixed: unit tests not correctly written
+- Extract method
+- Clear internal caches when retrieving repo
+- Implemented: Cache clearing
+- Fixed group annotation
+- Added: Additional indexes
+- Use eq() instead of like() for int comparisons
+- Re-enabled language cache
+- Fixed type hint
+- Use in memory cache for content types
+- Implemented: Custom identifier quoting
+- Merge branch 'master' into EZP-19884
+- Fixed: added phpdoc description
+- Added: default configuration for Legacy Handler
+- Updated: InMemory storage tests against refactored ContentHandler
+- Updated: refacored InMemory ContentHandler to create complete set of fields in the same way as Legacy storage
+- Updated: tests for refactored FieldHandler
+- Updated: remove need for loading Content in ContentHandler::create()
+- Updated: do not pass full set of fields for untranslatable field
+- Removed: setter method for FieldType configuration
+- Updated: inject FieldType configuration into ContentHandler
+- Updated: register FieldTypes in compiler pass for legacy storage engine factory
+- Updated: add FieldTypes to persistence handler configuration
+- Merged with master
+- Updated: load content after create
+- Updated: inject field type configuration into the Legacy handler
+- Updated: handle storing empty and untranslatable fields
+- Updated: do not pass empty value and untranslatable fields to storage 
+

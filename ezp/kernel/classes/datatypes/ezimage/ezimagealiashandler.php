@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZImageAliasHandler class
-//
-// Created on: <16-Oct-2003 09:34:25 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZImageAliasHandler class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZImageAliasHandler ezimagealiashandler.php
@@ -497,9 +479,9 @@ class eZImageAliasHandler
      The first this is called the XML data will be parsed into the internal
      structures. Subsequent calls will simply return the internal structure.
     */
-    function aliasList()
+    function aliasList( $checkValidity = true )
     {
-        if ( isset( $this->ContentObjectAttributeData['DataTypeCustom']['alias_list'] ) )
+        if ( $checkValidity && isset( $this->ContentObjectAttributeData['DataTypeCustom']['alias_list'] ) )
         {
             return $this->ContentObjectAttributeData['DataTypeCustom']['alias_list'];
         }
@@ -645,13 +627,14 @@ class eZImageAliasHandler
                         $aliasEntry['filesize'] = $aliasFile->size();
                 }
 
-                if ( $imageManager->isImageAliasValid( $aliasEntry ) )
+                if ( $imageManager->isImageAliasValid( $aliasEntry ) || !$checkValidity )
                 {
                     $aliasList[$aliasEntry['name']] = $aliasEntry;
                 }
             }
         }
-        $this->setAliasList( $aliasList );
+        if ( $checkValidity )
+            $this->setAliasList( $aliasList );
         eZDebug::accumulatorStop( 'imageparse' );
         return $aliasList;
     }
@@ -688,6 +671,46 @@ class eZImageAliasHandler
             eZDir::cleanupEmptyDirectories( $dirpath );
         }
         eZImageFile::removeForContentObjectAttribute( $attributeData['attribute_id'] );
+    }
+
+    /**
+     * Removes the images alias while keeping the original image.
+     * @see eZCache::purgeAllAliases()
+     *
+     * @param eZContentObjectAttribute $contentObjectAttribute
+     */
+    public function purgeAllAliases( eZContentObjectAttribute $contentObjectAttribute )
+    {
+        $aliasList = $this->aliasList( false );
+        unset( $aliasList['original'] ); // keeping original
+
+        foreach ( $aliasList as $aliasName => $alias )
+        {
+            $filepath = $alias['url'];
+
+            eZImageFile::removeFilepath( $this->ContentObjectAttributeData['id'], $filepath );
+
+            $file = eZClusterFileHandler::instance( $filepath );
+            if ( $file->exists() )
+            {
+                $file->purge();
+                eZDir::cleanupEmptyDirectories( $alias['dirpath'] );
+            }
+            else
+            {
+                eZDebug::writeError( "Image file $filepath for alias $aliasName does not exist, could not remove from disk", __METHOD__ );
+            }
+        }
+
+        $doc = $this->ContentObjectAttributeData['DataTypeCustom']['dom_tree'];
+        foreach ( $doc->getElementsByTagName( 'alias' ) as $aliasNode )
+        {
+            $aliasNode->parentNode->removeChild( $aliasNode );
+        }
+        $this->ContentObjectAttributeData['DataTypeCustom']['dom_tree'] = $doc;
+        unset( $this->ContentObjectAttributeData['DataTypeCustom']['alias_list'] );
+
+        $this->storeDOMTree( $doc, true, $contentObjectAttribute );
     }
 
     /**
@@ -761,11 +784,12 @@ class eZImageAliasHandler
 
                 if ( !$doNotDelete )
                 {
+                    eZImageFile::removeFilepath( $contentObjectAttributeID, $filepath );
+
                     $file = eZClusterFileHandler::instance( $filepath );
                     if ( $file->exists() )
                     {
                         $file->delete();
-                        eZImageFile::removeFilepath( $contentObjectAttributeID, $filepath );
                         eZDir::cleanupEmptyDirectories( $dirpath );
                     }
                     else
@@ -1577,8 +1601,7 @@ class eZImageAliasHandler
         {
             $this->setOriginalAttributeDataValues( $contentObjectAttribute->attribute( 'id' ),
                                                    $contentObjectAttribute->attribute( 'version' ),
-                                                   $contentObjectAttribute->attribute( 'language_code' ),
-                                                   false );
+                                                   $contentObjectAttribute->attribute( 'language_code' ) );
         }
     }
 

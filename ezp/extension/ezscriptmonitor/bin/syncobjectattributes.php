@@ -4,7 +4,7 @@
 //
 // Created on: <10-Aug-2004 15:47:14 pk>
 //
-// Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
+// Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
 //
 // This source file is part of the eZ publish (tm) Open Source Content
 // Management System.
@@ -80,10 +80,22 @@ function updateClass( $classId, $scheduledScript )
         }
         if ( !$attributeExist )
         {
-            foreach ( eZContentObjectAttribute::fetchSameClassAttributeIDList( $oldClassAttributeID ) as $objectAttribute )
+            $objectLimit = 50;
+            $limit = array( 'offset' => 0 , 'length' => $objectLimit );
+            do
             {
-                $objectAttribute->removeThis( $objectAttribute->attribute( 'id' ) );
-            }
+                $objectAttributes = eZContentObjectAttribute::fetchSameClassAttributeIDList( $oldClassAttributeID, true, false, false, $limit );
+                $objectAttributeCount = count( $objectAttributes );
+                if ( is_array( $objectAttributes ) && $objectAttributeCount > 0 )
+                {
+                    $db = eZDB::instance();
+                    $db->begin();
+                    foreach ( $objectAttributes as $objectAttribute )
+                        $objectAttribute->removeThis( $objectAttribute->attribute( 'id' ) );
+                    $db->commit();
+                    $limit['offset'] += $objectAttributeCount;
+                }
+            } while ( $objectAttributeCount == $objectLimit );
         }
     }
     $class->storeVersioned( $attributes, eZContentClass::VERSION_STATUS_DEFINED );
@@ -146,21 +158,16 @@ $dbName = $options['db-database'] ? $options['db-database'] : false;
 $dbImpl = $options['db-driver'] ? $options['db-driver'] : false;
 $siteAccess = $options['siteaccess'] ? $options['siteaccess'] : false;
 
-if ( !isset( $isQuiet )  )
-    $isQuiet = false;
-
 if ( $siteAccess )
 {
     $cli = eZCLI::instance();
-    if ( file_exists( 'settings/siteaccess/' . $siteAccess ) )
+    if ( in_array( $siteAccess, eZINI::instance()->variable( 'SiteAccessSettings', 'AvailableSiteAccessList' ) ) )
     {
-        if ( !$isQuiet )
-            $cli->notice( "Using siteaccess $siteAccess" );
+        $cli->output( "Using siteaccess $siteAccess" );
     }
     else
     {
-        if ( !$isQuiet )
-            $cli->notice( "Siteaccess $siteAccess does not exist, using default siteaccess" );
+        $cli->notice( "Siteaccess $siteAccess does not exist, using default siteaccess" );
     }
 }
 
@@ -212,14 +219,14 @@ if ( isset( $options['classid'] ) )
 }
 else
 {
-    
+
     $cli->notice( 'The classid parameter was not given, will check all classes.' );
     foreach ( eZContentClass::fetchList( eZContentClass::VERSION_STATUS_MODIFIED, false ) as $class )
     {
-        $cli->notice( 'Checking class with ID: ' . $class['id'] );
+        $cli->output( 'Checking class with ID: ' . $class['id'] );
         updateClass( $class['id'], $scheduledScript );
     }
-    
+
 }
 
 $script->shutdown();

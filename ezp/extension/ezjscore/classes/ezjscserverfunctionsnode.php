@@ -6,9 +6,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -78,8 +78,9 @@ class ezjscServerFunctionsNode extends ezjscServerFunctions
         }
         else
         {
-            $nodeArray = false;
+            $nodeArray = array();
         }
+        unset( $node );// We have on purpose not checked permission on $node itself, so it should not be used
 
         // generate json response from node list
         if ( $nodeArray )
@@ -141,6 +142,10 @@ class ezjscServerFunctionsNode extends ezjscServerFunctions
         {
            throw new InvalidArgumentException( "Argument 1: '$embedType\_$embedId' does not map to a valid content object" );
         }
+        else if ( !$embedObject->canRead() )
+        {
+            throw new InvalidArgumentException( "Argument 1: '$embedType\_$embedId' is not available" );
+        }
 
         // Params for node to json encoder
         $params    = array('loadImages' => true);
@@ -179,6 +184,16 @@ class ezjscServerFunctionsNode extends ezjscServerFunctions
         $contentNodeID = $http->postVariable('ContentNodeID');
         $priorityArray = $http->postVariable('Priority');
         $priorityIDArray = $http->postVariable('PriorityID');
+
+        $contentNode = eZContentObjectTreeNode::fetch( $contentNodeID );
+        if ( !$contentNode instanceof eZContentObjectTreeNode )
+        {
+           throw new InvalidArgumentException( "Argument ContentNodeID: '$contentNodeID' does not exist" );
+        }
+        else if ( !$contentNode->canEdit() )
+        {
+            throw new InvalidArgumentException( "Argument ContentNodeIDs: '$contentNodeID' is not available" );
+        }
 
         if ( eZOperationHandler::operationIsAvailable( 'content_updatepriority' ) )
         {

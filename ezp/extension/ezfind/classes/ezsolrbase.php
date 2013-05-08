@@ -1,28 +1,27 @@
 <?php
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Find
-// SOFTWARE RELEASE: 1.0.x
-// COPYRIGHT NOTICE: Copyright (C) 2007 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE NAME: eZ Publish Community Project
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
 //   Public License as published by the Free Software Foundation.
-//
+// 
 //   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
 //   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //   GNU General Public License for more details.
-//
+// 
 //   You should have received a copy of version 2.0 of the GNU General
 //   Public License along with this program; if not, write to the Free
 //   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //   MA 02110-1301, USA.
-//
-//
 // ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 //
+
 
 
 /*!
@@ -34,21 +33,47 @@
  */
 class eZSolrBase
 {
+    const DEFAULT_REQUEST_CONTENTTYPE = 'application/x-www-form-urlencoded;charset=utf-8';
+
+    const DEFAULT_REQUEST_USERAGENT = 'eZ Publish';
+
+    /**
+     * The solr search server URI
+     * @var string
+     */
     var $SearchServerURI;
+
     var $SolrINI;
 
-    /*!
-     \constructor
-     \brief Constructor
-
-     \param string Solr server URL
-    */
-    function eZSolrBase( $baseURI = 'http://localhost:8983/solr' )
+    /**
+     * Constructor.
+     * Initializes the solr URI and various INI files
+     *
+     * @param string $baseURI An optional solr URI that overrides the INI one.
+     */
+    function __construct( $baseURI = false )
     {
-        $this->SearchServerURI = $baseURI;
-        $this->SolrINI = eZINI::instance( 'solr.ini' );
-    }
+        // @todo Modify this code to adapt to the new URI parameters
+        // Also keep BC with the previous settings
 
+        //$this->SearchServerURI = $baseURI;
+        $this->SolrINI = eZINI::instance( 'solr.ini' );
+        $iniSearchServerURI = $this->SolrINI->variable( 'SolrBase', 'SearchServerURI' );
+        if ( $baseURI !== false )
+        {
+            $this->SearchServerURI = $baseURI;
+        }
+        elseif ( $iniSearchServerURI )
+        {
+            $this->SearchServerURI = $this->SolrINI->variable( 'SolrBase', 'SearchServerURI' );
+        }
+        // fall back to hardcoded Solr default
+        else
+        {
+            $this->SearchServerURI = 'http://localhost:8983/solr';
+        }
+
+    }
 
     /*!
      Build a HTTP GET query
@@ -87,7 +112,7 @@ class eZSolrBase
 
      \return POST part of HTML request
      */
-	function buildPostString( $queryParams )
+        function buildPostString( $queryParams )
     {
         foreach ( $queryParams as $name => $value )
         {
@@ -106,34 +131,34 @@ class eZSolrBase
         return implode( '&', $encodedQueryParams );
     }
 
-    /*!
-     Send HTTP Post query to Solr engine
-
-     \param string request name
-     \param string post data
-     \param string contentType
-
-     \return Result of HTTP Request ( without HTTP headers ).
-    */
-    function postQuery( $request, $postData, $contentType = 'application/x-www-form-urlencoded' )
+    /**
+     * Send HTTP Post query to the Solr engine
+     *
+     * @param string $request request name (examples: /select, /update, ...)
+     * @param string $postData post data
+     * @param string $languageCodes A language code string
+     * @param string $contentType POST content type
+     *
+     * @return string Result of HTTP Request ( without HTTP headers )
+     */
+    protected function postQuery( $request, $postData, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE )
     {
         $url = $this->SearchServerURI . $request;
-        return $this->sendHTTPRequest( $url, $postData, $contentType );
+        return $this->sendHTTPRequestRetry( $url, $postData, $contentType );
     }
 
-    /*!
-     Send HTTP Get query to Solr engine
-
-     \param string request name
-     \param string HTTP GET parameters
-
-     \return Result of HTTP Request ( without HTTP headers ).
-    */
+    /**
+     * Send an HTTP Get query to Solr engine
+     *
+     * @param string $request request name
+     * @param string $getParams HTTP GET parameters, as an associative array
+     *
+     * @return Result of HTTP Request ( without HTTP headers )
+     */
     function getQuery( $request, $getParams )
     {
-        return $this->sendHTTPRequest( eZSolrBase::buildHTTPGetQuery( $request, $getParams ) );
+        return $this->sendHTTPRequestRetry( eZSolrBase::buildHTTPGetQuery( $request, $getParams ) );
     }
-
 
     /*!
       OBS ! Experimental.
@@ -147,15 +172,13 @@ class eZSolrBase
      */
     function rawSolrRequest ( $request = '', $params = array(), $wt = 'php' )
     {
-        if ( count( $params ) == 0 || $request == '' )
+        if ( count( $params ) == 0 && $request == '' )
         {
             return false;
         }
-		$params['wt'] = $wt;
+                $params['wt'] = $wt;
         $paramsAsString = $this->buildPostString( $params );
-        $data=$this->postQuery( $request, $paramsAsString );
-        //print_r ($data);
-        //echo ('data is ' . strlen($data) . " chars long\n");
+        $data = $this->postQuery( $request, $paramsAsString );
         $resultArray = array();
         if ( $data === false )
         {
@@ -169,7 +192,7 @@ class eZSolrBase
             }
             else
             {
-                eZDebug::writeError( 'Got invalid result from search engine.' );
+                eZDebug::writeError( 'Got invalid result from search engine.' . $data );
                 return false;
             }
         }
@@ -189,14 +212,20 @@ class eZSolrBase
         return $resultArray;
     }
 
-    /*!
-      OBS ! Experimental.
-    */
+    /**
+     * Sends a ping request to solr
+     *
+     * @note OBS ! Experimental.
+     *
+     * @param string $wt
+     *        Query response writer. Defaults to PHP array response format
+     *
+     * @return array The ping operation result
+     */
     function ping ( $wt = 'php' )
     {
         return $this->rawSolrRequest ( '/admin/ping' );
     }
-
 
     /*!
       Performs a commit in Solr, which means the index is made live after performing
@@ -218,7 +247,8 @@ class eZSolrBase
         {
             $this->commit();
         }
-        $this->postQuery( '/update', '<optimize/>', 'text/xml' );
+        //return the response for inspection if optimize was successful
+        return $this->postQuery( '/update', '<optimize/>', 'text/xml' );
     }
 
     /**
@@ -238,6 +268,10 @@ class eZSolrBase
      **/
     static function validateUpdateResult ( $updateResult )
     {
+        if ( empty( $updateResult ) )
+        {
+            return false;
+        }
         $dom = new DOMDocument( '1.0' );
         // Supresses error messages
         $status = $dom->loadXML( $updateResult, LIBXML_NOWARNING | LIBXML_NOERROR  );
@@ -256,29 +290,29 @@ class eZSolrBase
 
         foreach ( $intElements as $intNode )
         {
-            foreach ($intNode->attributes as $attribute)
+            foreach ( $intNode->attributes as $attribute )
             {
                 if ( ( $attribute->name === 'name' ) and ( $attribute->value === 'status' ) )
                 {
                     //Then we have found the correct node
-                    return ($intNode->nodeValue === "0");
+                    return ( $intNode->nodeValue === "0"  );
                 }
             }
         }
         return false;
     }
 
-    /*!
-      Adds an array of docs (of type eZSolrDoc) to the Solr index
-      for maximum performance.
-
-      \param array associative array of documents to add.
-      \param boolean $commit means a commit is performed afterwards
+    /**
+     * Adds an array of docs (of type eZSolrDoc) to the Solr index for maximum
+     * performance.
+     * @param array $docs associative array of documents to add
+     * @param boolean $commit wether or not to perform a solr commit at the end
+     * @param integer $commitWithin specifies within how many milliseconds a commit should occur if no other commit
+     *       is triggered in the meantime (Solr 1.4, eZ Find 2.2)
      */
-    function addDocs ( $docs = array(), $commit = true, $optimize = false  )
+    function addDocs ( $docs = array(), $commit = true, $optimize = false, $commitWithin = 0  )
     {
-        //
-        if (! is_array( $docs ) )
+        if ( !is_array( $docs ) )
         {
             return false;
         }
@@ -288,7 +322,15 @@ class eZSolrBase
         }
         else
         {
-            $postString = '<add>';
+            if ( is_numeric( $commitWithin ) && $commitWithin > 0 )
+            {
+                $postString = '<add commitWithin="' . $commitWithin . '">';
+            }
+            else
+            {
+                $postString = '<add>';
+            }
+
             foreach ( $docs as $doc )
             {
                 $postString .= $doc->docToXML();
@@ -310,14 +352,15 @@ class eZSolrBase
 
     }
 
-    /*!
-      Adds an array of docID's from the Solr index
-
-      \param array List of document IDs to delete. If set to <empty>,
-                   $query will be used to delete documents instead.
-      \param string Solr Query. This will be ignored if \a$docIDs is set.
-      \param boolean $optimize means an optimize is performed afterwards ( optional, default value: false )
-     */
+    /**
+     * Removes an array of docID's from the Solr index
+     *
+     * @param array $docsID List of document IDs to delete. If set to <empty>,
+     *              $query will be used to delete documents instead.
+     * @param string $query Solr Query. This will be ignored if $docIDs is set.
+     * @param bool $optimize set to true to perform a solr optimize after delete
+     * @return bool
+     **/
     function deleteDocs ( $docIDs = array(), $query = false, $commit = true,  $optimize = false )
     {
         $postString = '<delete>';
@@ -333,7 +376,7 @@ class eZSolrBase
             $postString .= '<query>' . $query . '</query>';
         }
         $postString .= '</delete>';
-        $this->postQuery ( '/update', $postString, 'text/xml' );
+        $updateXML = $this->postQuery ( '/update', $postString, 'text/xml' );
         if ( $optimize )
         {
             $this->optimize( $commit );
@@ -342,26 +385,106 @@ class eZSolrBase
         {
             $this->commit();
         }
-        return true;
+
+        return self::validateUpdateResult( $updateXML );
     }
 
+    /**
+     * Sends the solr server a search request
+     *
+     * @param array|ezfSolrQueryBuilder $params
+     *        Query parameters, either:
+     *        - an array, as returned by ezfeZPSolrQueryBuilder::buildSearch
+     *        or
+     *        - an ezfeZPSolrQueryBuilder instance
+     * @param string $wt Query response writer
+     * @return array The search results
+     */
     function rawSearch ( $params = array(), $wt = 'php' )
     {
         return $this->rawSolrRequest ( '/select' , $params, $wt );
     }
 
-    /*!
-     Send HTTP request. This code is based on eZHTTPTool::sendHTTPRequest, but contains
-     Some improvements. Will use Curl, if curl is present.
+    /**
+     * Sends the updated elevate configuration to Solr
+     *
+     * @params array $params Raw query parameters
+     *
+     *
+     * @note This method is a simple wrapper around rawSearch in order to easily
+     *       ignore elevate when using multicore
+     * @return bool
+     * @see rawSearch()
+     */
+    function pushElevateConfiguration( $params )
+    {
+        return $this->rawSearch( $params );
+    }
 
-     \param \a $url
-     \param \a $postData ( optional, default false )
-     \param \a $contentType ( optional, default '' )
-     \param \a $userAgent ( optional, default 'eZ Publish' )
+    /**
+     * Proxy method to {@link self::sendHTTPRequest()}.
+     * Sometimes, an overloaded Solr server can result a timeout and drop the connection
+     * In this case, we will retry just after, with a max number of retries defined in solr.ini ([SolrBase].ProcessMaxRetries)
+     *
+     * @param string $url
+     * @param string $postData POST data as string (field=value&foo=bar). Default is false (HTTP Request will be GET)
+     * @param string $contentType Default is {@link self::DEFAULT_REQUEST_CONTENTTYPE}
+     * @param string $userAgent Default is {@link self::DEFAULT_REQUEST_USERAGENT}
+     *
+     * @return HTTP result ( without headers ), false if the request fails.
+     */
+    protected function sendHTTPRequestRetry( $url, $postData = false, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE, $userAgent = self::DEFAULT_REQUEST_USERAGENT )
+    {
+        $maxRetries = (int)$this->SolrINI->variable( 'SolrBase', 'ProcessMaxRetries' );
+        if ( $maxRetries < 1 )
+        {
+            eZDebug::writeWarning( 'solr.ini : [SolrBase].ProcessMaxRetries cannot be < 1' );
+            $maxRetries = 1;
+        }
 
-     \return HTTP result ( without headers ), false if the request fails.
-    */
-    function sendHTTPRequest( $url, $postData = false, $contentType = '', $userAgent = 'eZ Publish' )
+        $tries = 0;
+        while ( $tries < $maxRetries )
+        {
+            try
+            {
+                $tries++;
+                return $this->sendHTTPRequest( $url, $postData, $contentType, $userAgent );
+            }
+            catch ( ezfSolrException $e )
+            {
+                $doRetry = false;
+                $errorMessage = $e->getMessage();
+                switch ( $e->getCode() )
+                {
+                    case ezfSolrException::REQUEST_TIMEDOUT : // Code error 28. Server is most likely overloaded
+                    case ezfSolrException::CONNECTION_TIMEDOUT : // Code error 7, same thing
+                        $errorMessage .= ' // Retry #'.$tries;
+                        $doRetry = true;
+                    break;
+                }
+
+                if ( !$doRetry )
+                    break;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Send HTTP request. This code is based on eZHTTPTool::sendHTTPRequest, but contains
+     * Some improvements. Will use Curl, if curl is present.
+     *
+     * @param string $url
+     * @param string $postData POST data as string (field=value&foo=bar). Default is false (HTTP Request will be GET)
+     * @param string $contentType Default is {@link self::DEFAULT_REQUEST_CONTENTTYPE}
+     * @param string $userAgent Default is {@link self::DEFAULT_REQUEST_USERAGENT}
+     *
+     * @throws ezfSolrException Throws an ezfSolrException if the request results a timeout.
+     *                          If curl is available, this exception will also be thrown, with its error number and message
+     * @return HTTP result ( without headers ), false if the request fails.
+     */
+    function sendHTTPRequest( $url, $postData = false, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE, $userAgent = self::DEFAULT_REQUEST_USERAGENT )
     {
         $connectionTimeout = $this->SolrINI->variable( 'SolrBase', 'ConnectionTimeout' );
         $processTimeout = $this->SolrINI->variable( 'SolrBase', 'ProcessTimeout' );
@@ -369,12 +492,19 @@ class eZSolrBase
 
         if ( extension_loaded( 'curl' ) )
         {
-            eZDebug::writeDebug( 'using curl', __METHOD__ );
             $ch = curl_init();
             curl_setopt( $ch, CURLOPT_URL, $url );
             curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
             curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, $connectionTimeout );
             curl_setopt( $ch, CURLOPT_TIMEOUT, $processTimeout );
+            if ( $this->SolrINI->variable( 'SolrBase', 'SearchServerAuthentication' ) === 'enabled' )
+            {
+                if ( $this->SolrINI->variable( 'SolrBase', 'SearchServerAuthenticationMethod' ) === 'basic' )
+                {
+                    curl_setopt( $ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC );
+                    curl_setopt( $ch, CURLOPT_USERPWD, $this->SolrINI->variable( 'SolrBase', 'SearchServerUserPass' ) );
+                }
+            }
             //CURLOPT_TIMEOUT
             if ( $postData !== false )
             {
@@ -387,13 +517,12 @@ class eZSolrBase
             }
 
             $data = curl_exec( $ch );
-            eZDebug::writeDebug( $data );
             $errNo = curl_errno( $ch );
+            $err = curl_error( $ch );
             curl_close( $ch );
             if  ( $errNo )
             {
-                eZDebug::writeError( 'curl error: ' . $errNo, 'eZSolr::sendHTTPRequest()' );
-                return false;
+                throw new ezfSolrException( __METHOD__ . ' - curl error: ' . $err, $errNo );
             }
             else
             {
@@ -427,7 +556,7 @@ class eZSolrBase
             $checkIP = ip2long( $ip );
             if ( $checkIP == -1 or $checkIP === false )
             {
-                eZDebug::writeDebug( 'Could not find hostname: ' . $parsedUrl['host'], 'eZSolr::sendHTTPRequest()' );
+                eZDebug::writeDebug( 'Could not find hostname: ' . $parsedUrl['host'], __METHOD__ );
                 return false;
             }
 
@@ -437,7 +566,7 @@ class eZSolrBase
             if ( !$fp )
             {
                 eZDebug::writeDebug( 'Could not open connection to: ' . $filename . ':' . $port . '. Error: ' . $errorStr,
-                                     'eZSolr::sendHTTPRequest()' );
+                                     __METHOD__ );
                 return false;
             }
 
@@ -455,6 +584,7 @@ class eZSolrBase
                 "User-Agent: $userAgent\r\n" .
                 "Pragma: no-cache\r\n" .
                 "Connection: close\r\n\r\n";
+
             stream_set_timeout( $fp, $processTimeout );
             fputs( $fp, $request );
             if ( $method == 'POST' )
@@ -487,13 +617,12 @@ class eZSolrBase
             {
                 $buf .= fgets( $fp, 128 );
             }
-            $info = stream_get_meta_data($fp);
+            $info = stream_get_meta_data( $fp );
 
-            fclose($fp);
+            fclose( $fp );
             if ( $info['timed_out'] )
             {
-                eZDebug::writeError( 'connection error: processing timed out', 'eZSolr::sendHTTPRequest()' );
-                return false;
+                throw new ezfSolrException( __METHOD__ . ' - connection error: processing timed out', ezfSolrException::REQUEST_TIMEDOUT );
             }
             else
             {
@@ -503,4 +632,5 @@ class eZSolrBase
 
         }
     }
+
 }

@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZMultiplexerType class
-//
-// Created on: <01-���-2002 15:34:23 sp>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZMultiplexerType class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZMultiplexerType ezmultiplexertype.php
@@ -35,7 +14,7 @@
 
   WorkflowEvent storage fields : data_text1 - selected_sections
                                  data_text2 - selected_usergroups
-                                 data_text3 - selected_classes
+                                 data_text5 - selected_classes
                                  data_int1  - selected_workflow
                                  data_int2  - language_list
                                  data_int3  - content object version option
@@ -68,7 +47,7 @@ class eZMultiplexerType extends eZWorkflowEventType
 
             case 'selected_classes':
             {
-                $attributeValue = trim( $event->attribute( 'data_text3' ) );
+                $attributeValue = trim( $event->attribute( 'data_text5' ) );
                 $returnValue = empty( $attributeValue ) ? array( -1 ) : explode( ',', $attributeValue );
             }break;
 
@@ -201,47 +180,51 @@ class eZMultiplexerType extends eZWorkflowEventType
         $processParameters = $process->attribute( 'parameter_list' );
         $storeProcessParameters = false;
         $classID = false;
-        $objectID = false;
+        $object = false;
         $sectionID = false;
         $languageID = 0;
 
         if ( isset( $processParameters['object_id'] ) )
         {
-            $objectID = $processParameters['object_id'];
-            $object = eZContentObject::fetch( $objectID );
-            if ( $object )
+            $object = eZContentObject::fetch( $processParameters['object_id'] );
+        }
+        else if ( isset( $processParameters['node_id'] ) )
+        {
+            $object = eZContentObject::fetchByNodeID( $processParameters['node_id'] );
+        }
+
+        if ( $object instanceof eZContentObject )
+        {
+            // Examine if the published version contains one of the languages we
+            // match for.
+            if ( isset( $processParameters['version'] ) )
             {
-                // Examine if the published version contains one of the languages we
-                // match for.
-                if ( isset( $processParameters['version'] ) )
-                {
-                    $versionID = $processParameters['version'];
-                    $version = $object->version( $versionID );
+                $versionID = $processParameters['version'];
+                $version = $object->version( $versionID );
 
-                    if ( is_object( $version ) )
+                if ( is_object( $version ) )
+                {
+                    $version_option = $event->attribute( 'version_option' );
+                    if ( ( $version_option == eZMultiplexerType::VERSION_OPTION_FIRST_ONLY and $processParameters['version'] > 1 ) or
+                         ( $version_option == eZMultiplexerType::VERSION_OPTION_EXCEPT_FIRST and $processParameters['version'] == 1 ) )
                     {
-                        $version_option = $event->attribute( 'version_option' );
-                        if ( ( $version_option == eZMultiplexerType::VERSION_OPTION_FIRST_ONLY and $processParameters['version'] > 1 ) or
-                             ( $version_option == eZMultiplexerType::VERSION_OPTION_EXCEPT_FIRST and $processParameters['version'] == 1 ) )
-                        {
-                            return eZWorkflowType::STATUS_ACCEPTED;
-                        }
-
-                        // If the language ID is part of the mask the result is non-zero.
-                        $languageID = (int)$version->attribute( 'initial_language_id' );
+                        return eZWorkflowType::STATUS_ACCEPTED;
                     }
+
+                    // If the language ID is part of the mask the result is non-zero.
+                    $languageID = (int)$version->attribute( 'initial_language_id' );
                 }
-                $sectionID = $object->attribute( 'section_id' );
-                $class = $object->attribute( 'content_class' );
-                if ( $class )
-                {
-                    $classID = $class->attribute( 'id' );
-                }
+            }
+            $sectionID = $object->attribute( 'section_id' );
+            $class = $object->attribute( 'content_class' );
+            if ( $class )
+            {
+                $classID = $class->attribute( 'id' );
             }
         }
 
         $userArray = explode( ',', $event->attribute( 'data_text2' ) );
-        $classArray = explode( ',', $event->attribute( 'data_text3' ) );
+        $classArray = explode( ',', $event->attribute( 'data_text5' ) );
         $languageMask = $event->attribute( 'data_int2' );
 
         if ( !isset( $processParameters['user_id'] ) )
@@ -339,7 +322,12 @@ class eZMultiplexerType extends eZWorkflowEventType
                     $childProcess->removeThis();
                     return eZWorkflowType::STATUS_ACCEPTED;
                 }
-                else if ( $childStatus == eZWorkflow::STATUS_CANCELLED || $childStatus == eZWorkflow::STATUS_FAILED )
+                else if ( $childStatus == eZWorkflow::STATUS_CANCELLED )
+                {
+                    $childProcess->removeThis();
+                    return eZWorkflowType::STATUS_WORKFLOW_CANCELLED;
+                }
+                else if ( $childStatus == eZWorkflow::STATUS_FAILED )
                 {
                     $childProcess->removeThis();
                     return eZWorkflowType::STATUS_REJECTED;
@@ -406,7 +394,7 @@ class eZMultiplexerType extends eZWorkflowEventType
                 $classesArray = array( -1 );
             }
             $classesString = implode( ',', $classesArray );
-            $event->setAttribute( "data_text3", $classesString );
+            $event->setAttribute( "data_text5", $classesString );
         }
 
         $workflowVar = $base . "_event_ezmultiplexer_workflow_id_" . $event->attribute( "id" );

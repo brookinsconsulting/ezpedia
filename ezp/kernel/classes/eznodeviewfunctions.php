@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZNodeviewfunctions class
-//
-// Created on: <20-Apr-2004 11:57:36 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZNodeviewfunctions class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZNodeviewfunctions eznodeviewfunctions.php
@@ -83,11 +65,11 @@ class eZNodeviewfunctions
      * @param eZTemplate $tpl
      * @param eZContentObjectTreeNode $node
      * @param eZContentObject $object
-     * @param false|string $languageCode
+     * @param bool|string $languageCode
      * @param string $viewMode
      * @param int $offset
      * @param array $viewParameters
-     * @param false|array $collectionAttributes
+     * @param bool|array $collectionAttributes
      * @param bool $validation
      * @return array Result array for view
      */
@@ -127,12 +109,20 @@ class eZNodeviewfunctions
 
         $parentClassID = false;
         $parentClassIdentifier = false;
+        $parentNodeRemoteID = false;
+        $parentObjectRemoteID = false;
         $parentNode = $node->attribute( 'parent' );
         if ( is_object( $parentNode ) )
         {
+            $parentNodeRemoteID = $parentNode->attribute( 'remote_id' );
+            $keyArray[] = array( 'parent_node_remote_id', $parentNodeRemoteID );
+
             $parentObject = $parentNode->attribute( 'object' );
             if ( is_object( $parentObject ) )
             {
+                $parentObjectRemoteID = $parentObject->attribute( 'remote_id' );
+                $keyArray[] = array( 'parent_object_remote_id', $parentObjectRemoteID );
+
                 $parentClass = $parentObject->contentClass();
                 if ( is_object( $parentClass ) )
                 {
@@ -235,6 +225,8 @@ class eZNodeviewfunctions
         $contentInfoArray['state_identifier']        = $object->attribute( 'state_identifier_array' );
         $contentInfoArray['parent_class_id']         = $parentClassID;
         $contentInfoArray['parent_class_identifier'] = $parentClassIdentifier;
+        $contentInfoArray['parent_node_remote_id']   = $parentNodeRemoteID;
+        $contentInfoArray['parent_object_remote_id'] = $parentObjectRemoteID;
 
         $Result['content_info'] = $contentInfoArray;
 
@@ -394,8 +386,19 @@ class eZNodeviewfunctions
                       'cache_file' => $cacheFile );
     }
 
-
-    static function contentViewRetrieve( $file, $mtime, $args )
+    /**
+     * Retrieve content view data
+     *
+     * @see contentViewGenerate()
+     *
+     * @param string $file
+     * @param int $mtime File modification time
+     * @param array $args Hash containing arguments, the used ones are:
+     *  - ini
+     *
+     * @return \eZClusterFileFailure
+     */
+    static public function contentViewRetrieve( $file, $mtime, $args )
     {
         extract( $args );
 
@@ -407,6 +410,12 @@ class eZNodeviewfunctions
 //        $contents = $cacheFile->fetchContents();
             $contents = file_get_contents( $file );
             $Result = unserialize( $contents );
+
+            if( !is_array( $Result ) )
+            {
+                $expiryReason = 'Unexpected cache file content';
+                $cacheExpired = true;
+            }
 
             // Check if a no_cache key has been set in the viewcache, and
             // return an eZClusterFileFailure if it has
@@ -455,9 +464,15 @@ class eZNodeviewfunctions
 
             if ( !$cacheExpired )
             {
+                if ( !isset( $Result['content_info'] ) )
+                {
+                    return $Result;
+                }
                 $keyArray = array( array( 'object', $Result['content_info']['object_id'] ),
                                    array( 'node', $Result['content_info']['node_id'] ),
                                    array( 'parent_node', $Result['content_info']['parent_node_id'] ),
+                                   array( 'parent_node_remote_id', $Result['content_info']['parent_node_remote_id'] ),
+                                   array( 'parent_object_remote_id', $Result['content_info']['parent_object_remote_id'] ),
                                    array( 'class', $Result['content_info']['class_id'] ),
                                    array( 'view_offset', $Result['content_info']['offset'] ),
                                    array( 'navigation_part_identifier', $Result['content_info']['navigation_part_identifier'] ),
@@ -494,79 +509,104 @@ class eZNodeviewfunctions
         return new eZClusterFileFailure( 1, $expiryReason );
     }
 
-    static function contentViewGenerate( $file, $args )
+    /**
+     * Generate convent view data
+     *
+     * @see contentViewRetrieve()
+     *
+     * @param string|false $file File in which the result will be cached
+     * @param array $args Hash containing arguments, the used ones are:
+     *  - NodeID
+     *  - Module
+     *  - tpl
+     *  - LanguageCode
+     *  - ViewMode
+     *  - Offset
+     *  - viewParameters
+     *  - collectionAttributes
+     *  - validation
+     *  - noCache (optional)
+     *
+     * @return array
+     */
+    static public function contentViewGenerate( $file, $args )
     {
         extract( $args );
         $node = eZContentObjectTreeNode::fetch( $NodeID );
-
-        if ( !is_object( $node ) )
+        if ( !$node instanceof eZContentObjectTreeNode )
         {
             if ( !eZDB::instance()->isConnected())
             {
-                return  array( 'content' => $Module->handleError( eZError::KERNEL_NO_DB_CONNECTION, 'kernel' ),
-                               'store'   => false );
+                return self::contentViewGenerateError( $Module, eZError::KERNEL_NO_DB_CONNECTION, false );
+            }
 
-            }
-            else
-            {
-                return  array( 'content' => $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' ),
-                               'store'   => false );
-            }
+            return self::contentViewGenerateError( $Module, eZError::KERNEL_NOT_AVAILABLE );
         }
 
         $object = $node->attribute( 'object' );
-
-        if ( !is_object( $object ) )
-        {
-            return  array( 'content' => $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' ),
-                           'store'   => false );
-        }
-
         if ( !$object instanceof eZContentObject )
         {
-            return  array( 'content' => $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' ),
-                           'store'   => false );
-        }
-        if ( $node === null )
-        {
-            return  array( 'content' => $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' ),
-                           'store'   => false );
-        }
-
-        if ( $object === null )
-        {
-            return  array( 'content' => $Module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' ),
-                           'store'   => false );
+            return self::contentViewGenerateError( $Module, eZError::KERNEL_NOT_AVAILABLE );
         }
 
         if ( $node->attribute( 'is_invisible' ) && !eZContentObjectTreeNode::showInvisibleNodes() )
         {
-            return array( 'content' => $Module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' ),
-                          'store'   => false );
+            return self::contentViewGenerateError( $Module, eZError::KERNEL_ACCESS_DENIED );
         }
 
-        if ( !$object->canRead() )
+        if ( !$node->canRead() )
         {
-            return array( 'content' => $Module->handleError( eZError::KERNEL_ACCESS_DENIED,
-                                                             'kernel',
-                                                             array( 'AccessList' => $object->accessList( 'read' ) ) ),
-                          'store'   => false );
+            return self::contentViewGenerateError(
+                $Module,
+                eZError::KERNEL_ACCESS_DENIED,
+                true,
+                array( 'AccessList' => $node->checkAccess( 'read', false, false, true ) )
+            );
         }
 
-        $Result = eZNodeviewfunctions::generateNodeViewData( $tpl, $node, $object,
-                                                              $LanguageCode, $ViewMode, $Offset,
-                                                              $viewParameters, $collectionAttributes,
-                                                              $validation );
+        $result = self::generateNodeViewData(
+            $tpl,
+            $node,
+            $object,
+            $LanguageCode,
+            $ViewMode,
+            $Offset,
+            $viewParameters,
+            $collectionAttributes,
+            $validation
+        );
 
         // 'store' depends on noCache: if $noCache is set, this means that retrieve
         // returned it, and the noCache fake cache file is already stored
         // and should not be stored again
-        $retval = array( 'content' => $Result,
+        $retval = array( 'content' => $result,
                          'scope'   => 'viewcache',
                          'store'   => !( isset( $noCache ) and $noCache ) );
         if ( $file !== false && $retval['store'] )
-            $retval['binarydata'] = serialize( $Result );
+            $retval['binarydata'] = serialize( $result );
         return $retval;
+    }
+
+    /**
+     * @param eZModule $Module
+     * @param int $error
+     * @param bool $store
+     * @param array $errorParameters
+     *
+     * @return array
+     */
+    static protected function contentViewGenerateError( eZModule $Module, $error, $store = true, array $errorParameters = array() )
+    {
+        return array(
+            'content' =>
+                $content = $Module->handleError(
+                    $error,
+                    'kernel',
+                    $errorParameters
+                ),
+            'store' => $store,
+            'binarydata' => serialize( $content ),
+        );
     }
 }
 

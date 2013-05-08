@@ -2,16 +2,16 @@
 /**
  * File containing the eZClusterFileHandler class.
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version  4.2011
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
  * @package kernel
  */
 class eZClusterFileHandler
 {
     /**
      * Returns the configured instance of an eZClusterFileHandlerInterface
-     * See ClusteringSettings.FileHandler in php.ini
+     * See ClusteringSettings.FileHandler in file.ini
      *
      * @param string|bool $filename
      *        Optional filename the handler should be initialized with
@@ -42,7 +42,7 @@ class eZClusterFileHandler
         else
         {
             // return Filehandler from GLOBALS based on ini setting.
-            if ( !isset( $GLOBALS['eZClusterFileHandler_chosen_handler'] ) )
+            if ( self::$globalHandler === null )
             {
                 $optionArray = array( 'iniFile'      => 'file.ini',
                                       'iniSection'   => 'ClusteringSettings',
@@ -52,42 +52,22 @@ class eZClusterFileHandler
 
                 $handler = eZExtension::getHandlerClass( $options );
 
-                $GLOBALS['eZClusterFileHandler_chosen_handler'] = $handler;
+                self::$globalHandler = $handler;
             }
             else
-                $handler = $GLOBALS['eZClusterFileHandler_chosen_handler'];
+                $handler = self::$globalHandler;
 
             return $handler;
         }
     }
 
     /**
-     * @deprecated 4.3 No longer used as we rely on ezpExtension & autoloads
-     * @return array list of directories used to search cluster file handlers for
-     */
-    static function searchPathArray()
+      * Resets the handler so that a new one can be loaded
+      */
+    public static function resetHandler()
     {
-        if ( !isset( $GLOBALS['eZClusterFileHandler_search_path_array'] ) )
-        {
-            $fileINI = eZINI::instance( 'file.ini' );
-            $searchPathArray = array( 'kernel/classes/clusterfilehandlers',
-                                      'kernel/private/classes/clusterfilehandlers' );
-            if ( $fileINI->hasVariable( 'ClusteringSettings', 'ExtensionDirectories' ) )
-            {
-                $extensionDirectories = $fileINI->variable( 'ClusteringSettings', 'ExtensionDirectories' );
-                $baseDirectory = eZExtension::baseDirectory();
-                foreach ( $extensionDirectories as $extensionDirectory )
-                {
-                    $customSearchPath = $baseDirectory . '/' . $extensionDirectory . '/clusterfilehandlers';
-                    if ( file_exists( $customSearchPath ) )
-                        $searchPathArray[] = $customSearchPath;
-                }
-            }
-
-            $GLOBALS['eZClusterFileHandler_search_path_array'] = $searchPathArray;
-        }
-
-        return $GLOBALS['eZClusterFileHandler_search_path_array'];
+        self::cleanupGeneratingFiles();
+        self::$globalHandler = null;
     }
 
     /**
@@ -108,8 +88,8 @@ class eZClusterFileHandler
                 $generatingFile->abortCacheGeneration();
                 self::removeGeneratingFile( $generatingFile );
             }
+            return true;
         }
-
     }
 
     /**
@@ -140,7 +120,7 @@ class eZClusterFileHandler
      */
     public static function addGeneratingFile( $file )
     {
-        if ( !( $file instanceof eZDBFileHandler ) && !( $file instanceof eZDFSFileHandler ) )
+        if ( !( $file instanceof eZDFSFileHandler ) )
             return false; // @todo Exception
 
         self::$generatingFiles[$file->filePath] = $file;
@@ -148,7 +128,7 @@ class eZClusterFileHandler
 
     /**
      * Removes a file from the generating list
-     * @param eZDBFileHandler|eZDFSFileHandler $file
+     * @param eZDFSFileHandler $file
      *        Cluster file handler instance
      *        Note that this method expect a version of the handler where the filePath is the REAL one, not the .generating
      *
@@ -156,7 +136,7 @@ class eZClusterFileHandler
      */
     public static function removeGeneratingFile( $file )
     {
-        if ( !( $file instanceof eZDBFileHandler ) && !( $file instanceof eZDFSFileHandler ) )
+        if ( !( $file instanceof eZDFSFileHandler ) )
             return false; // @todo Exception
 
         if ( isset( self::$generatingFiles[$file->filePath] ) )
@@ -176,6 +156,9 @@ class eZClusterFileHandler
         if ( $clusterHandler instanceof ezpDatabaseBasedClusterFileHandler )
         {
             $clusterHandler->disconnect();
+
+            // destroy the current handler so that it reconnects when instanciated again
+            self::$globalHandler = null;
         }
     }
 
@@ -190,6 +173,12 @@ class eZClusterFileHandler
      * @var bool
      */
     private static $isShutdownFunctionRegistered = false;
+
+    /**
+     * Global, generic (e.g. not linked to a file) cluster handler, used for caching
+     * @var eZClusterFileHandlerInterface
+     */
+    public static $globalHandler;
 }
 
 ?>

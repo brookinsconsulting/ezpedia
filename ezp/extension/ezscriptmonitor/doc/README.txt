@@ -1,7 +1,6 @@
 README
 ------
 Gunnstein Lye <gl@ez.no>
-v0.4
 
 This extension aims to avoid timeout problems and database corruption by
 moving long running processes from the GUI to the background.
@@ -20,12 +19,13 @@ Currently supported features
   to time out, or manually, when the user indicates this before storing. Class
   editing is also improved when the script monitor extension is not installed.
   In this case it will alert the user to run the class update script manually.
+  The necessary features have been merged into eZ Publish, no patching needed.
 
 - Subtree removal: Removing a subtree with many nodes may time out. The
   current code will not start the removal in such cases, and instead tells the
   user to use the ezsubtreeremove.php script instead. The patch adds
   scheduling support to the script, and informs the user that removal has been
-  scheduled to run in the background.
+  scheduled to run in the background. Patching is required for this.
 
 
 Possible future features
@@ -58,8 +58,12 @@ of the system, the following must be done:
                                        'path/to/your/script/' . eZScheduledScript::SCRIPT_NAME_STRING .
                                        ' -s ' . eZScheduledScript::SITE_ACCESS_STRING .
                                        ' --your-script-parameters=42',
-                                       eZScheduledScript::TYPE_PHP );
+                                       $userID );
   $script->store();
+
+  The third parameter $userID is optional.
+  This is the eZ Publish user ID of the user starting the script.
+  If not supplied, the current user is chosen instead.
 
   Then the GUI module should return and inform the user that the process will
   be executed in the background, and provide a link to the script monitor page

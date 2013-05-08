@@ -4,9 +4,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -143,6 +143,7 @@ class ezoeServerFunctions extends ezjscServerFunctions
                 'tongue_out' => ezpI18n::tr( 'design/standard/ezoe', "Tongue out"),
                 'undecided' => ezpI18n::tr( 'design/standard/ezoe', "Undecided"),
                 'wink' => ezpI18n::tr( 'design/standard/ezoe', "Wink"),
+                'usage' => ezpI18n::tr( 'design/standard/ezoe', "Use left and right arrows to navigate."),
                 'yell' => ezpI18n::tr( 'design/standard/ezoe', "Yell"),
             ),
             'searchreplace' => array(
@@ -313,7 +314,7 @@ class ezoeServerFunctions extends ezjscServerFunctions
                 'type' => ezpI18n::tr( 'design/standard/ezoe', "Type")
             ),
             'advanced_dlg' => array(
-                //'about_title' => ezpI18n::tr( 'design/standard/ezoe', "Ephox Enterprise TinyMCE"),
+                //'about_title' => ezpI18n::tr( 'design/standard/ezoe', "Moxiecode TinyMCE"),
                 'about_general' => ezpI18n::tr( 'design/standard/ezoe', "About"),
                 'about_help' => ezpI18n::tr( 'design/standard/ezoe', "Help"),
                 'about_license' => ezpI18n::tr( 'design/standard/ezoe', "License"),
@@ -335,6 +336,7 @@ class ezoeServerFunctions extends ezjscServerFunctions
                 'colorpicker_named_title' => ezpI18n::tr( 'design/standard/ezoe', "Named colors"),
                 'colorpicker_color' => ezpI18n::tr( 'design/standard/ezoe', "Color"),
                 'colorpicker_name' => ezpI18n::tr( 'design/standard/ezoe', "Name"),
+                'charmap_usage' => ezpI18n::tr( 'design/standard/ezoe', "Use left and right arrows to navigate."),
                 'charmap_title' => ezpI18n::tr( 'design/standard/ezoe', "Select special character")/*,
                 'image_title' => ezpI18n::tr( 'design/standard/ezoe', "Insert/edit image"),
                 'image_src' => ezpI18n::tr( 'design/standard/ezoe', "Image URL"),
@@ -473,6 +475,10 @@ class ezoeServerFunctions extends ezjscServerFunctions
         {
             throw new ezcBaseFunctionalityNotSupportedException( 'Browse node list', "Parent node '$nodeID' is not valid" );
         }
+        else if ( !$node->canRead() )
+        {
+            throw new ezcBaseFunctionalityNotSupportedException( 'Browse node list', "Parent node '$nodeID' is not valid" );
+        }
 
         $params = array( 'Depth' => 1,
                 'Limit'            => $limit,
@@ -508,7 +514,17 @@ class ezoeServerFunctions extends ezjscServerFunctions
         // generate json response from node list
         if ( $nodeArray )
         {
-            $list = ezjscAjaxContent::nodeEncode( $nodeArray, array( 'fetchChildrenCount' => true, 'loadImages' => true ), 'raw' );
+            $list = ezjscAjaxContent::nodeEncode(
+                $nodeArray,
+                array(
+                    'fetchChildrenCount' => true,
+                    'loadImages' => true,
+                    'imagePreGenerateSizes' => array(
+                        eZINI::instance( 'ezoe.ini' )->variable( 'EditorSettings', 'BrowseImageAlias' )
+                    )
+                ),
+                'raw'
+            );
         }
         else
         {

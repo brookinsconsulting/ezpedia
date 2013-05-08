@@ -8,9 +8,9 @@
  * @param string $_GET[scope] the permissions scope the client requests (optional)
  * @param string $_GET[state] Not implemented yet (optional)
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version  4.2011
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
  * @package oauth
  */
 $module = $Params['Module'];
@@ -63,7 +63,7 @@ if ( !$application->isEndPointValid( $pRedirectUri ) )
 $user = eZUser::currentUser();
 
 // login is like REALLY required here. But we can't use the standard policy check, as it won't redirect w/ GET parameters
-if ( !$user->isLoggedIn() )
+if ( !$user->isRegistered() )
 {
     $redirectUri = str_replace( eZSys::indexDir(), '', $_SERVER['REQUEST_URI'] );
 
@@ -99,7 +99,7 @@ if ( !$application->isAuthorizedByUser( $pScope, eZUser::currentUser() ) )
     // authorization denied: redirect
     if ( $http->hasPostVariable( 'DenyButton' ) )
     {
-        error( 'access_denied' );
+        error( $pRedirectUri, 'access_denied' );
     }
 
     elseif ( $http->hasPostVariable( 'AuthorizeButton' ) )
@@ -252,7 +252,7 @@ function getHTTPVariable( $variable )
         $http = eZHTTPTool::instance();
 
     if ( $hasPost === null )
-        $hasPost = $http->hasPostVariable( 'AuthorizeButton' ) or $http->hasPostVariable( 'DenyButton' );
+        $hasPost = $http->hasPostVariable( 'AuthorizeButton' ) || $http->hasPostVariable( 'DenyButton' );
 
     if ( $hasPost )
         return $http->hasPostVariable( $variable ) ? $http->postVariable( $variable ) : false;

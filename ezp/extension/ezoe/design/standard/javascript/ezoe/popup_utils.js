@@ -2,7 +2,7 @@
     eZ Online Editor MCE popup : common js code used in popups
     Created on: <06-Feb-2008 00:00:00 ar>
     
-    Copyright (c) 1999-2011 eZ Systems AS
+    Copyright (c) 1999-2013 eZ Systems AS
     Licensed under the GPL 2.0 License:
     http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt 
 */
@@ -59,7 +59,9 @@ var eZOEPopupUtils = {
         // custom save function pr custom attribute
         customAttributeSaveHandler: [],
         // Title text to set on tilte tag and h2#tag-edit-title tag in tag edit / create dialogs
-        tagEditTitleText: ''
+        tagEditTitleText: '',
+        // the default image alias to use while browsing
+        browseImageAlias: 'small'
     },
 
     /**
@@ -285,15 +287,10 @@ var eZOEPopupUtils = {
         var paragraphCleanup = false, newElement;
         if ( html.indexOf( '<div' ) === 0 || html.indexOf( '<pre' ) === 0 )
         {
-            var edCurrentNode = ed.selection.getNode();
-            if ( edCurrentNode && edCurrentNode.nodeName.toLowerCase() === 'p' )
-            {
-                html = '</p>' + html + '<p>';
-                paragraphCleanup = true;
-            }
+            paragraphCleanup = true;
         }
 
-        ed.execCommand('mceInsertContent', false, html, {skip_undo : 1} );
+        ed.execCommand('mceInsertRawHTML', false, html, {skip_undo : 1} );
 
         newElement = ed.dom.get( id );
         if ( paragraphCleanup ) this.paragraphCleanup( ed, newElement );
@@ -314,7 +311,9 @@ var eZOEPopupUtils = {
         var edCurrentNode = ed.selection.getNode(), newElement = edCurrentNode.ownerDocument.createElement( tag );
         if ( tag !== 'img' ) newElement.innerHTML = content;
 
-        if ( edCurrentNode.nextSibling )
+        if ( edCurrentNode.nodeName === 'TD' )
+            edCurrentNode.appendChild( newElement );
+        else if ( edCurrentNode.nextSibling )
             edCurrentNode.parentNode.insertBefore( newElement, edCurrentNode.nextSibling );
         else if ( edCurrentNode.nodeName === 'BODY' )// IE when editor is empty
             edCurrentNode.appendChild( newElement );
@@ -552,7 +551,8 @@ var eZOEPopupUtils = {
         for(var i = 0, l = arr.length; i < l; i++)
         {
             t = arr[i].split('|');
-            values[t[0]] = t[1];
+            var key = t.shift();
+            values[key] = t.join('|');
         }
         jQuery( '#' + node + ' input,#' + node + ' select' ).each(function( i, el )
         {
@@ -825,12 +825,12 @@ var eZOEPopupUtils = {
                    tr.appendChild( td );
                    
                    td = document.createElement("td");
-                   var imageIndex = eZOEPopupUtils.indexOfImage( n, 'small' );
+                   var imageIndex = eZOEPopupUtils.indexOfImage( n, eZOEPopupUtils.settings.browseImageAlias );
                    if ( imageIndex !== -1 )
                    {
                        tag = document.createElement("span");
                        tag.className = 'image_preview';
-                       tag.innerHTML += ' <a href="#">' + ed.getLang('preview.preview_desc')  + '<img src="' + ed.settings.ez_root_url + n.data_map[ n.image_attributes[imageIndex] ].content['small'].url + '" /></a>';
+                       tag.innerHTML += ' <a href="#">' + ed.getLang('preview.preview_desc')  + '<img src="' + ed.settings.ez_root_url + n.data_map[ n.image_attributes[imageIndex] ].content[eZOEPopupUtils.settings.browseImageAlias].url + '" /></a>';
                        td.appendChild( tag );
                        hasImage = true;
                    }
@@ -902,7 +902,7 @@ var eZOEPopupUtils = {
 
     indexOfImage: function( jsonNode, alias )
     {
-        if ( !alias ) alias = 'small';
+        if ( !alias ) alias = eZOEPopupUtils.settings.browseImageAlias;
         var index = -1;
         jQuery.each( jsonNode.image_attributes, function( i, attr )
         {

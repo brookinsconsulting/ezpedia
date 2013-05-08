@@ -2,12 +2,11 @@
 /**
  * File containing the ezie no save & quit menu item handler
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version 1.3.0-dev
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version 5.1.0-rc1
  * @package ezie
  */
-include_once 'kernel/common/template.php';
 
 $prepare_action = new eZIEImagePreAction();
 $imageId = $prepare_action->getImageId();
@@ -23,7 +22,7 @@ $imageHandler->initializeFromFile( $prepare_action->getImagePath(), $imageHandle
 $imageHandler->store( $imageAttribute );
 
 // remove view cache if needed
-eZContentCacheManager::clearObjectViewCacheIfNeeded( $prepare_action->getImageHandler()->attribute( 'id' ) );
+eZContentCacheManager::clearObjectViewCacheIfNeeded( $imageAttribute->attribute( 'contentobject_id' ) );
 
 // delete all the images in working directory
 // delete working directory
@@ -36,7 +35,7 @@ eZDir::recursiveDelete( $working_folder );
 $imageAttribute = eZContentObjectAttribute::fetch( $imageId, $imageVersion );
 
 // @todo Use proper JSON, but this will do for now.
-$tpl = templateInit();
+$tpl = eZTemplate::factory();
 $tpl->setVariable( 'ezie_ajax_response', true );
 $tpl->setVariable( 'attribute', $imageAttribute );
 echo $tpl->fetch( "design:content/datatype/edit/ezimage.tpl" );

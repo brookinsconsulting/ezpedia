@@ -2,13 +2,13 @@
 /*
  * This is a PHP library that handles calling reCAPTCHA.
  *    - Documentation and latest version
- *          http://recaptcha.net/plugins/php/
+ *          https://developers.google.com/recaptcha/docs/php
  *    - Get a reCAPTCHA API Key
  *          https://www.google.com/recaptcha/admin/create
  *    - Discussion group
  *          http://groups.google.com/group/recaptcha
  *
- * Copyright (c) 2007 reCAPTCHA -- http://recaptcha.net
+ * Copyright (c) 2007-2012 reCAPTCHA -- http://www.google.com/recaptcha
  * AUTHORS:
  *   Mike Crawford
  *   Ben Maurer
@@ -37,7 +37,7 @@
  */
 define("RECAPTCHA_API_SERVER", "http://www.google.com/recaptcha/api");
 define("RECAPTCHA_API_SECURE_SERVER", "https://www.google.com/recaptcha/api");
-define("RECAPTCHA_VERIFY_SERVER", "www.google.com");
+define("RECAPTCHA_VERIFY_SERVER", "http://www.google.com");
 
 /**
  * Encodes the given data into a query string format
@@ -68,25 +68,7 @@ function _recaptcha_http_post($host, $path, $data, $port = 80) {
 
         $req = _recaptcha_qsencode ($data);
 
-        $http_request  = "POST $path HTTP/1.0\r\n";
-        $http_request .= "Host: $host\r\n";
-        $http_request .= "Content-Type: application/x-www-form-urlencoded;\r\n";
-        $http_request .= "Content-Length: " . strlen($req) . "\r\n";
-        $http_request .= "User-Agent: reCAPTCHA/PHP\r\n";
-        $http_request .= "\r\n";
-        $http_request .= $req;
-
-        $response = '';
-        if( false == ( $fs = @fsockopen($host, $port, $errno, $errstr, 10) ) ) {
-                die ('Could not open socket');
-        }
-
-        fwrite($fs, $http_request);
-
-        while ( !feof($fs) )
-                $response .= fgets($fs, 1160); // One TCP-IP packet
-        fclose($fs);
-        $response = explode("\r\n\r\n", $response, 2);
+        $response = eZHTTPTool::getDataByURL( $host . $path . '?' . $req, false, 'reCAPTCHA/PHP' );
 
         return $response;
 }
@@ -119,10 +101,12 @@ function recaptcha_get_html ($pubkey, $error = null, $use_ssl = false)
         if ($error) {
            $errorpart = "&amp;error=" . $error;
         }
-        return '<script type="text/javascript" src="'. $server . '/challenge?k=' . $pubkey . $errorpart . '"></script>
+        $ini = eZINI::instance( 'ezcomments.ini' );
+        $language = $ini->variable( 'RecaptchaSetting' , 'Language' );
+        return '<script type="text/javascript" src="'. $server . '/challenge?k=' . $pubkey . '&hl=' . $language . $errorpart . '"></script>
 
         <noscript>
-                <iframe src="'. $server . '/noscript?k=' . $pubkey . $errorpart . '" height="300" width="500" frameborder="0"></iframe><br/>
+                <iframe src="'. $server . '/noscript?k=' . $pubkey . '&hl=' . $language . $errorpart . '" height="300" width="500" frameborder="0"></iframe><br/>
                 <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
                 <input type="hidden" name="recaptcha_response_field" value="manual_challenge"/>
         </noscript>';
@@ -178,7 +162,7 @@ function recaptcha_check_answer ($privkey, $remoteip, $challenge, $response, $ex
                                                  ) + $extra_params
                                           );
 
-        $answers = explode ("\n", $response [1]);
+        $answers = explode ("\n", $response );
         $recaptcha_response = new ReCaptchaResponse();
 
         if (trim ($answers [0]) == 'true') {

@@ -2,9 +2,9 @@
 /**
  * File containing (site)access functionality
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version  4.2011
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
  * @package kernel
  */
 
@@ -18,7 +18,7 @@ class eZSiteAccess
     /**
      * Integer constants that identify the siteaccess matching used
      *
-     * @since 4.4 Was earlier in access.php as normal constants
+     * @since 4.4
      */
     const TYPE_DEFAULT = 1;
     const TYPE_URI = 2;
@@ -29,6 +29,7 @@ class eZSiteAccess
     const TYPE_SERVER_VAR = 7;
     const TYPE_URL = 8;
     const TYPE_HTTP_HOST_URI = 9;
+    const TYPE_CUSTOM = 10;
 
     const SUBTYPE_PRE = 1;
     const SUBTYPE_POST = 2;
@@ -277,7 +278,7 @@ class eZSiteAccess
                     $type = eZSiteAccess::TYPE_HTTP_HOST_URI;
                     if ( $ini->hasVariable( 'SiteAccessSettings', 'HostUriMatchMapItems' ) )
                     {
-                        $match_item = $uri->element( 0 );
+                        $uriString = $uri->elements();
                         $matchMapItems = $ini->variableArray( 'SiteAccessSettings', 'HostUriMatchMapItems' );
                         $defaultHostMatchMethod = $ini->variable( 'SiteAccessSettings', 'HostUriMatchMethodDefault' );
 
@@ -288,7 +289,7 @@ class eZSiteAccess
                             $matchAccess     = $matchMapItem[2];
                             $matchHostMethod = isset( $matchMapItem[3] ) ? $matchMapItem[3] : $defaultHostMatchMethod;
 
-                            if ( $matchURI !== '' && $matchURI !== $match_item )
+                            if ( $matchURI !== '' && !preg_match( "@^$matchURI\b@", $uriString ) )
                                 continue;
 
                             switch( $matchHostMethod )
@@ -320,9 +321,10 @@ class eZSiteAccess
                             {
                                 if ( $matchURI !== '' )
                                 {
-                                    $uri->increase( 1 );
+                                    $matchURIFolders = explode( '/', $matchURI );
+                                    $uri->increase( count( $matchURIFolders ) );
                                     $uri->dropBase();
-                                    $access['uri_part'] = array( $matchURI );
+                                    $access['uri_part'] = $matchURIFolders;
                                 }
                                 $access['name'] = $matchAccess;
                                 $access['type'] = $type;
@@ -513,7 +515,7 @@ class eZSiteAccess
         if ( $siteINI === null )
         {
             eZSys::clearAccessPath();
-            if ( !isset( $access['uri_part'] ) || $access['uri_part'] === null )
+            if ( empty( $access['uri_part'] ) || $access['uri_part'] === null )
             {
                 if ( $ini->hasVariable('SiteSettings', 'SiteUriParts') )
                     $access['uri_part'] = $ini->variable('SiteSettings', 'SiteUriParts');
@@ -678,32 +680,4 @@ class eZSiteAccess
         eZDebug::writeWarning("Tried to find siteaccess based on '$language' but '$sa' is not a valid RelatedSiteAccessList[]", __METHOD__ );
         return null;
     }
-
-    /**
-     * Checks if site access debug is enabled
-     *
-     * @since 4.4
-     * @deprecated Should use debug.ini conditions instead of extra settings
-     * @return bool
-     */
-    static function debugEnabled()
-    {
-        $ini = eZINI::instance();
-        return $ini->variable( 'SiteAccessSettings', 'DebugAccess' ) === 'enabled';
-    }
-
-    /**
-     * Checks if extra site access debug is enabled
-     *
-     * @since 4.4
-     * @deprecated Should use debug.ini conditions instead of extra settings
-     * @return bool
-     */
-    static function extraDebugEnabled()
-    {
-        $ini = eZINI::instance();
-        return $ini->variable( 'SiteAccessSettings', 'DebugExtraAccess' ) === 'enabled';
-    }
 }
-
-?>

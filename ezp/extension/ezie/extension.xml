@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <software>
     <metadata>
-        <name>eZ Image Editor</name>
-        <version>1.3.0-dev</version>
-        <copyright>Copyright (C) 1999-2011 eZ Systems AS</copyright>
-        <license>GNU General Public License v2.0</license>
+        <name>eZ Image Editor LS</name>
+        <version>5.1.0-rc1</version>
+        <copyright>Copyright (C) 1999-2013 eZ Systems AS</copyright>
+        <license>GNU General Public License v2</license>
         <info_url>http://projects.ez.no/epie</info_url>
 
         <software>

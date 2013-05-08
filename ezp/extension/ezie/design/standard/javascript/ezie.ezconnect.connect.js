@@ -1,8 +1,8 @@
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Image Editor extension for eZ Publish
-// SOFTWARE RELEASE: 1.3.0-dev
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE: 5.1.0-rc1
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -46,7 +46,10 @@ ezie.ezconnect.connect = function() {
         // url used to send make an action (like applying a filter)
         // format: /{site_access}/{module}/
         // append {action_name} to call apply the action on the image
-        'module_url': null
+        'module_url': null,
+        // form token to avoid CSRF attack
+        // only useful and filled when ezformtoken extension is enabled
+        'ezxform_token': $('#ezxform_token_js').attr('title')
     };
 
     // Sets the attributes at unusables values

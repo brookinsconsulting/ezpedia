@@ -2,9 +2,9 @@
 /**
  * File containing the ezpContentPublishingQueueProcess class.
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version  4.2011
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
  * @package kernel
  * @subpackage content
  */
@@ -146,8 +146,11 @@ class ezpContentPublishingProcess extends eZPersistentObject
     }
 
     /**
-     * Starts the publishing process for the linked version
-     * @return bool
+     * Starts the publishing process for the linked version. After publishing,
+     * the child process is terminated.
+     *
+     * @return false|int false if the fork fails, the pid of the child process
+     *                   after the fork
      */
     public function publish()
     {
@@ -157,6 +160,9 @@ class ezpContentPublishingProcess extends eZPersistentObject
         // $processObject = ezpContentPublishingProcess::fetchByContentObjectVersion( $contentObjectId, $contentObjectVersion );
         $this->setAttribute( 'status', self::STATUS_WORKING );
         $this->store( array( 'status' ) );
+
+        // prepare the cluster file handler for the fork
+        eZClusterFileHandler::preFork();
 
         $pid = pcntl_fork();
 
@@ -169,9 +175,6 @@ class ezpContentPublishingProcess extends eZPersistentObject
         // Force the cluster DB connection closed if the cluster handler is DB based
         $cluster = eZClusterFileHandler::instance();
 
-        // prepare the cluster file handler for the fork
-        eZClusterFileHandler::preFork();
-
         // error, cancel
         if ( $pid == -1 )
         {
@@ -183,13 +186,12 @@ class ezpContentPublishingProcess extends eZPersistentObject
         {
             return $pid;
         }
+
         // child process
-        else
+        try
         {
             $myPid = getmypid();
             pcntl_signal( SIGCHLD, SIG_IGN );
-
-            fclose( STDERR );
 
             $this->setAttribute( 'pid', $myPid );
             $this->setAttribute( 'started', time() );
@@ -232,13 +234,14 @@ class ezpContentPublishingProcess extends eZPersistentObject
             $this->store( array( 'status', 'finished', 'pid' ) );
 
             // Call the postProcessing hook
-            ezpContentPublishingQueue::signals()->emit( 'postHandling', $version, $objectId, $processStatus );
-
-            eZScript::instance()->shutdown();
-            exit;
+            ezpContentPublishingQueue::signals()->emit( 'postHandling', $contentObjectId, $contentObjectVersion, $processStatus );
         }
-
-        return true;
+        catch( eZDBException $e )
+        {
+            $this->reset();
+        }
+        eZScript::instance()->shutdown();
+        exit;
     }
 
     /**

@@ -4,9 +4,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -38,8 +38,7 @@ if ( $objectID === 0  || $objectVersion === 0 )
 }
 
 $object = eZContentObject::fetch( $objectID );
-
-if ( !$object )
+if ( !$object instanceof eZContentObject || !$object->canRead() )
 {
    echo ezpI18n::tr( 'design/standard/ezoe', 'Invalid parameter: %parameter = %value', null, array( '%parameter' => 'ObjectId', '%value' => $objectID ) );
    eZExecution::cleanExit();
@@ -56,17 +55,18 @@ if ( $dialog === '' )
 
 
 
-$ezoeInfo = ezoeInfo::info();
+$ezoeInfo = eZExtension::extensionInfo( 'ezoe' );
 
 $tpl = eZTemplate::factory();
 $tpl->setVariable( 'object', $object );
 $tpl->setVariable( 'object_id', $objectID );
 $tpl->setVariable( 'object_version', $objectVersion );
 
-$tpl->setVariable( 'ezoe_name', $ezoeInfo['Name'] );
-$tpl->setVariable( 'ezoe_version', $ezoeInfo['Version'] );
-$tpl->setVariable( 'ezoe_copyright', $ezoeInfo['Copyright'] );
-$tpl->setVariable( 'ezoe_license', $ezoeInfo['License'] );
+$tpl->setVariable( 'ezoe_name', $ezoeInfo['name'] );
+$tpl->setVariable( 'ezoe_version', $ezoeInfo['version'] );
+$tpl->setVariable( 'ezoe_copyright', $ezoeInfo['copyright'] );
+$tpl->setVariable( 'ezoe_license', $ezoeInfo['license'] );
+$tpl->setVariable( 'ezoe_info_url', $ezoeInfo['info_url'] );
 
 // use persistent_variable like content/view does, sending parameters
 // to pagelayout as a hash.

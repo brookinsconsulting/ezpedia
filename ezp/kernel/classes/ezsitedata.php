@@ -1,9 +1,11 @@
 <?php
 /**
- * eZPersistentObject definition for ezsite_data table
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @licence http://ez.no/licences/gnu_gpl GNU GPLv2
- * @author Jerome Vieilledent
+ * File containing the eZSiteData class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
  */
 
 class eZSiteData extends eZPersistentObject

@@ -1,0 +1,130 @@
+Bugfixes
+========
+
+- #13472: SSL Zones - invalid redirection from SSL/HTTPS to plain HTTP
+- #13666: clearCronjobMode() doesn't disabled the CronjobMode
+- #15628: 5th argument () of eZOperationHandler::execute is not handled
+- #17571: Multiplexer workflow event (and maybe others) doesn't work with the updatesection and read triggers
+- #18596: BackEnd generates a bunch of errors on specific case
+- #18614: Edit menu hidden when the page browser window/backend site ends
+- #19002: rest api: session always created even for anon users
+- #19045: endless recursion in eZSys::clientIP()
+- #19169: duplicated object state groups after changing default language
+- #19174: previous versions XMLText embeds may not be added as relations
+- #19204: Table options don't remember user selection in backend
+- #19280: Wrong redirect when publishing a new draft from preview
+- #19312: updateviewcount script only adds one hit per node in each execution
+- #19319: search under the current location not available in admin2
+- #19397: General digest settings table is not updated when changing email
+- #19457: Trashpurge problems with related objects
+- #19471: Hidden objects not found in admin interface (needs also eZ Find patch)
+- #19495: eZP 4.6 Runcronjobs.php ignoring -q flag
+- #19500: dfscleanup on win32 lists/deletes files which are valid
+- #19501: Incorrect behavior of collaboration/view/summary with multiple validators
+- #19503: Broken settings in site.ini: CookieSecure and CookieHttpolny
+- #19521: Content - action view defines some not necessary vars as they're not used at all in the code
+- #19522: Already defined var warning in children_detailed template in admin site
+- #19544: Showing/hiding a large number of objects generates fatal error.
+- #19547: Redirect after login always redirecting to home page
+- #19556: Class and Attribute identifier duplications
+- #19565: fatal error in orderStatistics (sql error when there is no product for selected date)
+- #19571: assigning title to id (on image)
+- #19572: GET parameters lost in SSLZone based redirection
+
+Enhancements
+============
+- #19126: Insert metadata based on keywords
+- #19575: Auto select attributes in the *wait until date* workflow
+
+Pull requests
+=============
+- #294: from peterkeung/master
+- #322: from crevillo/issue-19312
+- #359: from pbras/master
+- #361: from patrickallaert/issue-18596
+- #367: from crevillo/issue-19521
+- #368: from crevillo/issue-019522
+- #371: from ezsystems/fix-issue-19174
+- #372: from ezsystems/fix-issue-18614
+- #374: from patrickallaert/issue-19457
+- #376: from patrickallaert/issue-19002
+- #378: from patrickallaert/issue-19544
+- #379: from ezsystems/issue-19471
+- #380: from jjCavalleri/19547-1
+- #385: from ezsystems/fix-19500
+- #386: from pkamps/empty_local_view_cache
+- #387: from ezsystems/fix-15628
+- #389: from ezsystems/fix-19204
+- #390: from taenadil/eZOrder
+- #391: from ezsystems/19397_general_digest_update_email
+- #392: from jjCavalleri/19495
+- #393: from jjCavalleri/19556
+- #397: from pedroresende/master
+- #398: from ezsystems/017571_multiplexer_node_id_support
+- #399: from ezsystems/19501_collaboration_view_summary_multiple_validators
+- #402: from patrickallaert/issue-19126
+- #403: from jjCavalleri/19572
+- #405: from pedroresende/master
+- #406: from patrickallaert/issue-19575
+- #407: from iosolinf/19571
+- #414: from ezsystems/treemenuRefactor
+
+Miscellaneous
+=============
+This list is unusually long, as there has been a lot of refactoring activity to on frontend controllers
+(index.php, index_treemenu.php) to be ready for eZ Publish version 5 later on
+
+- Fixed regression avoiding debug to work
+- Added proper session management in ezpKernelTreeMenu. Can now use the Symfony session handler if going through eZ Publish 5
+- Exception usage can now be configured via the $settings param in ezpKernelTreeMenu constructor
+- Added default settings values in ezpKernelWeb
+- Refactored ezpKernelResult to be able to store arbitrary attributes in it.
+- Fixed missing isset() in eZDebug::updateSettings()
+- Fix regression from #019544: Showing/hiding a large number of objects generates fatal error
+- Ensure to deactivate debug output in content/treemenu, in case going through index.php instead of index_tree_menu.php
+- Force not to use pagelayout using treemenu
+- Refactored index_treemenu.php to use ezpKernel with a dedicated ezpKernelHandler instance.
+- content/treemenu now using (at last) json_encode() instead of custom arrayToJSON() function
+- Moved ob_start() and HTTP headers override to ezpKernelWeb::run()
+- Added Estonian, North and South Koren flags into /share/icons/flags folder to address the issue #019573: Additional country flags
+- Update the Copyright date
+- Implement: Fallback to port 443 for https in eZHTTPTool::sendHTTPRequest()
+- Revert "Merge pull request #391 from ezsystems/19397_general_digest_update_email"
+- Revert "Revert "Merge pull request #391 from ezsystems/19397_general_digest_update_email""
+- Revert "Merge pull request #391 from ezsystems/19397_general_digest_update_email"
+- handling edge case of empty view cache file
+- Improved fix for #19500
+- Fixed: PHP message: "Strict standards: Only variables should be assigned by reference"
+- Added a Symfony session handler to let Symfony manage the session
+- Changed legacy session system to work with Symfony2 session
+- Fixed: redirection to edit mode after changing section
+- Added possibility to inject a siteaccess to the kernel web handler
+- Added possibility to inject parameters to the kernel web handler
+- Added eZSiteAccess::TYPE_CUSTOM
+- Added reInitialize() method to ezpKernelHandler interface
+- Added eZScript::setIsInitialized()
+- Changed ezpKernelHandler::runCallback() signature. We now can avoid per-request reinitialization (default stays re-init every time)
+- Refactored ezpKernel to be able to inject a "kernel handler", depending on the context (i.e. web or cli)
+- Updated helloworld.tpl to add content object support
+- Added possibility to bypass ezcomponents autoloader
+- Fixed EZPNEXT-648: Shutdown handlers should act on every sub requests and not if no request has been made
+- Removed: exception support for content moved
+- Added TODOs in ezpKernel
+- Removed: shutdown() function from index.php that is automatically handled
+- Added: possibility to get exceptions for general kernel errors
+- CS: preferring 'self' instead of classname in eZModule
+- Fixed: some include relying on being included from ezp4 root dir
+- Fixed: issue regarding accesing $site variable
+- Changed: refactored shutdown process of legacy kernel
+- Fixed: wrong rootDir computing in eZIni
+- Added a test template
+- Changed: refactored ezpKernel to add runCallback()
+- Fixed: path problems when called from ezp-next-mvc
+- Changed: placed shutdown() method at correct place
+- Removed: isBooted property leftover
+- Changed: refactoring boot() method as a constructor
+- Fixed: db objects are not instances of eZDB
+- Changed: ezpKernel::run() to return a result
+- Changed: decoupling things a bit in ezpKernel
+- Changed: splitted index.php for reusability in new MVC stack
+- Show proper edit conflict object information

@@ -2,10 +2,10 @@
 /**
  * File containing the {@link eZCache} class
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
  * @package kernel
- *
  */
 
 /**
@@ -16,7 +16,7 @@
  * Has methods for clearing the various caches according
  * to tag, id or all caches. It also has information for all the caches.
  *
- * @package Kernel
+ * @package kernel
  */
 class eZCache
 {
@@ -71,7 +71,8 @@ class eZCache
                                        'enabled' => true,
                                        'path' => false,
                                        'is-clustered' => true,
-                                       'function' => array( 'eZCache', 'clearClassID' ) ),
+                                       'function' => array( 'eZCache', 'clearClassID' ),
+                                       'purge-function' => array( 'eZCache', 'clearClassID' ) ),
                                 array( 'name' => ezpI18n::tr( 'kernel/cache', 'Sort key cache' ),
                                        'id' => 'sortkey',
                                        'tag' => array( 'content' ),
@@ -79,6 +80,7 @@ class eZCache
                                        'enabled' => true,
                                        'path' => false,
                                        'function' => array( 'eZCache', 'clearSortKey' ),
+                                       'purge-function' => array( 'eZCache', 'clearSortKey' ),
                                        'is-clustered' => true ),
                                 array( 'name' => ezpI18n::tr( 'kernel/cache', 'URL alias cache' ),
                                        'id' => 'urlalias',
@@ -97,6 +99,7 @@ class eZCache
                                        'path' => false,
                                        'enabled' => true,
                                        'function' => array( 'eZCache', 'clearImageAlias' ),
+                                       'purge-function' => array( 'eZCache', 'purgeImageAlias' ),
                                        'is-clustered' => true ),
                                 array( 'name' => ezpI18n::tr( 'kernel/cache', 'Template cache' ),
                                        'id' => 'template',
@@ -144,7 +147,8 @@ class eZCache
                                        'tag' => array( 'content' ),
                                        'path' => false,
                                        'enabled' => true,
-                                       'function' => array( 'eZCache', 'clearContentTreeMenu' ) ),
+                                       'function' => array( 'eZCache', 'clearContentTreeMenu' ),
+                                       'purge-function' => array( 'eZCache', 'clearContentTreeMenu' ) ),
                                 array( 'name' => ezpI18n::tr( 'kernel/cache', 'State limitations cache' ),
                                        'is-clustered' => true,
                                        'id' => 'state_limitations',
@@ -152,13 +156,15 @@ class eZCache
                                        'expiry-key' => 'state-limitations',
                                        'enabled' => true,
                                        'path' => false,
-                                       'function' => array( 'eZCache', 'clearStateLimitations' ) ),
+                                       'function' => array( 'eZCache', 'clearStateLimitations' ),
+                                       'purge-function' => array( 'eZCache', 'clearStateLimitations' ) ),
                                 array( 'name' => ezpI18n::tr( 'kernel/cache', 'Design base cache' ),
                                        'id' => 'design_base',
                                        'tag' => array( 'template' ),
-                                       'enabled' => true,
+                                       'enabled' => $ini->variable( 'DesignSettings', 'DesignLocationCache' ) == 'enabled',
                                        'path' => false,
-                                       'function' => array( 'eZCache', 'clearDesignBaseCache' ) ),
+                                       'function' => array( 'eZCache', 'clearDesignBaseCache' ),
+                                       'purge-function' => array( 'eZCache', 'clearDesignBaseCache' ) ),
                                 /**
                                  * caches the list of active extensions (per siteaccess and global)
                                  * @see eZExtension::activeExtensions()
@@ -169,7 +175,8 @@ class eZCache
                                        'expiry-key' => 'active-extensions-cache',
                                        'enabled' => true,
                                        'path' => false,
-                                       'function' => array( 'eZCache', 'clearActiveExtensions' ) ),
+                                       'function' => array( 'eZCache', 'clearActiveExtensions' ),
+                                       'purge-function' => array( 'eZCache', 'clearActiveExtensions' ) ),
 
                                 array( 'name' => ezpI18n::tr( 'kernel/cache', 'TS Translation cache' ),
                                        'id' => 'translation',
@@ -178,6 +185,14 @@ class eZCache
                                        'expiry-key' => 'ts-translation-cache',
                                        'path' => 'translation',
                                        'function' => array( 'eZCache', 'clearTSTranslationCache' )
+                                ),
+                                array( 'name' => ezpI18n::tr( 'kernel/cache', 'SSL Zones cache' ),
+                                       'id' => 'sslzones',
+                                       'tag' => array( 'ini' ),
+                                       'enabled' => eZSSLZone::enabled(),
+                                       'path' => false,
+                                       'function' => array( 'eZSSLZone', 'clearCache' ),
+                                       'purge-function' => array( 'eZSSLZone', 'clearCache' )
                                 ),
             );
 
@@ -515,6 +530,101 @@ class eZCache
     }
 
     /**
+     * Purges the image aliases of all ezimage attribute. The original image is
+     * kept.
+     *
+     * @param array $cacheItem
+     * @access public
+     */
+    static function purgeImageAlias( $cacheItem )
+    {
+        // 1. fetch ezcontentclass having an ezimage attribute
+        // 2. fetch objects of these classes
+        // 3. purge image alias for all version
+
+        $imageContentClassAttributes = eZContentClassAttribute::fetchList(
+            true,
+            array(
+                'data_type' => 'ezimage',
+                'version' => eZContentClass::VERSION_STATUS_DEFINED
+            )
+        );
+        $classIds = array();
+        $attributeIdentifiersByClass = array();
+        foreach ( $imageContentClassAttributes as $ccAttr )
+        {
+            $identifier = $ccAttr->attribute( 'identifier' );
+            $ccId = $ccAttr->attribute( 'contentclass_id' );
+            if ( !isset( $attributeIdentifiersByClass[$ccId] ) )
+            {
+                $attributeIdentifiersByClass[$ccId] = array();
+            }
+            $attributeIdentifiersByClass[$ccId][] = $identifier;
+            $classIds[] = $ccId;
+
+        }
+
+        $subTreeParams = array(
+            'ClassFilterType' => 'include',
+            'ClassFilterArray' => $classIds,
+            'MainNodeOnly' => true,
+            'IgnoreVisibility' => true,
+            'LoadDataMap' => false,
+            'Limit' => 100,
+            'Offset' => 0
+        );
+        $count = 0;
+        while ( true )
+        {
+            $nodes = eZContentObjectTreeNode::subTreeByNodeID( $subTreeParams, 1 );
+            if ( empty( $nodes ) )
+            {
+                break;
+            }
+            foreach ( $nodes as $node )
+            {
+                call_user_func( $cacheItem['reporter'], '', $count );
+                $object = $node->attribute( 'object' );
+                self::purgeImageAliasForObject(
+                    $cacheItem, $object, $attributeIdentifiersByClass[$object->attribute( 'contentclass_id' )]
+                );
+                $count++;
+            }
+            eZContentObject::clearCache();
+            $subTreeParams['Offset'] += $subTreeParams['Limit'];
+        }
+        self::clearImageAlias( $cacheItem );
+    }
+
+    /**
+     * The purge the image aliases in all versions of the content object.
+     *
+     * @param array $cacheItem
+     * @param eZContentObject $object
+     * @param array $imageIdentifiers array of ezimage attribute identifiers
+     */
+    private static function purgeImageAliasForObject( array $cacheItem, eZContentObject $object, array $imageIdentifiers )
+    {
+        $versions = $object->attribute( 'versions' );
+        foreach ( $versions as $version )
+        {
+            $dataMap = $version->attribute( 'data_map' );
+            foreach ( $imageIdentifiers as $identifier )
+            {
+                $attr = $dataMap[$identifier];
+                if ( !$attr instanceof eZContentObjectAttribute )
+                {
+                    eZDebug::writeError( "Missing attribute $identifier in object " . $object->attribute( 'id' ) . ", version " . $version->attribute( 'version' ) . ". This indicates data corruption.", __METHOD__ );
+                }
+                elseif ( $attr->attribute( 'has_content' ) )
+                {
+                    $attr->attribute( 'content' )->purgeAllAliases( $attr );
+                }
+            }
+        }
+    }
+
+    /**
      * Sets the content tree menu timestamp to the current date and time,
      * this is used as a GET parameter in the content/treemenu requests and thus
      * forces a browser to load the content tree menu from a server rather than
@@ -563,6 +673,7 @@ class eZCache
         $fileHandler->fileDelete( $cachePath, 'classidentifiers_' );
         $fileHandler->fileDelete( $cachePath, 'classattributeidentifiers_' );
         eZContentClass::expireCache();
+        ezpEvent::getInstance()->notify( 'content/class/cache/all' );
     }
 
     /**
@@ -585,6 +696,7 @@ class eZCache
         $handler = eZExpiryHandler::instance();
         $handler->setTimestamp( 'user-info-cache', time() );
         $handler->store();
+        ezpEvent::getInstance()->notify( 'user/cache/all' );
     }
 
     /**
@@ -596,6 +708,7 @@ class eZCache
         $handler = eZExpiryHandler::instance();
         $handler->setTimestamp( 'content-view-cache', time() );
         $handler->store();
+        ezpEvent::getInstance()->notify( 'content/cache/all' );
     }
 
     /**
@@ -633,6 +746,7 @@ class eZCache
 
         $fileHandler = eZClusterFileHandler::instance();
         $fileHandler->fileDelete( $cachePath, 'statelimitations_' );
+        ezpEvent::getInstance()->notify( 'content/state/cache/all' );
     }
 
     /**
@@ -656,10 +770,10 @@ class eZCache
      */
     public static function clearDesignBaseCache( $cacheItem )
     {
-        $cachePath = eZSys::cacheDirectory();
-
-        $fileHandler = eZClusterFileHandler::instance();
-        $fileHandler->fileDeleteByWildcard( $cachePath . '/' . eZTemplateDesignResource::DESIGN_BASE_CACHE_NAME . '*' );
+        eZClusterFileHandler::instance()->fileDelete(
+            eZSys::cacheDirectory(),
+            eZTemplateDesignResource::DESIGN_BASE_CACHE_NAME
+        );
     }
 
     /**
@@ -672,68 +786,3 @@ class eZCache
         eZTSTranslator::expireCache();
     }
 }
-
-/**
- * Helper function for eZCache::clearImageAlias.
- * Static functions in classes cannot be used as callback functions in PHP 4, that is why we need this helper.
- *
- * @deprecated Callback to static class function is now done directly.
- */
-function eZCacheClearImageAlias( $cacheItem )
-{
-    eZCache::clearImageAlias( $cacheItem );
-}
-
-/**
- * Helper function for eZCache::clearClassID.
- * Static functions in classes cannot be used as callback functions in PHP 4, that is why we need this helper.
- * @deprecated Callback to static class function is now done directly.
- */
-function eZCacheClearClassID( $cacheItem )
-{
-    eZCache::clearClassID( $cacheItem );
-}
-
-/**
- * Helper function for eZCache::clearGlobalINICache.
- * Static functions in classes cannot be used as callback functions in PHP 4, that is why we need this helper.
- * @deprecated Callback to static class function is now done directly.
- */
-function eZCacheClearGlobalINI( $cacheItem )
-{
-    eZCache::clearGlobalINICache( $cacheItem );
-}
-
-/**
- *
- * Helper function for eZCache::clearSortKey.
- * Static functions in classes cannot be used as callback functions in PHP 4, that is why we need this helper.
- * @deprecated Callback to static class function is now done directly.
- */
-function eZCacheClearSortKey( $cacheItem )
-{
-    eZCache::clearSortKey( $cacheItem );
-}
-
-/**
- * Helper function for eZCache::clearTemplateBlockCache.
- * Static functions in classes cannot be used as callback functions in PHP 4, that is why we need this helper.
- * @deprecated Callback to static class function is now done directly.
- */
-function eZCacheClearTemplateBlockCache( $cacheItem )
-{
-    eZCache::clearTemplateBlockCache( $cacheItem );
-}
-
-/**
- *
- * Helper function for eZCache::clearContentTreeMenu.
- * Static functions in classes cannot be used as callback functions in PHP 4, that is why we need this helper.
- * @deprecated Callback to static class function is now done directly.
- */
-function eZCacheClearContentTreeMenu( $cacheItem )
-{
-    eZCache::clearContentTreeMenu( $cacheItem );
-}
-
-?>

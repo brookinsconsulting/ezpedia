@@ -7,8 +7,6 @@
                                            )}
 
 <script type="text/javascript">
-<!--
-
 eZOEPopupUtils.embedObject = {$embed_data};
 eZOEPopupUtils.settings.customAttributeStyleMap = {$custom_attribute_style_map};
 eZOEPopupUtils.settings.tagEditTitleText = "{'Edit %tag_name tag'|i18n('design/standard/ezoe', '', hash( '%tag_name', concat('&lt;', $tag_name_alias, '&gt;') ))|wash('javascript')}";
@@ -61,6 +59,19 @@ tinyMCEPopup.onInit.add( eZOEPopupUtils.BIND( eZOEPopupUtils.init, window, {
            args['title']  = eZOEPopupUtils.safeHtml( imageAtr['alternative_text'] || eZOEPopupUtils.embedObject['name'] );
            args['width']  = imageSizeObj['width'];
            args['height'] = imageSizeObj['height'];
+           if ( args['align'] )
+           {
+               // adding a class based on the align to force the alignment in the editor
+               if ( args['class'] )
+               {
+                   args['class'] = args['class'].replace( /ezoeAlign\w+/, '' );
+                   args['class'] = args['class'] + ' ezoeAlign' + args['align'];
+               }
+               else
+               {
+                   args['class'] = 'ezoeAlign' + args['align'];
+               }
+           }
         }
         ed.dom.setAttribs( el, args );
         return el;
@@ -87,7 +98,7 @@ function inlineSelectorChange( e, el )
     if ( editorEl )
     {
         var viewValue = editorEl.getAttribute('view');
-        var classValue = jQuery.trim( editorEl.className.replace(/(webkit-[\w\-]+|Apple-[\w\-]+|mceItem\w+|ezoeItem\w+|mceVisualAid)/g, '') );
+        var classValue = jQuery.trim( editorEl.className.replace(/(webkit-[\w\-]+|Apple-[\w\-]+|mceItem\w+|ezoeAlign\w+|ezoeItem\w+|mceVisualAid)/g, '') );
     }
 
     if ( viewValue && viewListData[ tag ].join !== undefined && (' ' + viewListData[ tag ].join(' ') + ' ').indexOf( ' ' + viewValue + ' ' ) !== -1 )
@@ -104,6 +115,10 @@ function inlineSelectorChange( e, el )
 
 function setEmbedAlign( e, el )
 {
+    var cssAlign = el.value;
+    if ( cssAlign === 'middle' )
+        cssAlign = 'center';
+    jQuery('#embed_preview').css( 'text-align', cssAlign );
     jQuery('#embed_preview_image').attr( 'align', el.value );
 }
 
@@ -140,9 +155,6 @@ function loadImageSize( e, el )
         });
     }
 }
-
-
-// -->
 </script>
 {/literal}
 

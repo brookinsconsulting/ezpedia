@@ -4,9 +4,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -69,7 +69,7 @@ $imageIni  = eZINI::instance( 'image.ini' );
 $params    = array('dataMap' => array('image'));
 
 
-if ( !$object )
+if ( !$object instanceof eZContentObject || !$object->canEdit() )
 {
    echo ezpI18n::tr( 'design/standard/ezoe', 'Invalid parameter: %parameter = %value', null, array( '%parameter' => 'ObjectId', '%value' => $objectID ) );
    eZExecution::cleanExit();
@@ -81,6 +81,12 @@ if ( !$object )
 // allowed size set in max_post_size in php.ini
 if ( $http->hasPostVariable( 'uploadButton' ) || $forcedUpload )
 {
+    $version   = eZContentObjectVersion::fetchVersion( $objectVersion, $objectID );
+    if ( !$version )
+    {
+        echo ezpI18n::tr( 'design/standard/ezoe', 'Invalid parameter: %parameter = %value', null, array( '%parameter' => 'ObjectVersion', '%value' => $objectVersion ) );
+        eZExecution::cleanExit();
+    }
     $upload = new eZContentUpload();
 
     $location = false;
@@ -96,7 +102,14 @@ if ( $http->hasPostVariable( 'uploadButton' ) || $forcedUpload )
         $objectName = trim( $http->postVariable( 'objectName' ) );
     }
 
-    $uploadedOk = $upload->handleUpload( $result, 'fileName', $location, false, $objectName );
+    $uploadedOk = $upload->handleUpload(
+        $result,
+        'fileName',
+        $location,
+        false,
+        $objectName,
+        $version->attribute( 'initial_language' )->attribute( 'locale' )
+    );
 
 
     if ( $uploadedOk )
@@ -105,6 +118,14 @@ if ( $http->hasPostVariable( 'uploadButton' ) || $forcedUpload )
         $newObjectID = $newObject->attribute( 'id' );
         $newObjectName = $newObject->attribute( 'name' );
         $newObjectNodeID = (int) $newObject->attribute( 'main_node_id' ); // this will be empty if object is stopped by approve workflow
+
+        // set parent section for new object
+        if ( isset( $newObjectNodeID ) && $newObjectNodeID )
+        {
+            $newObjectParentNodeObject = $newObject->attribute( 'main_node' )->attribute( 'parent' )->attribute( 'object' );
+            $newObject->setAttribute( 'section_id', $newObjectParentNodeObject->attribute( 'section_id' ) );
+            $newObject->store();
+        }
 
         // edit attributes
         $newVersionObject  = $newObject->attribute( 'current' );

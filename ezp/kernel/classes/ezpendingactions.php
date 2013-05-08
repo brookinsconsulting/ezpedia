@@ -1,9 +1,11 @@
 <?php
 /**
- * eZPersistentObject definition for ezpending_actions table
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @licence http://ez.no/licences/gnu_gpl GNU GPLv2
- * @author Jerome Vieilledent
+ * File containing the eZPendingActions class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
  */
 
 class eZPendingActions extends eZPersistentObject
@@ -16,26 +18,37 @@ class eZPendingActions extends eZPersistentObject
      */
     public static function definition()
     {
-        return array( 'fields'       => array( 'action'               => array( 'name'     => 'action',
-                                                                                'datatype' => 'string',
-                                                                                'default'  => null,
-                                                                                'required' => true ),
-
-                                               'created'             => array( 'name'     => 'created',
-                                                                               'datatype' => 'integer',
-                                                                               'default'  => null,
-                                                                               'required' => false ),
-
-                                               'param'               => array( 'name'     => 'param',
-                                                                               'datatype' => 'string',
-                                                                               'default'  => null,
-                                                                               'required' => false )
-                                            ),
-
-                      'keys'                 => array( 'action', 'created' ),
-                      'class_name'           => 'eZPendingActions',
-                      'name'                 => 'ezpending_actions',
-                      'function_attributes'  => array()
+        return array(
+            'fields' => array(
+                'id' => array(
+                    'name' => 'id',
+                    'datatype' => 'integer',
+                    'default' => 0,
+                    'required' => true
+                ),
+                'action' => array(
+                    'name' => 'action',
+                    'datatype' => 'string',
+                    'default' => null,
+                    'required' => true
+                ),
+                'created' => array(
+                    'name' => 'created',
+                    'datatype' => 'integer',
+                    'default' => null,
+                    'required' => false
+                ),
+                'param' => array(
+                    'name' => 'param',
+                    'datatype' => 'string',
+                    'default' => null,
+                    'required' => false
+                )
+            ),
+            'keys' => array( 'id' ),
+            'class_name' => 'eZPendingActions',
+            'name' => 'ezpending_actions',
+            'function_attributes' => array()
         );
     }
 

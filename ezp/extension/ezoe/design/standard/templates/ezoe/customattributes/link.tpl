@@ -26,8 +26,6 @@
 
 {run-once}
 <script type="text/javascript">
-<!--
-
 {literal}
 
 // register function to be called on end of init
@@ -88,7 +86,7 @@ eZOEPopupUtils.settings.onInitDoneArray.push( function( editorElement )
 
         if ( id === 0 || ( url[0] !== 'eznode' && url[0] !== 'ezobject' ) ) return true;
 
-        ezoeLinkAttribute.timeOut = setTimeout( eZOEPopupUtils.BIND( ezoeLinkAttribute.ajaxCheck, this, url[0] + '_' + id ), 320 );
+        ezoeLinkAttribute.timeOut = setTimeout( eZOEPopupUtils.BIND( ezoeLinkAttribute.ajaxCheck, this, url[0] + '_' + id, lid ), 320 );
         return true;
     });
 
@@ -100,7 +98,6 @@ eZOEPopupUtils.settings.onInitDoneArray.push( function( editorElement )
         jQuery('#' + ezoeLinkAttribute.box( this.id ) + ' input[type=text]:first').focus();
     });
     jQuery( '#embed_search_go_back_link, #embed_browse_go_back_link, #embed_bookmark_go_back_link' ).click( ezoeLinkAttribute.toggleBack );
-    jQuery('div.panel:first').show();
 });
 
 
@@ -112,7 +109,12 @@ eZOEPopupUtils.settings.browseLinkGenerator = function( n, mode, ed )
        var tag = document.createElement("a");
        tag.setAttribute('href', 'JavaScript:eZOEPopupUtils.browse(' + n.node_id + ');');
        tag.setAttribute('title', ed.getLang('browse') + ': ' + n.url_alias );
-       if ( mode !== 'browse' ) ez.$( tag ).addEvent('click', function(){ ezoeLinkAttribute.slides.accordionGoto( 2 ); });
+       if ( mode !== 'browse' ) {
+           ez.$(tag).addEvent('click', function () {
+               jQuery('div.panel').hide();
+               jQuery('#browse_box').show();
+           });
+       }
        return tag;
     }
     var tag = document.createElement("span");
@@ -199,7 +201,6 @@ var ezoeLinkAttribute = {
 };
 
 {/literal}
-//-->
 </script>
 
 {append-block scope=global variable=$attribute_panel_output}

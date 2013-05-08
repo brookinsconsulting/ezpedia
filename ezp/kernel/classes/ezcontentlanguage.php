@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZContentLanguage class
-//
-// Created on: <08-Feb-2006 10:23:51 jk>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZContentLanguage class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 class eZContentLanguage extends eZPersistentObject
 {
@@ -173,7 +155,7 @@ class eZContentLanguage extends eZPersistentObject
             return false;
         }
 
-        eZPersistentObject::remove();
+        $this->remove();
 
         eZContentCacheManager::clearAllContentCache();
 
@@ -204,7 +186,19 @@ class eZContentLanguage extends eZPersistentObject
             $clusterFileHandler->fileStoreContents( $cachePath, serialize( $languages ), 'content', 'php' );
         }
         else
+        {
             $languages = unserialize( $clusterFileHandler->fetchContents() );
+            // If for some reason unserialize operation fails, we force the cache file to regenerate
+            // See http://issues.ez.no/18613
+            if ( $languages === false )
+            {
+                eZDebug::writeError(
+                    "An error occurred while reading content language cache file $cachePath. File is being re-generated",
+                    __METHOD__
+                );
+                return self::fetchList( true );
+            }
+        }
 
         unset( $GLOBALS['eZContentLanguageList'] );
         unset( $GLOBALS['eZContentLanguageMask'] );
@@ -584,7 +578,7 @@ class eZContentLanguage extends eZPersistentObject
             $language = eZContentLanguage::fetchByLocale( $locale );
             if ( $language )
             {
-                $mask += $language->attribute( 'id' );
+                $mask |= $language->attribute( 'id' );
             }
         }
 
@@ -698,15 +692,16 @@ class eZContentLanguage extends eZPersistentObject
      * Returns the SQL where-condition for selecting the rows (with object names, attributes etc.) in the correct language,
      * i. e. in the most prioritized language from those in which an object exists.
      *
-     * \param languageTable Name of the table containing the attribute with the language id.
-     * \param languageListTable Name of the table containing the attribute with the available languages bitmap.
-     * \param languageAttributeName Optional. Name of the attribute in $languageTable which contains
+     * @param string $languageTable Name of the table containing the attribute with the language id.
+     * @param string $languageListTable Name of the table containing the attribute with the available languages bitmap.
+     * @param string $languageAttributeName Optional. Name of the attribute in $languageTable which contains
      *                               the language id. 'language_id' by default.
-     * \param languageListAttributeName Optional. Name of the attribute in $languageListTable which contains
+     * @param string $languageListAttributeName Optional. Name of the attribute in $languageListTable which contains
      *                                  the bitmap mask. 'language_mask' by default.
-     * \return SQL where-condition described above.
+     * @param string $lang Language code of the most prioritized language
+     * @return string
      */
-    static function sqlFilter( $languageTable, $languageListTable = null, $languageAttributeName = 'language_id', $languageListAttributeName = 'language_mask' )
+    static function sqlFilter( $languageTable, $languageListTable = null, $languageAttributeName = 'language_id', $languageListAttributeName = 'language_mask', $lang = false )
     {
         $db = eZDB::instance();
 
@@ -716,6 +711,11 @@ class eZContentLanguage extends eZPersistentObject
         }
 
         $prioritizedLanguages = eZContentLanguage::prioritizedLanguages();
+        if ( is_string( $lang ) )
+            $lang = eZContentLanguage::fetchByLocale( $lang );
+        if ( $lang instanceof eZContentLanguage )
+            array_unshift( $prioritizedLanguages, $lang );
+
         if ( $db->databaseName() == 'oracle' )
         {
             $leftSide = "bitand( $languageListTable.$languageListAttributeName - bitand( $languageListTable.$languageListAttributeName, $languageTable.$languageAttributeName ), 1 )\n";
@@ -859,13 +859,6 @@ class eZContentLanguage extends eZPersistentObject
     }
 
     /**
-     * \deprecated
-     */
-    function updateObjectNames()
-    {
-    }
-
-    /**
      * Switches on the cronjob mode. In this mode, the languages which are not in the list of the prioritized languages
      * will be automatically added to it.
      *
@@ -873,7 +866,7 @@ class eZContentLanguage extends eZPersistentObject
      */
     static function setCronjobMode( $enable = true )
     {
-        $GLOBALS['eZContentLanguageCronjobMode'] = true;
+        $GLOBALS['eZContentLanguageCronjobMode'] = $enable;
         unset( $GLOBALS['eZContentLanguagePrioritizedLanguages'] );
     }
 

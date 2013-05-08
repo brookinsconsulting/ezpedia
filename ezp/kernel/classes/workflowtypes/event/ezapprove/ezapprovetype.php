@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZApproveType class
-//
-// Created on: <16-Apr-2002 11:08:14 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZApproveType class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZApproveType ezapprovetype.php
@@ -309,7 +291,7 @@ class eZApproveType extends eZWorkflowEventType
             $approveUserIDArray = array_unique( $approveUserIDArray );
 
             $collaborationID = false;
-            $db = eZDb::instance();
+            $db = eZDB::instance();
             $taskResult = $db->arrayQuery( 'select workflow_process_id, collaboration_id from ezapprove_items where workflow_process_id = ' . $process->attribute( 'id' )  );
             if ( count( $taskResult ) > 0 )
                 $collaborationID = $taskResult[0]['collaboration_id'];
@@ -615,7 +597,7 @@ class eZApproveType extends eZWorkflowEventType
         $authorID = $userID;
         $collaborationItem = eZApproveCollaborationHandler::createApproval( $contentobjectID, $contentobjectVersion,
                                                                             $authorID, $editors );
-        $db = eZDb::instance();
+        $db = eZDB::instance();
         $db->query( 'INSERT INTO ezapprove_items( workflow_process_id, collaboration_id )
                        VALUES(' . $process->attribute( 'id' ) . ',' . $collaborationItem->attribute( 'id' ) . ' ) ' );
     }
@@ -710,7 +692,7 @@ class eZApproveType extends eZWorkflowEventType
               case 'DeleteContentObject':
               {
                      $contentObjectID = (int)$attr[ $attrKey ];
-                     $db = eZDb::instance();
+                     $db = eZDB::instance();
                      // Cleanup "User who approves content"
                      $db->query( "UPDATE ezworkflow_event
                                   SET    data_int1 = '0'
@@ -743,7 +725,7 @@ class eZApproveType extends eZWorkflowEventType
 
     function checkApproveCollaboration( $process, $event )
     {
-        $db = eZDb::instance();
+        $db = eZDB::instance();
         $taskResult = $db->arrayQuery( 'select workflow_process_id, collaboration_id from ezapprove_items where workflow_process_id = ' . $process->attribute( 'id' )  );
         $collaborationID = $taskResult[0]['collaboration_id'];
         $collaborationItem = eZCollaborationItem::fetch( $collaborationID );

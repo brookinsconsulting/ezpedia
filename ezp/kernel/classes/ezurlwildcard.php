@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZURLWildcard class
-//
-// Created on: <08-Nov-2007 16:44:56 dl>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZURLWildcard class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZURLWildcard ezurlwildcard.php
@@ -447,19 +426,6 @@ class eZURLWildcard extends eZPersistentObject
     }
 
     /**
-     * Checks if the wildcard cache is expired
-     *
-     * @param int $timestamp Timestamp expiry should be checked against
-     *
-     * @return bool true if cache is expired
-     * @deprecated since 4.2.0
-     */
-    public static function isCacheExpired( $timestamp )
-    {
-        return ( self::expiryTimestamp() > $timestamp );
-    }
-
-    /**
      * Assign function names to input variables. Generates the wildcard cache if
      * expired.
      *
@@ -686,6 +652,25 @@ class eZURLWildcard extends eZPersistentObject
     public static function fetchCacheFile( $filepath )
     {
         return include( $filepath );
+    }
+
+    /**
+     * Checks if $uriString exists as a wildcard
+     *
+     * @param string $uriString
+     * @return boolean
+     */
+    public static function wildcardExists( $uriString )
+    {
+        $wildcardIndex = self::wildcardsIndex();
+        foreach ( $wildcardIndex as $preg )
+        {
+            if ( preg_match( $preg, $uriString ) )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

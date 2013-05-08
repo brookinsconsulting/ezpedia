@@ -9,7 +9,7 @@
 <form method="post" action={'/comment/add'|ezurl} name="CommentAdd">
 <input type="hidden" name="ContentObjectID" value="{$contentobject_id}" />
 <input type="hidden" name="CommentLanguageCode" value="{$language_code}" />
-<input type="hidden" name="RedirectURI" value={$redirect_uri|ezurl( , 'full' )} />
+<input type="hidden" name="RedirectURI" value={$redirect_uri|ezurl} />
 
 <div class="ezcom-add">
         <div class="ezcom-function-title">
@@ -47,7 +47,7 @@
                 <label>
                     {'Website:'|i18n( 'ezcomments/comment/add/form' )}{if $websiteRequired}{$fieldRequiredText}{/if}
                 </label>
-                <input type="text" class="box" maxlength="100" name="CommentWebsite" />
+                <input type="text" class="box" maxlength="100" id="CommentWebsite" name="CommentWebsite" />
             </div>
         {undef $websiteRequired}
         {/if}
@@ -157,6 +157,7 @@ eZComments.cfg = {ldelim}
                     sortorder: '{ezini('GlobalSettings', 'DefaultEmbededSortOrder', 'ezcomments.ini')}',
                     fields: {ldelim} 
                                 name: '#CommentName',
+                                website: '#CommentWebsite',
                                 email: '#CommentEmail' 
                             {rdelim}
                  {rdelim};

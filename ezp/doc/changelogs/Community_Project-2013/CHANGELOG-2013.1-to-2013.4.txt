@@ -1,0 +1,190 @@
+Bugfixes
+========
+eZ Publish Kernel & APIs
+
+- EZP-20109: eZDemo: Video block controls do not display correctly.
+- EZP-20518: Default layout for legacy content fallback configurable by SA
+- EZP-20680: Missing zetacomponents/authentication-database-tiein dependency
+
+eZ Publish Legacy Stack (LS)
+
+- EZP-14361: Image / File is lost if draft saving fails
+- EZP-18195: $result.object is not correctly created
+- EZP-18398: empty set-block screws up compiled template
+- EZP-19650: move to trash and trashpurge.php can hit the memory limit
+- EZP-19685: Impossible to change the alignment of several paragraphs
+- EZP-19688: Problem with viewcache expiry
+- EZP-20316: long attribute desc overflow in Internet Explorer
+- EZP-20324: Add cache events to be able to clear cache on changes
+- EZP-20355: Insert table row in ezoe with embed elements
+- EZP-20371: Layout.ini - missing documentation
+- EZP-20390: eZ OE text becomes smaller if backspaced pressed
+- EZP-20412: Can not restore from trash an item to 2 locations
+- EZP-20443: Purge cache problem with a lot of site accesses
+- EZP-20491: eZScriptMonitor - memory limit overflow.
+- EZP-20492: eznode_assignment does not always reflect of removal secondary locations
+- EZP-20494: niceurls create wrong path on multiple siteaccess configuration
+- EZP-20508: Module redirection in legacy sometimes lead to have double siteaccess in URI
+- EZP-20512: Fatal error when uploading file to object relations with certain permissions
+- EZP-20527: Missing value update in db_data.dba
+- EZP-20556: Creating a new class shows error in redirect
+- EZP-20558: Workflow Event/Approve not working correctly
+- EZP-20572: Image editor stopped working after jQuery update to 1.9.1
+- EZP-20578: Incorrect multi-option 2 interface on admin 2
+- EZP-20602: Order appear reversed in the admin interface
+- EZP-20636: Restoring a removed object to the original location is always unavailable
+- EZP-20640: Subtree limitation for the state/assign policy does not work.
+- EZP-20650: ezinfo/about still mention ezpublish 4
+- EZP-20658: Wrongly redirected to mobile SA when booting the legacy kernel
+
+eZ Publish 5
+
+- EZP-19923: Missing config for Null type ezsubtreesubscription causes exceptions
+- EZP-20010: Missing locale and translation support in Twig & Public API, locale mapping needed
+- EZP-20193: Change RoleAssignment->role to ->roleId for cache efficiency
+- EZP-20303: ContentTypeService::copyContentType permissions aren't taken into account
+- EZP-20322: Specify csrf use in REST for use with session based auth
+- EZP-20324: Clear spi Persistence cache on legacy events
+- EZP-20414: Creating/deleting location w/API does not show immediately in Admin
+- EZP-20425: Page field type must have a siteaccess level configuration
+- EZP-20434: Do not try to delete binary files with empty path
+- EZP-20490: contentobject_link.op_code was not completely removed from Legacy
+- EZP-20499: Public API - Creating an content with non-required ezimage fields will display error: eZImageManager::createImageAlias
+- EZP-20509: cache issues when creating content
+- EZP-20518: Default layout for legacy content fallback configurable by SA
+- EZP-20521: ezpublish:configure does not import/removes imagemagick filters
+- EZP-20533: xmltext_to_html5 doesn't handle internal node_id or object_id attributes on <link> tags (eznode:// or ezobject://urls)
+- EZP-20554: xmltext_to_html5 doesn't properly pass along template variables for embeds
+- EZP-20580: Adding a new language in admin interface generates php errors
+- EZP-20590: Error on Admin2 clean installation Error: PHP: E_RECOVERABLE_ERROR
+- EZP-20595: Creating an object raises a twig exception
+- EZP-20604: Unable to run setup wizard : SQLSTATE[42000] [1044] Access denied for user ''@'localhost' to database 'none'
+- EZP-20618: Multiupload freezes on the end of the first file
+- EZP-20652: Database error when creating content with the API in PostgreSQL
+- EZP-20657: EmbedToHtml5 Converter doesn't define alignment parameters
+- EZP-20665: Prioritized languages are not used by ez_render_field Twig helper
+- EZP-20680: Missing zetacomponents/authentication-database-tiein dependency
+- EZP-20686: Siteaccess in generated URLs for links
+- EZP-20694: MySQL integration tests fail with DOMDocument errors
+- EZP-20695: Errors when running Unit Tests with DATABASE=mysql://...
+- EZP-20698: When including a legacy template in a twig template, fetch functions don't work
+
+Enhancements
+============
+eZ Publish Kernel & APIs
+
+
+eZ Publish Legacy Stack (LS)
+
+- EZP-20288: As a support engineer I would like eZDB & eZFS2 Cluster removed in favor of eZDFS
+- EZP-20426: Legacy cronjobs and scripts should be launchable from Symfony CLI
+
+eZ Publish 5
+
+
+Pull requests
+=============
+eZ Publish Kernel & APIs
+
+- 40: from gggeek/improved_index
+- 41: from ezsystems/demobundle_removal
+- 42: from ezsystems/cache
+- 43: from hhamon/typo_fix
+
+eZ Publish Legacy Stack (LS)
+
+- 481: from ezsystems/ezp-19650_trashpurge_memory_use
+- 541: from jxn/master
+- 553: from patrickallaert/EZP-14361
+- 558: from ezsystems/legacy_scripts
+- 561: from ezsystems/ezp-20355_ezoe_embed_new_table_row
+- 564: from ezsystems/cache_events
+- 566: from patrickallaert/EZP-20455
+- 569: from pborreli/typos
+- 570: from patrickallaert/EZP-20512
+- 572: from patrickallaert/EZP-20494
+- 573: from charlycoste/patch-1
+- 576: from blendinteractive/EZP-20576
+- 577: from patrickallaert/EZP-20443
+- 579: from patrickallaert/EZP-20373
+- 580: from pedroresende/EZP-20602
+- 583: from patrickallaert/EZP-20492
+- 584: from patrickallaert/EZP-19688
+- 585: from patrickallaert/remove-static-like-calls-on-instances
+- 586: from patrickallaert/EZP-18195
+- 587: from patrickallaert/EZP-18398
+- 591: from dougplant/bugfix-ezxmlinputparser
+- 592: from ezsystems/ezp_20508
+- 595: from ezsystems/ezp-20390-chrome-ezoe
+- 600: from ezsystems/ezp_20508-2
+
+eZ Publish 5
+
+- 196: from bdunogier/REST-MediaType-Charset
+- 198: from ezsystems/spiPersistenceCache
+- 222: from fdob/ezp-20434
+- 225: from ezsystems/rest-csrf
+- 230: from patrickallaert/solr-part1
+- 235: from ezsystems/EZP-19884-FIX
+- 236: from bdunogier/fix-ezrecommendation
+- 238: from ezsystems/implement-EZP-20467-rest-csrf
+- 239: from ezsystems/EZP20434-empty-path
+- 241: from ezsystems/REST-spec-ContentById
+- 242: from ezsystems/REST-spec-ContentTypeGroupByIdentifier
+- 243: from ezsystems/REST-spec-field-hashes
+- 244: from patrickallaert/SetObjectState
+- 250: from ezsystems/gatewaybasedstorage_empty_array
+- 253: from ezsystems/implement-EZP-20321-Cluster
+- 256: from ezsystems/implement-EZP-20113-ezdate-eztime-2
+- 258: from ezsystems/ezpage_readonly2
+- 264: from joekepley/EZP-20576
+- 267: from ezsystems/locale_conversion
+- 269: from ajohnstone/master
+- 270: from joaoinacio/EZP-20521
+- 273: from ezsystems/fix-EZP-19687-ezkeyword-update
+- 276: from ezsystems/fix-EZP-20608-rest-eztext
+- 279: from ezsystems/fix-EZP-20540-move-subtree
+- 286: from ezsystems/ezp_20665
+- 288: from patrickallaert/remove-UselessOverridingMethod-warnings
+- 289: from ezsystems/root_location
+- 290: from ezsystems/sudo
+- 291: from ezsystems/fix-EZP-20606-ezfloat-searchable
+- 293: from ezsystems/fix-EZP-20681-REST-user-create-login
+- 295: from patrickallaert/EZP-20694
+- 296: from patrickallaert/EZP-20695
+- 297: from ezsystems/ezp_20698
+- 298: from ezsystems/fix-EZP-20677-REST-delete-user-cleanup
+
+Miscellaneous
+=============
+eZ Publish Kernel & APIs
+
+- Updated deps
+- Updated the INSTALL.md with the assetic dump command
+- Removed the need of node.js
+- Removed leftover tests :-P
+- Upgraded to Symfony 2.2.1
+- Updated Stash dependency
+- Updated Symfony CMF Routing Component to 1.0.0 stable
+- Removed routes import from demo bundle as there are none
+- Updated deps + Updated Stash in composer.json to use a fork, waiting for filesystem driver fix is pulled in tedivm/Stash.
+- Fixed wrong eZ Publish version in composer.json
+- EZP-20010 - Activated translator with english as fallback language
+- [doc] fixed Getting Started documentation.
+- Merge branch 'master' into cache
+- Update dependencies and set setup config to use BlackHole cache handler to boot
+- Updated deps (Symfony 2.2.0)
+- Added src/.gitkeep
+- Removed ezpublish-kernel vas repository in composer.json since it's registered in packagist + updated ezpublish-kernel deps
+- Removed DemoBundle from src/ as it now has its own repository
+- Update composer.lock for spiPersistenceCache update
+- Better whitespace and add one link to external docs
+- Update composer deps
+- Update dependencies
+- Add default settings for Stash to use APC
+- Add TedivmStashBundle and spi cache branch dep
+
+eZ Publish Legacy Stack (LS)
+
+eZ Publish 5
+
