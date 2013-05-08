@@ -1,26 +1,17 @@
 <?php /* #?ini charset="utf-8"?
 
 [DebugSettings]
-DebugOutput=enabled
+DebugOutput=disabled
 
 [TemplateSettings]
 ShowUsedTemplates=enabled
 
 [DatabaseSettings]
 DatabaseImplementation=ezmysql
-# Server=mysql.master
-# Server=mysql.test
-Server=127.0.0.1
-# User=ezpedia
-# User=ezpedia_test
-User=db
-# Password=kdlop.37927!
-# Password=kgflop!52369.
-Password=db
-# Database=ezpedia_live
-# Database=ezpedia_experimental
-# Database=ezpedia_dev
-Database=ezpedia
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Server=localhost
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#User=someuser
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Password=somepassword
+#PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Database=somedatabase
 Charset=
 Socket=disabled
 
