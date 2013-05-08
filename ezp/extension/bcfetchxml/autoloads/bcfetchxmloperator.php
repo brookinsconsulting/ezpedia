@@ -231,7 +231,9 @@ class BCFetchXmlOperator
     {
 	$this->Debug = $debug;
 	$xmlEvents = false;
-	// $event = array();
+
+	$event = false; // $event = array();
+        $events = false;
 
 	if( $this->Cache == true && $cache == true )
         {
@@ -244,7 +246,6 @@ class BCFetchXmlOperator
         }
 	// return $xmlEvents;
 
-	$event = array();
         foreach($xmlEvents as $xmlEvent) {
 //	print_r($xmlEvent);
 	    foreach($xmlEvent as $key => $value) {
@@ -321,16 +322,13 @@ class BCFetchXmlOperator
              eZDebug::writeDebug( "bcfetchxml: remoteXMLCall, remote url call: " . $currentSiteAccessName .", ". print_r( $url, TRUE) );
 
 	// Suppress errors because this will fail sometimes
-	$xmlEvents = utf8_encode(file_get_contents($url));
-        $xmlEvents = simplexml_load_string( $xmlEvents ); // simplexml_load_file( $url ); //replace with reference to URL attribute from Link object
+        $xmlEvents = simplexml_load_file( $url ); //replace with reference to URL attribute from Link object
 	// print_r( $xmlEvents );
 
  	if( !$xmlEvents )
 	{
             // try a second time in case the server is busy
-            $xmlEvents = utf8_encode(file_get_contents($url));
-	    $xmlEvents = simplexml_load_string( $xmlEvents );
-
+            $xmlEvents = simplexml_load_file( $url );
             if( !$xmlEvents )
 	    {
 	 	if ( $this->Debug == true )
@@ -362,7 +360,7 @@ class BCFetchXmlOperator
 	{
             $feedName=str_replace('&', '_',  $url );
 	    $events = array();
-	    $event = array();
+            $event = array();
 
 	    // Load with cache
 	    $cacheDir = eZSys::cacheDirectory();
@@ -390,9 +388,8 @@ class BCFetchXmlOperator
 		       eZDebug::writeDebug( "bcfetchxml: cachedRemoteXMLCall, refreshed cache for url call: " . $currentSiteAccessName .", ".print_r( $cacheFilePath, TRUE) );
                     }
              } else {
-	         $xmlEventsString = utf8_encode( $cacheFile->fetchContents() );
+	         $xmlEventsString = $cacheFile->fetchContents();
 		 $xmlEvents = simplexml_load_string( $xmlEventsString );
-
 		 if ( $this->Debug == true )
 		    eZDebug::writeDebug( "bcfetchxml: cachedRemoteXMLCall, loaded data for url call from cache: " . print_r($cacheFilePath, TRUE) );
 		 }

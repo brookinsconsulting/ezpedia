@@ -1,30 +1,10 @@
 <?php
-//
-// Created on: <17-Jan-2004 12:41:17 oh>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $tpl = eZTemplate::factory();
 $http = eZHTTPTool::instance();
@@ -95,7 +75,7 @@ if ( $http->hasPostVariable( 'RemoveButton' ) )
             // We should use "reference" if multiply removing of ini setting.
             // if eZINI::instance() is called twice instance will be fetched from GLOBAL variable.
             // Without reference there will be a inconsistency with GLOBAL instance and stored ini file.
-            $iniTemp = eZINI::create( $settingFile . '.append.php', $path, null, null, null, true );
+            $iniTemp = eZINI::create( $settingFile . '.append.php', $path, null, null, null );
             $iniTemp->removeSetting( $block, $setting );
             $iniTemp->save();
         }

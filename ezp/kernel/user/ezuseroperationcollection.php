@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZUserOperationCollection class
-//
-// Created on: <27-Apr-2009 13:51:17 rp/ar>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZUserOperationCollection class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZUserOperationCollection ezuseroperationcollection.php
@@ -75,6 +54,10 @@ class eZUserOperationCollection
             {
                 eZUser::removeSessionData( $userID );
             }
+            else
+            {
+                eZUserAccountKey::removeByUserID( $userID );
+            }
             return array( 'status' => true );
         }
         else
@@ -105,13 +88,6 @@ class eZUserOperationCollection
         // Check whether account activation is required.
         $verifyUserType = $ini->variable( 'UserSettings', 'VerifyUserType' );
         $sendUserMail = !!$verifyUserType;
-        // For compatibility with old setting
-        if ( $verifyUserType === 'email'
-          && $ini->hasVariable( 'UserSettings', 'VerifyUserEmail' )
-          && $ini->variable( 'UserSettings', 'VerifyUserEmail' ) !== 'enabled' )
-        {
-            $verifyUserType = false;
-        }
 
         if ( $verifyUserType === 'email' ) // and if it is email type
         {
@@ -159,7 +135,9 @@ class eZUserOperationCollection
         {
             $templateResult = $tpl->fetch( 'design:user/registrationinfo.tpl' );
             if ( $tpl->hasVariable( 'content_type' ) )
-                $mail->setContentType( $tpl->variable( 'content_type' ) );
+                $contentType = $tpl->variable( 'content_type' );
+            else
+                $contentType = $ini->variable( 'MailSettings', 'ContentType' );
 
             $emailSender = $ini->variable( 'MailSettings', 'EmailSender' );
             if ( $tpl->hasVariable( 'email_sender' ) )
@@ -174,6 +152,7 @@ class eZUserOperationCollection
 
             $mail = new eZMail();
             $mail->setSender( $emailSender );
+            $mail->setContentType( $contentType );
             $user = eZUser::fetch( $userID );
             $receiver = $user->attribute( 'email' );
             $mail->setReceiver( $receiver );

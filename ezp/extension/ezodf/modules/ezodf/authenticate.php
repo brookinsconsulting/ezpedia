@@ -2,9 +2,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -25,11 +25,10 @@
 
     include_once ('lib/ezutils/classes/ezfunctionhandler.php');
     include_once ('lib/ezutils/classes/ezsys.php');
-    include_once( 'kernel/common/template.php' );
     include_once( 'kernel/classes/datatypes/ezuser/ezuser.php' );
     include_once( "lib/ezutils/classes/ezhttptool.php" );
 
-    $tpl = templateInit();
+    $tpl = eZTemplate::factory();
     $http = eZHTTPTool::instance();
 
     if ( $http->hasPostVariable( 'Username' ) );

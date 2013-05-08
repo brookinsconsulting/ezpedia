@@ -2,13 +2,14 @@
 /**
  * File containing the rest bootstrap
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
  */
 
-require 'autoload.php';
-require 'kernel/private/rest/classes/lazy.php';
+require __DIR__ . '/autoload.php';
+require __DIR__ . '/kernel/private/rest/classes/lazy.php';
 
 // Below we are setting up a minimal eZ Publish environment from the old index.php
 // This is a temporary measure.
@@ -39,6 +40,10 @@ $access = eZSiteAccess::change( $access );
 // load siteaccess extensions
 eZExtension::activateExtensions( 'access' );
 
+// Now that all extensions are activated and siteaccess has been changed, reset
+// all eZINI instances as they may not take into account siteaccess specific settings.
+eZINI::resetAllInstances( false );
+
 if( ezpRestDebug::isDebugEnabled() )
 {
     $debug = ezpRestDebug::getInstance();
@@ -48,6 +53,6 @@ if( ezpRestDebug::isDebugEnabled() )
 
 $mvcConfig = new ezpMvcConfiguration();
 
-$frontController = new ezcMvcConfigurableDispatcher( $mvcConfig );
+$frontController = new ezpMvcConfigurableDispatcher( $mvcConfig );
 $frontController->run();
 ?>

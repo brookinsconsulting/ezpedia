@@ -4,9 +4,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -24,8 +24,6 @@
 // ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 //
 
-require_once( "kernel/common/template.php" );
-
 function makeErrorArray( $num, $msg )
 {
     return array( 'number' => $num, 'message' => $msg );
@@ -36,7 +34,7 @@ $module = $Params["Module"];
 $NodeID = $Params['NodeID'];
 $ImportType = $Params['ImportType'];
 
-$tpl = templateInit();
+$tpl = eZTemplate::factory();
 
 $tpl->setVariable( 'error', false );
 $tpl->setVariable( 'import_type', 'import' );
@@ -84,6 +82,13 @@ if ( $http->hasPostVariable( "NodeID" ) or is_numeric( $NodeID ) )
     $http->setSessionVariable( 'oo_direct_import_node', $nodeID );
 }
 
+if ( $http->hasPostVariable( 'Locale' ) )
+{
+    $http->setSessionVariable(
+        'oo_import_locale', $http->postVariable( 'Locale' )
+    );
+}
+
 if ( $module->isCurrentAction( 'OOPlace' ) )
 {
     // We have the file and the placement. Do the actual import.
@@ -97,7 +102,14 @@ if ( $module->isCurrentAction( 'OOPlace' ) )
         if ( file_exists( $fileName ) )
         {
             $import = new eZOOImport();
-            $result = $import->import( $http->sessionVariable( "oo_import_filename" ), $nodeID, $http->sessionVariable( "oo_import_original_filename" ) );
+            $result = $import->import(
+                $http->sessionVariable( "oo_import_filename" ),
+                $nodeID,
+                $http->sessionVariable( "oo_import_original_filename" ),
+                "import",
+                null,
+                $http->sessionVariable( 'oo_import_locale' )
+            );
             // Cleanup of uploaded file
             //unlink( $http->sessionVariable( "oo_import_filename" ) );
 
@@ -125,7 +137,7 @@ if ( $module->isCurrentAction( 'OOPlace' ) )
             $http->removeSessionVariable( 'oo_import_step' );
             $http->removeSessionVariable( 'oo_import_filename' );
             $http->removeSessionVariable( 'oo_import_original_filename' );
-
+            $http->removeSessionVariable( 'oo_import_locale' );
         }
         else
         {
@@ -167,7 +179,11 @@ else
                     if ( $importType != "replace" )
                         $importType = "import";
                     $import = new eZOOImport();
-                    $result = $import->import( $fileName, $nodeID, $originalFileName, $importType );
+                    $result = $import->import(
+                        $fileName, $nodeID, $originalFileName,
+                        $importType, null,
+                        $http->sessionVariable( 'oo_import_locale' )
+                    );
                     // Cleanup of uploaded file
                     unlink( $fileName );
 
@@ -176,6 +192,7 @@ else
                         $tpl->setVariable( 'class_identifier', $result['ClassIdentifier'] );
                         $tpl->setVariable( 'url_alias', $result['URLAlias'] );
                         $tpl->setVariable( 'node_name', $result['NodeName'] );
+                        $tpl->setVariable( 'published', $result['Published'] );
                         $tpl->setVariable( 'oo_mode', 'imported' );
                     }
                     else
@@ -191,6 +208,7 @@ else
                         }
                     }
                     $http->removeSessionVariable( 'oo_direct_import_node' );
+                    $http->removeSessionVariable( 'oo_import_locale' );
                 }
                 else
                 {

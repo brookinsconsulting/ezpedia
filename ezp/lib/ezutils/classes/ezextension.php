@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZExtension class
-//
-// Created on: <16-Mar-2002 14:23:45 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZExtension class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package lib
+ */
 
 /*!
   \class eZExtension ezextension.php
@@ -78,7 +57,7 @@ class eZExtension
      * @note Default extensions are those who are loaded before a siteaccess are determined while access extensions
      *       are loaded after siteaccess is set.
      *
-     * @param false|string $extensionType Decides which extension to include in the list, the follow values are possible:
+     * @param bool|string $extensionType Decides which extension to include in the list, the follow values are possible:
      *                                    - false - Means add both default and access extensions
      *                                    - 'default' - Add only default extensions
      *                                    - 'access' - Add only access extensions
@@ -95,8 +74,7 @@ class eZExtension
         $activeExtensions = array();
         if ( !$extensionType || $extensionType === 'default' )
         {
-            $activeExtensions = array_merge( $activeExtensions,
-                                             $siteINI->variable( 'ExtensionSettings', 'ActiveExtensions' ) );
+            $activeExtensions = $siteINI->variable( 'ExtensionSettings', 'ActiveExtensions' );
         }
 
         if ( !$extensionType || $extensionType === 'access' )

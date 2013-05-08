@@ -1,31 +1,10 @@
 <?php
-//
-// Created on: <06-Oct-2002 16:01:10 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $FunctionList = array();
 
@@ -542,7 +521,7 @@ $FunctionList['search'] = array( 'name' => 'search',
                                                         array( 'name' => 'ignore_visibility',
                                                                'type' => 'bool',
                                                                'required' => false,
-                                                               'default' => false ),
+                                                               'default' => null ),
                                                         array( 'name' => 'limitation',
                                                                'type' => 'array',
                                                                'required' => false,
@@ -1088,6 +1067,10 @@ $FunctionList['related_objects'] = array( 'name' => 'object',
                                                         array( 'name' => 'ignore_visibility',
                                                                'type' => 'boolean',
                                                                'required' => false,
+                                                               'default' => null ),
+                                                        array( 'name' => 'related_class_identifiers',
+                                                               'type' => 'array',
+                                                               'required' => false,
                                                                'default' => null ) ) );
 
 $FunctionList['related_objects_count'] = array( 'name' => 'object',
@@ -1133,7 +1116,7 @@ $FunctionList['reverse_related_objects'] = array( 'name' => 'object',
                                                         array( 'name' => 'ignore_visibility',
                                                                'type' => 'boolean',
                                                                'required' => false,
-                                                               'default' => false ),
+                                                               'default' => null ),
                                                         array( 'name' => 'limit',
                                                                'type' => 'integer',
                                                                'required' => false,

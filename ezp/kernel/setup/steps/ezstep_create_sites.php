@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZStepCreateSites class
-//
-// Created on: <13-Aug-2003 19:54:38 kk>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZStepCreateSites class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   Error codes:
@@ -803,9 +782,9 @@ WHERE
 language_locale='eng-GB'";
             $db->query( $updateSql );
 
-            // use high-level api, becuase it's impossible to update serialized names with direct sqls.
+            // use high-level api, because it's impossible to update serialized names with direct sqls.
             // use direct access to 'NameList' to avoid unnecessary sql-requests and because
-            // we do 'replacement' of existing languge(with some 'id') with another language code.
+            // we do 'replacement' of existing language(with some 'id') with another language code.
             $contentClassList = eZContentClass::fetchList();
             foreach( $contentClassList as $contentClass )
             {
@@ -1036,8 +1015,8 @@ language_locale='eng-GB'";
         // Enable OE and ODF extensions by default
         $extensionsToEnable = array();
         // Included in "fat" install, needs to override $extraCommonSettings extensions
-        $extensionsPrepended = array( 'ezmultiupload', 'ezjscore' );
-        foreach ( array( 'ezie', 'ezoe', 'ezodf', 'ezprestapiprovider' ) as $extension )
+        $extensionsPrepended = array( 'ezjscore', 'ezmultiupload', 'eztags', 'ezautosave',  'ezoe', 'ezformtoken' );
+        foreach ( array( 'ezie', 'ezodf', 'ezprestapiprovider' ) as $extension )
         {
             if ( file_exists( "extension/$extension" ) )
             {

@@ -2,9 +2,9 @@
 /**
  * File containing session interface
  *
- * @copyright Copyright (C) 1999-2011 eZ Systems AS. All rights reserved.
- * @license http://ez.no/licenses/gnu_gpl GNU General Public License v2.0
- * @version  4.2011
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
  * @package lib
  */
 
@@ -98,10 +98,36 @@ class eZSession
     static protected $handlerInstance = null;
 
     /**
+     * Session namespace.
+     * If set, all session variables will be stored under $_SESSION[$namespace].
+     *
+     * @var string
+     */
+    static protected $namespace = null;
+
+    /**
      * Constructor (not used, this is an all static class)
      */
     protected function __construct()
     {
+    }
+
+    /**
+     * Returns the session array to use taking into account the namespace that
+     * might have been injected.
+     *
+     * @since 5.0
+     * @return byRef session array to use
+     */
+    static private function &sessionArray()
+    {
+        if ( self::$namespace !== null )
+        {
+            if ( !isset( $_SESSION[self::$namespace] ) )
+                $_SESSION[self::$namespace] = array();
+            return $_SESSION[self::$namespace];
+        }
+        return $_SESSION;
     }
 
     /**
@@ -120,11 +146,12 @@ class eZSession
                 return $defaultValue;
             self::start();
         }
+        $session =& self::sessionArray();
 
         if ( $key === null )
-            return $_SESSION;
-        else if ( isset( $_SESSION[ $key ] ) )
-            return $_SESSION[ $key ];
+            return $session;
+        else if ( isset( $session[$key] ) )
+            return $session[$key];
         return $defaultValue;
     }
 
@@ -141,8 +168,9 @@ class eZSession
         {
             self::start();
         }
+        $session =& self::sessionArray();
+        $session[$key] = $value;
 
-        $_SESSION[ $key ] = $value;
         return true;
     }
 
@@ -162,8 +190,8 @@ class eZSession
                 return null;
             self::start();
         }
-
-        return isset( $_SESSION[ $key ] );
+        $session = self::sessionArray();
+        return isset( $session[$key] );
     }
 
     /**
@@ -183,11 +211,12 @@ class eZSession
                 return null;
             self::start();
         }
+        $session =& self::sessionArray();
 
-        if ( !isset( $_SESSION[ $key ] ) )
+        if ( !isset( $session[$key] ) )
             return false;
 
-        unset( $_SESSION[ $key ] );
+        unset( $session[$key] );
         return true;
     }
 
@@ -200,7 +229,7 @@ class eZSession
      */
     static public function garbageCollector()
     {
-        return self::getHandlerInstance()->gc( $_SERVER['REQUEST_TIME'] );
+        return self::getHandlerInstance()->gc( (int)$_SERVER['REQUEST_TIME'] );
     }
 
     /**
@@ -234,13 +263,17 @@ class eZSession
      * @since 4.1
      * @return bool Depending on if eZSession is registrated as session handler.
     */
-    static protected function registerFunctions()
+    static protected function registerFunctions( $sessionName = false, ezpSessionHandler $handler = null )
     {
         if ( self::$hasStarted || self::$handlerInstance !== null )
             return false;
 
         $ini = eZINI::instance();
-        if ( $ini->variable( 'Session', 'SessionNameHandler' ) === 'custom' )
+        if ( $sessionName !== false )
+        {
+            session_name( $sessionName );
+        }
+        else if ( $ini->variable( 'Session', 'SessionNameHandler' ) === 'custom' )
         {
             $sessionName = $ini->variable( 'Session', 'SessionNamePrefix' );
             if ( $ini->variable( 'Session', 'SessionNamePerSiteAccess' ) === 'enabled' )
@@ -271,35 +304,61 @@ class eZSession
             self::$hasSessionCookie = isset( $_COOKIE[ $sessionName ] );
         }
 
-        return self::getHandlerInstance()->setSaveHandler();
+        return self::getHandlerInstance( $handler )->setSaveHandler();
+    }
+
+    /**
+     * Set the Cookie timeout of session cookie.
+     *
+     * @since 5.0
+     * @param int $lifetime Cookie timeout of the session cookie
+     */
+    static public function setCookieLifetime( $lifetime )
+    {
+        session_set_cookie_params( (int)$lifetime );
     }
 
     /**
      * Set default cookie parameters based on site.ini settings (fallback to php.ini settings)
-     * Used by {@link eZSession::registerFunctions()}
+     * Used by {@link eZSession::registerFunctions()}. If you only want to set
+     * the cookie lifetime, use {@link eZSession::setCookieLifetime} instead.
      * Note: this will only have affect when session is created / re-created
      *
      * @since 4.4
      * @param int|false $lifetime Cookie timeout of session cookie, will read from ini if not set
     */
-    static protected function setCookieParams( $lifetime = false )
+    static public function setCookieParams( $lifetime = false )
     {
         $ini      = eZINI::instance();
         $params   = session_get_cookie_params();
         if ( $lifetime === false )
         {
-            if ( $ini->hasVariable('Session', 'CookieTimeout')
-              && $ini->variable('Session', 'CookieTimeout') )
+            if ( $ini->hasVariable( 'Session', 'CookieTimeout' )
+              && $ini->variable( 'Session', 'CookieTimeout' ) )
                 $lifetime = (int) $ini->variable('Session', 'CookieTimeout');
             else
                 $lifetime = $params['lifetime'];
         }
-        $path   = $ini->hasVariable('Session', 'CookiePath')     ? $ini->variable('Session', 'CookiePath')     : $params['path'];
-        $domain = $ini->hasVariable('Session', 'CookieDomain')   ? $ini->variable('Session', 'CookieDomain')   : $params['domain'];
-        $secure = $ini->hasVariable('Session', 'CookieSecure')   ? $ini->variable('Session', 'CookieSecure')   : $params['secure'];
+        $path   = $ini->hasVariable( 'Session', 'CookiePath' )     ? $ini->variable( 'Session', 'CookiePath' )     : $params['path'];
+        $domain = $ini->hasVariable( 'Session', 'CookieDomain' )   ? $ini->variable( 'Session', 'CookieDomain' )   : $params['domain'];
+        if ( $ini->hasVariable( 'Session', 'CookieSecure' ) )
+        {
+            $secure = ( $ini->variable( 'Session', 'CookieSecure' ) == 'true' ) ? true : false ;
+        }
+        else
+        {
+            $secure = $params['secure'];
+        }
         if ( isset( $params['httponly'] ) ) // only available on PHP 5.2 and up
         {
-            $httponly = $ini->hasVariable('Session', 'CookieHttponly') ? $ini->variable('Session', 'CookieHttponly') : $params['httponly'];
+            if ( $ini->hasVariable( 'Session', 'CookieHttponly') )
+            {
+                $httponly = ( $ini->variable( 'Session', 'CookieHttponly' ) == 'true' ) ? true : false ;
+            }
+            else
+            {
+                $httponly = $params['httponly'];
+            }
             session_set_cookie_params( $lifetime, $path, $domain, $secure, $httponly );
         }
         else
@@ -351,28 +410,43 @@ class eZSession
     }
 
     /**
+     * Initializes the legacy session system with injected settings.
+     * This is method is to be used when Symfony2 "drives" the session, it
+     * replaces start/lazyStart in such case.
+     *
+     * @param string $name Name of the session
+     * @param bool $started Whether the session is already started or not
+     * @param string $ns Namespace ie the key under which session data should
+     *        be put in global array
+     */
+    static public function init( $name, $started, $ns, ezpSessionHandler $handler )
+    {
+        if ( self::$hasStarted )
+        {
+            return;
+        }
+        self::registerFunctions( $name, $handler );
+        self::$namespace = $ns;
+        if ( self::$hasSessionCookie && !$started )
+        {
+            self::forceStart();
+        }
+        else if ( $started )
+        {
+            self::$hasStarted = true;
+        }
+    }
+
+    /**
      * See {@link eZSession::start()}
      *
+     * @see ezpSessionHandler::sessionStart()
      * @since 4.4
      * @return true
      */
     static protected function forceStart()
     {
-        session_start();
-        return self::$hasStarted = true;
-    }
-
-    /**
-     * Gets/generates the user hash for use in validating the session based on [Session]
-     * SessionValidation* site.ini settings. The default hash is result of md5('empty').
-     *
-     * @since 4.1
-     * @deprecated as of 4.4, only returns default md5('empty') hash now for BC.
-     * @return string MD5 hash based on parts of the user ip and agent string.
-     */
-    static public function getUserSessionHash()
-    {
-        return 'a2e4822a98337283e39f7b60acf85ec9';
+        return self::$hasStarted = self::getHandlerInstance()->sessionStart();
     }
 
     /**
@@ -431,7 +505,10 @@ class eZSession
      */
     static public function remove()
     {
-        if ( !self::$hasStarted )
+        // CLI scripts can use sessions and in that case session is forced to start.
+        // However, Symfony does not handle sessions in CLI (which seems to be normal), so session is never started.
+        // Hence check with session_id()
+        if ( !self::$hasStarted || session_id() === '' )
         {
              return false;
         }
@@ -476,19 +553,6 @@ class eZSession
     }
 
     /**
-     * Returns if user session validated against stored data in db
-     * or if it was invalidated during the current request.
-     *
-     * @since 4.1
-     * @deprecated as of 4.4, only returns true for bc
-     * @return bool|null Null if user is not validated yet (for instance a new session).
-     */
-    static public function userSessionIsValid()
-    {
-        return true;
-    }
-
-    /**
      * Return value to indicate if session has started or not
      *
      * @since 4.4
@@ -505,20 +569,29 @@ class eZSession
      * @since 4.4
      * @return ezpSessionHandler
      */
-    static public function getHandlerInstance()
+    static public function getHandlerInstance( ezpSessionHandler $handler = null )
     {
         if ( self::$handlerInstance === null )
         {
-            $ini = eZINI::instance();
-            if ( $ini->variable( 'Session', 'Handler' ) !== '' )
+            if ( $handler === null )
             {
-                $optionArray = array( 'iniFile'       => 'site.ini',
-                                      'iniSection'    => 'Session',
-                                      'iniVariable'   => 'Handler',
-                                      'handlerParams' => array( self::$hasSessionCookie ) );
+                $ini = eZINI::instance();
+                if ( $ini->variable( 'Session', 'Handler' ) !== '' )
+                {
+                    $optionArray = array(
+                        'iniFile'       => 'site.ini',
+                        'iniSection'    => 'Session',
+                        'iniVariable'   => 'Handler',
+                        'handlerParams' => array( self::$hasSessionCookie )
+                    );
 
-                $options = new ezpExtensionOptions( $optionArray );
-                self::$handlerInstance = eZExtension::getHandlerClass( $options );
+                    $options = new ezpExtensionOptions( $optionArray );
+                    self::$handlerInstance = eZExtension::getHandlerClass( $options );
+                }
+            }
+            else
+            {
+                self::$handlerInstance = $handler;
             }
             if ( !self::$handlerInstance instanceof ezpSessionHandler )
             {

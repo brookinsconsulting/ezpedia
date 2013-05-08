@@ -1,4 +1,5 @@
-{let search=false()}
+{let use_template_search=true()
+     search=false()}
 
 {* <h1>{ezhttp('SearchPageLimit','get')}</h1> *}
 {if ezhttp_hasvariable('SearchPageLimit','get')}
@@ -11,10 +12,10 @@
     {elseif ezhttp('SearchPageLimit','get')|eq(4)}
 	{set page_limit=50}
     {else}
-	{set page_limit=5}
+	{set page_limit=20}
     {/if}
 {else}
-    {set page_limit=10}
+    {set page_limit=20}
 {/if}
 
 {section show=$use_template_search}
@@ -30,7 +31,7 @@
     {set stop_word_array=$search['StopWordArray']}
     {set search_data=$search}
 {/section}
-{*$search_extras|attribute(show)*}
+{* $search_extras|attribute(show) *}
 <div class="content-search">
 
 <form action={"/content/search/"|ezurl} method="get">
@@ -85,18 +86,21 @@
   {/case}
   {case}
   <div class="feedback">
+  <br />
   <h2>{'Search for "%1" returned %2 matches'|i18n("design/base",,array($search_text|wash,$search_count))}</h2>
-  <p>Core search time: {$search_extras.ResponseHeader.QTime} msecs</p>
+  {* <p>Core search time: {$search_extras.ResponseHeader.QTime} msecs</p> *}
   </div>
   {/case}
 {/switch}
+
+{*
 <h3>Categories matched</h3>
 <p>
 {foreach $search_extras.FacetArray.facet_fields.m_class_name as $keyword_name => $keyword_count}
 {$keyword_name}({$keyword_count})&nbsp;
-
 {/foreach}
 </p>
+*}
 
 <table style="width: 100%;margin-bottom:2ex;margin-top:2ex;">
 {section name=SearchResult loop=$search_result show=$search_result sequence=array('bglight','bgdark')}

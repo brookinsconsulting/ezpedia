@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.0" language="fr_FR">
+<context>
+    <name>design/ezodf/import</name>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create or update the translation in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Existing translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 <context>
     <name>extension/ezodf</name>
     <message>
@@ -49,7 +72,7 @@
     </message>
     <message>
         <source>Upload file</source>
-        <translation>Télécharger le fichier</translation>
+        <translation type="obsolete">Télécharger le fichier</translation>
     </message>
     <message>
         <source>Import OpenOffice.org document</source>
@@ -72,6 +95,14 @@ Images are placed in the media library so you can re-use them in other articles.
 indiquer l&apos;emplacement du document et eZ Publish s&apos;occupe du reste. Le document est converti dans
 la classe appropriée lors de l&apos;import. Vous recevrez des informations concernant cette conversion une fois l&apos;import terminé.
 Les images sont placées dans la médiathèque : vous pouvez les réutiliser dans d&apos;autres articles. </translation>
+    </message>
+    <message>
+        <source>The imported document is waiting for an approbation to be published.</source>
+        <translation>Le document importé est en attente d&apos;approbation pour être publié.</translation>
+    </message>
+    <message>
+        <source>Import document</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -101,98 +132,98 @@ Cliquez sur le nom de l&apos;emplacement pour modifier la liste de navigation.</
     <name>extension/ezodf/export/error</name>
     <message>
         <source>Destination file format not supported</source>
-        <translation type="unfinished">Le format du fichier de destination n&apos;est pas pris en charge</translation>
+        <translation>Le format du fichier de destination n&apos;est pas pris en charge</translation>
     </message>
     <message>
         <source>PDF conversion failed</source>
-        <translation type="unfinished">Echec de la conversion PDF</translation>
+        <translation>Échec de la conversion PDF</translation>
     </message>
     <message>
         <source>Word conversion failed</source>
-        <translation type="unfinished">Echec de la conversion Word</translation>
+        <translation>Échec de la conversion Word</translation>
     </message>
     <message>
         <source>Unable to fetch node, or no read access</source>
-        <translation type="unfinished">Impossible de récupérer le nœud ou de lire le chemin d&apos;accès</translation>
+        <translation>Impossible de récupérer le nœud ou de lire le chemin d&apos;accès</translation>
     </message>
     <message>
         <source>Unable to open file %1 on server side</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir le fichier %1 côté serveur</translation>
+        <translation>Impossible d&apos;ouvrir le fichier %1 côté serveur</translation>
     </message>
 </context>
 <context>
     <name>extension/ezodf/import/error</name>
     <message>
         <source>File extension or type is not allowed.</source>
-        <translation type="unfinished">Extension ou type de fichier non autorisés.</translation>
+        <translation>Extension ou type de fichier non autorisés.</translation>
     </message>
     <message>
         <source>Could not parse XML.</source>
-        <translation type="unfinished">Impossible d&apos;analyser le XML.</translation>
+        <translation>Impossible d&apos;analyser le XML.</translation>
     </message>
     <message>
         <source>Can not open socket. Please check if extension/ezodf/daemon.php is running.</source>
-        <translation type="unfinished">Impossible d&apos;ouvrir l&apos;interface de connexion. Vérifiez si extension/ezodf/daemon.php est en cours d&apos;exécution.</translation>
+        <translation>Impossible d&apos;ouvrir l&apos;interface de connexion. Vérifiez si extension/ezodf/daemon.php est en cours d&apos;exécution.</translation>
     </message>
     <message>
         <source>Can not convert the given document.</source>
-        <translation type="unfinished">Impossible de convertir le document indiqué.</translation>
+        <translation>Impossible de convertir le document indiqué.</translation>
     </message>
     <message>
         <source>Unable to call daemon. Fork can not create child process.</source>
-        <translation type="unfinished">Impossible d&apos;appeler le démon. Le fork ne peut pas créer de processus enfant.</translation>
+        <translation>Impossible d&apos;appeler le démon (daemon). La processus ne peut créer de processus enfant.</translation>
     </message>
     <message>
         <source>Daemon reported error.</source>
-        <translation type="unfinished">Le daemon a signalé une erreur.</translation>
+        <translation>Le démon (daemon) a signalé une erreur.</translation>
     </message>
     <message>
         <source>Unknown node.</source>
-        <translation type="unfinished">Nœud inconnu.</translation>
+        <translation>Nœud inconnu.</translation>
     </message>
     <message>
         <source>Access denied.</source>
-        <translation type="unfinished">Accès refusé.</translation>
+        <translation>Accès refusé.</translation>
     </message>
     <message>
         <source>Error during import.</source>
-        <translation type="unfinished">Erreur lors de l&apos;import.</translation>
+        <translation>Erreur lors de l&apos;import.</translation>
     </message>
     <message>
         <source>Unknown content class specified in odf.ini:</source>
-        <translation type="unfinished">La classe de contenu définie dans odf.ini n&apos;existe pas :</translation>
+        <translation>La classe de contenu définie dans odf.ini n&apos;existe pas :</translation>
     </message>
     <message>
         <source>Unknown error.</source>
-        <translation type="unfinished">Erreur inconnue.</translation>
+        <translation>Erreur inconnue.</translation>
     </message>
     <message>
         <source>Filetype: </source>
-        <translation type="unfinished">Type de fichier :</translation>
+        <translation>Type de fichier :</translation>
     </message>
     <message>
         <source>Folder for images could not be created, access denied.</source>
-        <translation type="unfinished">Impossible de créer le dossier pour les images, l&apos;accès a été refusé.</translation>
+        <translation>Impossible de créer le dossier pour les images, l&apos;accès a été refusé.</translation>
     </message>
     <message>
         <source>Document is not supported.</source>
-        <translation type="unfinished">Document non pris en charge.</translation>
+        <translation>Document non pris en charge.</translation>
     </message>
     <message>
         <source>Cannot import. File not found. Already imported?</source>
-        <translation type="unfinished">Impossible d&apos;importer le fichier. Fichier introuvable. A-t-il déja été importé ?</translation>
+        <translation>Impossible d&apos;importer le fichier. Fichier introuvable. A-t-il déja été importé ?</translation>
     </message>
     <message>
         <source>Cannot import document, supplied placement nodeID is not valid.</source>
-        <translation type="unfinished">Impossible d&apos;importer le document, l&apos;identifiant du nœud de l&apos;emplacement fourni n&apos;est pas valide.</translation>
+        <translation>Impossible d&apos;importer le document, l&apos;identifiant du nœud de l&apos;emplacement fourni n&apos;est pas valide.</translation>
     </message>
     <message>
         <source>Cannot store uploaded file, cannot import.</source>
-        <translation type="unfinished">Impossible d&apos;enregistrer le fichier téléchargé, import impossible.</translation>
+        <translation>Impossible d&apos;enregistrer le fichier téléchargé, import impossible.</translation>
     </message>
     <message>
         <source>Unable to fetch node with id </source>
-        <translation type="unfinished">Impossible de récupérer le nœud dont l&apos;id est </translation>
+        <translation>Impossible de récupérer le nœud dont l&apos;id est </translation>
     </message>
 </context>
 <context>

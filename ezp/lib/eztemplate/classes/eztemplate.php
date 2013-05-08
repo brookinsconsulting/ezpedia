@@ -1,34 +1,12 @@
 <?php
-//
-// Definition of eZTemplate class
-//
-// Created on: <01-Mar-2002 13:49:57 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
- Template system manager.
-*/
+/**
+ * File containing the eZTemplate class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package lib
+ */
 
 /*! \defgroup eZTemplate Template system */
 
@@ -626,7 +604,7 @@ class eZTemplate
         {
             $variableData = $node[2];
             $variablePlacement = $node[3];
-            $rslt = $this->processVariable( $textElements, $variableData, $variablePlacement, $rootNamespace, $currentNamespace );
+            $this->processVariable( $textElements, $variableData, $variablePlacement, $rootNamespace, $currentNamespace );
             if ( !is_array( $textElements ) )
                 eZDebug::writeError( "Textelements is no longer array: '$textElements'", __METHOD__ . '::variable' );
         }
@@ -673,6 +651,7 @@ class eZTemplate
         else
         {
             $this->warning( "", "Function \"$functionName\" is not registered" );
+            return null;
         }
     }
 
@@ -1498,25 +1477,23 @@ class eZTemplate
      * @param string $var
      * @param string $val
      * @param string $namespace (optional)
+     * @param bool $scopeSafe If true, will assure that $var is not overridden for $namespace. False by default
      */
-    function setVariable( $var, $val, $namespace = '' )
+    function setVariable( $var, $val, $namespace = '', $scopeSafe = false )
     {
-        $this->Variables[$namespace][$var] = $val;
-    }
+        if ( $scopeSafe && isset( $this->Variables[$namespace][$var] ) )
+        {
+            $safeNamespace = $namespace;
+            do
+            {
+                $safeNamespace .= ':safe';
+            }
+            while( isset( $this->Variables[$safeNamespace][$var] ) );
 
-    /**
-     * Sets the template variable $var to the value $val by ref
-     *
-     * @deprecated Since 4.4, have not used references since 3.10
-     * @uses eZTemplate::setVariable()
-     *
-     * @param string $var
-     * @param string $val
-     * @param string $namespace (optional)
-     */
-    function setVariableRef( $var, $val, $namespace = '' )
-    {
-        $this->setVariable( $var, $val, $namespace );
+            $this->Variables[$safeNamespace][$var] = $this->Variables[$namespace][$var];
+        }
+
+        $this->Variables[$namespace][$var] = $val;
     }
 
     /**
@@ -1529,9 +1506,30 @@ class eZTemplate
     {
         if ( isset( $this->Variables[$namespace] ) &&
              array_key_exists( $var, $this->Variables[$namespace] ) )
-            unset( $this->Variables[$namespace][$var] );
+        {
+            $safeNamespace = "{$namespace}:safe";
+            if ( isset( $this->Variables[$safeNamespace][$var] ) )
+            {
+                // Check if a nested safe namespace for $var
+                // If true, then add a level of testing and test again
+                while( isset( $this->Variables["{$safeNamespace}:safe"][$var] )  )
+                {
+                    $safeNamespace .= ':safe';
+                }
+
+                // Get the $var backup back and delete it
+                $this->Variables[$namespace][$var] = $this->Variables[$safeNamespace][$var];
+                unset( $this->Variables[$safeNamespace][$var] );
+            }
+            else
+            {
+                unset( $this->Variables[$namespace][$var] );
+            }
+        }
         else
-            $this->warning( "unsetVariable()", "Undefined Variable: \$$namespace:$var, cannot unset" );
+        {
+            $this->warning( "unsetVariable()", "Undefined Variable: \${$namespace}:{$var}, cannot unset" );
+        }
     }
 
     /**
@@ -1738,15 +1736,26 @@ class eZTemplate
         $path = $resourceData['template-filename'];
         // Do not ouput debug on pagelayout templates to avoid trigering
         // browser quirks mode
-        if ( isset( $root[1][0][2] ) && is_string( $root[1][0][2] ) && strpos( $root[1][0][2], '<!DOCTYPE' ) === 0 )
+        if ( isset( $root[1][0][2] ) && is_string( $root[1][0][2] ) && stripos( $root[1][0][2], '<!DOCTYPE' ) === 0 )
             return;
         $uri = $resourceData['uri'];
         $preText = "\n<!-- START: including template: $path ($uri) -->\n";
         if ( eZTemplate::isXHTMLCodeIncluded() )
             $preText .= "<p class=\"small\">$path</p><br/>\n";
         $postText = "\n<!-- STOP: including template: $path ($uri) -->\n";
-        $root[1] = array_merge( array( eZTemplateNodeTool::createTextNode( $preText ) ), $root[1] );
-        $root[1][] = eZTemplateNodeTool::createTextNode( $postText );
+
+        $preNode = eZTemplateNodeTool::createTextNode( $preText );
+        $postNode = eZTemplateNodeTool::createTextNode( $postText );
+
+        if ( is_array( $root[1] ) )
+        {
+            $root[1] = array_merge( array( $preNode ), $root[1] );
+        }
+        else
+        {
+            $root[1] = array( $preNode );
+        }
+        $root[1][] = $postNode;
     }
 
     /*!
@@ -2371,18 +2380,20 @@ class eZTemplate
             $instance = self::instance();
 
             $ini = eZINI::instance();
-            if ( $ini->variable( 'TemplateSettings', 'Debug' ) == 'enabled' )
+            if (!isset($GLOBALS['eZTemplateDebugInternalsEnabled']) && $ini->variable( 'TemplateSettings', 'Debug' ) == 'enabled' )
                 eZTemplate::setIsDebugEnabled( true );
 
-            $compatAutoLoadPath = $ini->variableArray( 'TemplateSettings', 'AutoloadPath' );
-            $autoLoadPathList   = $ini->variable( 'TemplateSettings', 'AutoloadPathList' );
-
-            $extensionAutoloadPath = $ini->variable( 'TemplateSettings', 'ExtensionAutoloadPath' );
-            $extensionPathList     = eZExtension::expandedPathList( $extensionAutoloadPath, 'autoloads/' );
-
-            $autoLoadPathList = array_unique( array_merge( $compatAutoLoadPath, $autoLoadPathList, $extensionPathList ) );
-
-            $instance->setAutoloadPathList( $autoLoadPathList );
+            $instance->setAutoloadPathList(
+                array_unique(
+                    array_merge(
+                        $ini->variable( 'TemplateSettings', 'AutoloadPathList' ),
+                        eZExtension::expandedPathList(
+                            $ini->variable( 'TemplateSettings', 'ExtensionAutoloadPath' ),
+                            'autoloads/'
+                        )
+                    )
+                )
+            );
             $instance->autoload();
 
             $instance->registerResource( eZTemplateDesignResource::instance() );

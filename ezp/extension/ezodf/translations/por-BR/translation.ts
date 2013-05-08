@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.0">
 <context>
+    <name>design/ezodf/import</name>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create or update the translation in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Existing translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>extension/ezodf</name>
     <message>
         <source>Import</source>
@@ -21,7 +44,7 @@
     </message>
     <message>
         <source>Upload file</source>
-        <translation>Enviar arquivo</translation>
+        <translation type="obsolete">Enviar arquivo</translation>
     </message>
     <message>
         <source>Error</source>
@@ -89,6 +112,14 @@ Você escolhe onde colocar o documento e o eZ Publish fará o resto. O documento
 o tipo de conteúdo apropriado durante a importação, você receberá um aviso sobre isto depois de concluída a importação
 As imagens serão colocadas na biblioteca e você poderá reutilizá-las em outros artigos.</translation>
     </message>
+    <message>
+        <source>The imported document is waiting for an approbation to be published.</source>
+        <translation>O documento importado está esperando uma aprovação para ser publicado.</translation>
+    </message>
+    <message>
+        <source>Import document</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>extension/ezodf/browse</name>
@@ -117,74 +148,74 @@ As imagens serão colocadas na biblioteca e você poderá reutilizá-las em outr
     <name>extension/ezodf/export/error</name>
     <message>
         <source>Destination file format not supported</source>
-        <translation type="unfinished">O formato do documento de destino não é suportado</translation>
+        <translation>O formato do documento de destino não é suportado</translation>
     </message>
     <message>
         <source>PDF conversion failed</source>
-        <translation type="unfinished">A conversão de PDF falhou</translation>
+        <translation>A conversão de PDF falhou</translation>
     </message>
     <message>
         <source>Word conversion failed</source>
-        <translation type="unfinished">A conversão de Word falhou</translation>
+        <translation>A conversão de Word falhou</translation>
     </message>
     <message>
         <source>Unable to fetch node, or no read access</source>
-        <translation type="unfinished">Incapaz de alcançar nó desejado, ou não há permissão de acesso para leitura</translation>
+        <translation>Não foi possível buscar o nó, ou não há permissão de acesso para leitura</translation>
     </message>
     <message>
         <source>Unable to open file %1 on server side</source>
-        <translation type="unfinished">Não foi possível abrir o documento %1 no lado do servidor</translation>
+        <translation>Não foi possível abrir o documento %1 no lado do servidor</translation>
     </message>
 </context>
 <context>
     <name>extension/ezodf/import/error</name>
     <message>
         <source>File extension or type is not allowed.</source>
-        <translation type="unfinished">A extensão ou tipo de documento não é permitido.</translation>
+        <translation>A extensão ou tipo de documento não é permitido.</translation>
     </message>
     <message>
         <source>Could not parse XML.</source>
-        <translation type="unfinished">Não foi possível processar o XML.</translation>
+        <translation>Não foi possível processar o XML.</translation>
     </message>
     <message>
         <source>Can not open socket. Please check if extension/ezodf/daemon.php is running.</source>
-        <translation type="unfinished">Não foi possível abrir o socket. Confira se o serviço extension/ezodf/daemon.php está rodando.</translation>
+        <translation>Não foi possível abrir o socket. Confira se o serviço extension/ezodf/daemon.php está rodando.</translation>
     </message>
     <message>
         <source>Can not convert the given document.</source>
-        <translation type="unfinished">Não foi possível converter o documento fornecido.</translation>
+        <translation>Não foi possível converter o documento fornecido.</translation>
     </message>
     <message>
         <source>Unable to call daemon. Fork can not create child process.</source>
-        <translation type="unfinished">Não foi possível comunicar-se com o serviço, portanto nenhum processo de conversão pôde ser iniciado.</translation>
+        <translation>Não foi possível chamar o daemon. Fork não pode criar processos filhos.</translation>
     </message>
     <message>
         <source>Daemon reported error.</source>
-        <translation type="unfinished">O Serviço reportou um erro.</translation>
+        <translation>Daemon reportou um erro.</translation>
     </message>
     <message>
         <source>Unknown node.</source>
-        <translation type="unfinished">Nó desconhecido.</translation>
+        <translation>Nó desconhecido.</translation>
     </message>
     <message>
         <source>Access denied.</source>
-        <translation type="unfinished">Acesso negado.</translation>
+        <translation>Acesso negado.</translation>
     </message>
     <message>
         <source>Error during import.</source>
-        <translation type="unfinished">Erro durante a importação.</translation>
+        <translation>Erro durante a importação.</translation>
     </message>
     <message>
         <source>Unknown content class specified in odf.ini:</source>
-        <translation type="unfinished">A classe de conteúdo especificada em odf.ini é desconhecida:</translation>
+        <translation>A classe de conteúdo especificada em odf.ini é desconhecida:</translation>
     </message>
     <message>
         <source>Unknown error.</source>
-        <translation type="unfinished">Erro desconhecido.</translation>
+        <translation>Erro desconhecido.</translation>
     </message>
     <message>
         <source>Filetype: </source>
-        <translation type="unfinished">Tipo de documento:</translation>
+        <translation>Tipo de documento:</translation>
     </message>
     <message>
         <source>Unable to fetch node with id  </source>
@@ -192,7 +223,7 @@ As imagens serão colocadas na biblioteca e você poderá reutilizá-las em outr
     </message>
     <message>
         <source>Folder for images could not be created, access denied.</source>
-        <translation type="unfinished">A pasta para imagens não pôde ser criada, acesso negado.</translation>
+        <translation>A pasta para imagens não pôde ser criada, acesso negado.</translation>
     </message>
     <message>
         <source>Document is not suported.</source>
@@ -200,23 +231,23 @@ As imagens serão colocadas na biblioteca e você poderá reutilizá-las em outr
     </message>
     <message>
         <source>Cannot import. File not found. Already imported?</source>
-        <translation type="unfinished">Não foi possível realizar a importação. O arquivo não foi encontrado. Este arquivo já foi importado?</translation>
+        <translation>Não foi possível importar. O arquivo não foi encontrado. Este arquivo já foi importado?</translation>
     </message>
     <message>
         <source>Cannot import document, supplied placement nodeID is not valid.</source>
-        <translation type="unfinished">Não foi possível importar o documento, o ID do local (nó) fornecido é inválido.</translation>
+        <translation>Não foi possível importar o documento, o ID do local (nó) fornecido é inválido.</translation>
     </message>
     <message>
         <source>Cannot store uploaded file, cannot import.</source>
-        <translation type="unfinished">Não foi possível armazenar o documento enviado, importação cancelada.</translation>
+        <translation>Não foi possível armazenar o documento enviado, importação cancelada.</translation>
     </message>
     <message>
         <source>Unable to fetch node with id </source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível encontrar o nó com o id </translation>
     </message>
     <message>
         <source>Document is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Documento não é suportado.</translation>
     </message>
 </context>
 <context>
@@ -243,7 +274,7 @@ As imagens serão colocadas na biblioteca e você poderá reutilizá-las em outr
     </message>
     <message>
         <source>OpenOffice.org</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenOffice.org</translation>
     </message>
 </context>
 </TS>

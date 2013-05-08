@@ -6,9 +6,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -208,10 +208,20 @@ class eZOOImport
         return $this->daemonConvert( $sourceFile, $destFile );
     }
 
-    /*!
-      Imports an OpenOffice.org document from the given file.
-    */
-    function import( $file, $placeNodeID, $originalFileName, $importType = "import", $upload = null )
+    /**
+     * Creates a new content or updates an existing one based on $file
+     *
+     * @param string $file the file to import
+     * @param int $placeNodeID the node id where to place the new document or
+     *        the node of the document to update
+     * @param string $originalFileName
+     * @param string $importType "import" or "replace"
+     * @param eZContentUpload|null $upload (not used in this method)
+     * @param string|false $locale the locale to use while creating/updating
+     *        the content
+     * @return array|false false if something went wrong
+     */
+    function import( $file, $placeNodeID, $originalFileName, $importType = "import", $upload = null, $locale = false )
     {
         $ooINI = eZINI::instance( 'odf.ini' );
         //$tmpDir = $ooINI->variable( 'ODFSettings', 'TmpDir' );
@@ -268,25 +278,7 @@ class eZOOImport
             $placeNodeID = $parentMainNode;
             $place_node = eZContentObjectTreeNode::fetch( $placeNodeID );
         }
-        if ( $importType == "replace" )
-        {
-            // Check if we are allowed to edit the node
-            $functionCollection = new eZContentFunctionCollection();
-            $access = $functionCollection->checkAccess( 'edit', $place_node, false, false );
-        }
-        else
-        {
-            // Check if we are allowed to create a node under the node
-            $functionCollection = new eZContentFunctionCollection();
-            $access = $functionCollection->checkAccess( 'create', $place_node, $importClassIdentifier, $place_node->attribute( 'class_identifier' ) );
-        }
 
-        if ( ! ( $access['result'] ) )
-        {
-            $this->setError( self::ERROR_ACCESSDENIED );
-            return false;
-        }
-        //return false;
 
         // Check if document conversion is needed
         //
@@ -559,7 +551,25 @@ class eZOOImport
             }
         }
 
-        // Create object start
+        if ( $importType == "replace" )
+        {
+            // Check if we are allowed to edit the node
+            $functionCollection = new eZContentFunctionCollection();
+            $access = $functionCollection->checkAccess(
+                'edit', $place_node, false, false, $locale
+            );
+        }
+        else
+        {
+            // Check if we are allowed to create a node under the node
+            $functionCollection = new eZContentFunctionCollection();
+            $access = $functionCollection->checkAccess(
+                'create', $place_node, $importClassIdentifier,
+                $place_node->attribute( 'class_identifier' ), $locale
+            );
+        }
+
+        if ( $access['result'] )
         {
             // Check if we should replace the current object or import a new
             if ( $importType !== "replace" )
@@ -579,7 +589,7 @@ class eZOOImport
                     return false;
                 }
 
-                $object = $class->instantiate( $creatorID, $sectionID );
+                $object = $class->instantiate( $creatorID, $sectionID, false, $locale );
 
                 $nodeAssignment = eZNodeAssignment::create( array(
                                                                  'contentobject_id' => $object->attribute( 'id' ),
@@ -626,9 +636,9 @@ class eZOOImport
 
                 // already fetched: $node = eZContentObjectTreeNode::fetch( $placeNodeID );
                 $object = $place_node->attribute( 'object' );
-                $version = $object->createNewVersion();
+                $version = $object->createNewVersionIn( $locale );
 
-                $dataMap = $object->fetchDataMap( $version->attribute( 'version' ) );
+                $dataMap = $version->dataMap();
             }
             $contentObjectID = $object->attribute( 'id' );
 
@@ -643,6 +653,10 @@ class eZOOImport
                         case "ezstring":
                         case "eztext":
                         {
+                            if ( !isset( $xmlTextArray[$sectionName] ) )
+                            {
+                                continue;
+                            }
                             $eztextDom = new DOMDOcument( '1.0', 'UTF-8' );
                             $eztextDom->loadXML( $xmlTextArray[$sectionName] );
                             $text = $eztextDom->documentElement->textContent;
@@ -652,6 +666,10 @@ class eZOOImport
 
                         case "ezxmltext":
                         {
+                            if ( !isset( $xmlTextArray[$sectionName] ) )
+                            {
+                                continue;
+                            }
                             $dataMap[$attributeIdentifier]->setAttribute( 'data_text', $xmlTextArray[$sectionName] );
                             $dataMap[$attributeIdentifier]->store();
                         }break;
@@ -661,6 +679,10 @@ class eZOOImport
                         {
                             // Only support date formats as a single paragraph in a section with the format:
                             // day/month/year
+                            if ( !isset( $xmlTextArray[$sectionName] ) )
+                            {
+                                continue;
+                            }
                             $dateString = strip_tags( $xmlTextArray[$sectionName] );
 
                             $dateArray = explode( "/", $dateString );
@@ -685,6 +707,10 @@ class eZOOImport
                         {
                             // Only support date formats as a single paragraph in a section with the format:
                             // day/month/year 14:00
+                            if ( !isset( $xmlTextArray[$sectionName] ) )
+                            {
+                                continue;
+                            }
                             $dateString = trim( strip_tags( $xmlTextArray[$sectionName] ) );
 
                             $dateTimeArray = explode(  " ", $dateString );
@@ -929,7 +955,7 @@ class eZOOImport
                                                              );
                 $nodeAssignment->store();
 
-                $operationResult = eZOperationHandler::execute( 'content', 'publish', array( 'object_id' => $image['ID'],
+                eZOperationHandler::execute( 'content', 'publish', array( 'object_id' => $image['ID'],
                                                                                              'version' => 1 ) );
 
                 $object->addContentObjectRelation( $image['ID'], 1 );
@@ -938,11 +964,27 @@ class eZOOImport
             $mainNode = $object->attribute( 'main_node' );
             // Create object stop.
             $importResult['Object'] = $object;
-            $importResult['MainNode'] = $mainNode;
-            $importResult['URLAlias'] = $mainNode->attribute( 'url_alias' );
-            $importResult['NodeName'] = $mainNode->attribute( 'name' );
+            $importResult['Published'] = ( $operationResult['status'] == eZModuleOperationInfo::STATUS_CONTINUE );
+            if ( $mainNode instanceof eZContentObjectTreeNode )
+            {
+                $importResult['MainNode'] = $mainNode;
+                $importResult['URLAlias'] = $mainNode->attribute( 'url_alias' );
+                $importResult['NodeName'] = $mainNode->attribute( 'name' );
+            }
+            else
+            {
+                $importResult['MainNode'] = false;
+                $importResult['URLAlias'] = false;
+                $importResult['NodeName'] = false;
+            }
             $importResult['ClassIdentifier'] = $importClassIdentifier;
         }
+        else
+        {
+            $this->setError( self::ERROR_ACCESSDENIED );
+            return false;
+        }
+
 
         // Clean up
         eZDir::recursiveDelete( $uniqueImportDir );
@@ -1596,12 +1638,13 @@ class eZOOImport
                                     //echo "Initializing Image from $href<br />";
                                     $imageContent->initializeFromFile( $href, false, basename( $href ) );
                                     $dataMap['image']->store();
-                                    $this->RelatedImageArray[] = array( "ID" => $contentObjectID,
-                                                                        "ContentObject" => $contentObject );
+
                                 }
                                 else
                                     $contentObjectID = $contentObject->attribute( 'id' );
 
+                                $this->RelatedImageArray[] = array( "ID" => $contentObjectID,
+                                                                    "ContentObject" => $contentObject );
 
                                 $frameContent .= "<embed object_id='$contentObjectID' align='$imageAlignment' size='$imageSize' />";
 

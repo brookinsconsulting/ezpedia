@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.0">
 <context>
+    <name>design/ezodf/import</name>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create or update the translation in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Existing translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>extension/ezodf</name>
     <message>
         <source>OpenOffice.org export</source>
@@ -49,7 +72,7 @@
     </message>
     <message>
         <source>Upload file</source>
-        <translation>Carrega el document</translation>
+        <translation type="obsolete">Carrega el document</translation>
     </message>
     <message>
         <source>Import OpenOffice.org document</source>
@@ -72,6 +95,14 @@ Images are placed in the media library so you can re-use them in other articles.
 definir on vols ubicar el document i l&apos;eZ Publish fa la resta. El document es converteix al 
 format adecuat durant el procés d&apos;importació. Se te n&apos;informarà un cop el document hagi estat convertit.
 Les imatges es coloquen a la mediateca per tal que puguin ser reutilitzades en altre articles.</translation>
+    </message>
+    <message>
+        <source>The imported document is waiting for an approbation to be published.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import document</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -568,6 +568,19 @@ CREATE SEQUENCE ezorder_s
 
 
 
+CREATE SEQUENCE ezorder_nr_incr_s
+    START 1
+    INCREMENT 1
+    MAXVALUE 9223372036854775807
+    MINVALUE 1
+    CACHE 1;
+
+
+
+
+
+
+
 CREATE SEQUENCE ezorder_item_s
     START 1
     INCREMENT 1
@@ -634,6 +647,19 @@ CREATE SEQUENCE ezpaymentobject_s
 
 
 CREATE SEQUENCE ezpdf_export_s
+    START 1
+    INCREMENT 1
+    MAXVALUE 9223372036854775807
+    MINVALUE 1
+    CACHE 1;
+
+
+
+
+
+
+
+CREATE SEQUENCE ezpending_actions_s
     START 1
     INCREMENT 1
     MAXVALUE 9223372036854775807
@@ -1212,6 +1238,7 @@ CREATE TABLE ezcobj_state_group_language (
     contentobject_state_group_id integer DEFAULT 0 NOT NULL,
     description text NOT NULL,
     language_id integer DEFAULT 0 NOT NULL,
+    real_language_id integer DEFAULT 0 NOT NULL,
     name character varying(45) DEFAULT ''::character varying NOT NULL
 );
 
@@ -1267,9 +1294,9 @@ CREATE TABLE ezcollab_group (
 CREATE TABLE ezcollab_item (
     created integer DEFAULT 0 NOT NULL,
     creator_id integer DEFAULT 0 NOT NULL,
-    data_float1 double precision DEFAULT 0::double precision NOT NULL,
-    data_float2 double precision DEFAULT 0::double precision NOT NULL,
-    data_float3 double precision DEFAULT 0::double precision NOT NULL,
+    data_float1 real DEFAULT 0::real NOT NULL,
+    data_float2 real DEFAULT 0::real NOT NULL,
+    data_float3 real DEFAULT 0::real NOT NULL,
     data_int1 integer DEFAULT 0 NOT NULL,
     data_int2 integer DEFAULT 0 NOT NULL,
     data_int3 integer DEFAULT 0 NOT NULL,
@@ -1383,9 +1410,9 @@ CREATE TABLE ezcollab_profile (
 CREATE TABLE ezcollab_simple_message (
     created integer DEFAULT 0 NOT NULL,
     creator_id integer DEFAULT 0 NOT NULL,
-    data_float1 double precision DEFAULT 0::double precision NOT NULL,
-    data_float2 double precision DEFAULT 0::double precision NOT NULL,
-    data_float3 double precision DEFAULT 0::double precision NOT NULL,
+    data_float1 real DEFAULT 0::real NOT NULL,
+    data_float2 real DEFAULT 0::real NOT NULL,
+    data_float3 real DEFAULT 0::real NOT NULL,
     data_int1 integer DEFAULT 0 NOT NULL,
     data_int2 integer DEFAULT 0 NOT NULL,
     data_int3 integer DEFAULT 0 NOT NULL,
@@ -1596,7 +1623,6 @@ CREATE TABLE ezcontentobject_link (
     from_contentobject_id integer DEFAULT 0 NOT NULL,
     from_contentobject_version integer DEFAULT 0 NOT NULL,
     id integer DEFAULT nextval('ezcontentobject_link_s'::text) NOT NULL,
-    op_code integer DEFAULT 0 NOT NULL,
     relation_type integer DEFAULT 1 NOT NULL,
     to_contentobject_id integer DEFAULT 0 NOT NULL
 );
@@ -1720,7 +1746,7 @@ CREATE TABLE ezdiscountrule (
 
 
 CREATE TABLE ezdiscountsubrule (
-    discount_percent double precision,
+    discount_percent real,
     discountrule_id integer DEFAULT 0 NOT NULL,
     id integer DEFAULT nextval('ezdiscountsubrule_s'::text) NOT NULL,
     limitation character(1),
@@ -1788,7 +1814,7 @@ CREATE TABLE ezforgot_password (
 
 
 CREATE TABLE ezgeneral_digest_user_settings (
-    address character varying(255) DEFAULT ''::character varying NOT NULL,
+    user_id integer DEFAULT 0 NOT NULL,
     "day" character varying(255) DEFAULT ''::character varying NOT NULL,
     digest_type integer DEFAULT 0 NOT NULL,
     id integer DEFAULT nextval('ezgeneral_digest_user_settings_s'::text) NOT NULL,
@@ -1833,7 +1859,7 @@ CREATE TABLE ezinfocollection_attribute (
     contentclass_attribute_id integer DEFAULT 0 NOT NULL,
     contentobject_attribute_id integer,
     contentobject_id integer,
-    data_float double precision,
+    data_float real,
     data_int integer,
     data_text text,
     id integer DEFAULT nextval('ezinfocollection_attribute_s'::text) NOT NULL,
@@ -2088,14 +2114,24 @@ CREATE TABLE ezorder (
 
 
 
+CREATE TABLE ezorder_nr_incr (
+    id integer DEFAULT nextval('ezorder_nr_incr_s'::text) NOT NULL
+);
+
+
+
+
+
+
+
 CREATE TABLE ezorder_item (
     description character varying(255),
     id integer DEFAULT nextval('ezorder_item_s'::text) NOT NULL,
     is_vat_inc integer DEFAULT 0 NOT NULL,
     order_id integer DEFAULT 0 NOT NULL,
-    price double precision,
+    price real,
     "type" character varying(30),
-    vat_value double precision DEFAULT 0::double precision NOT NULL
+    vat_value real DEFAULT 0::real NOT NULL
 );
 
 
@@ -2184,6 +2220,7 @@ CREATE TABLE ezpdf_export (
 
 
 CREATE TABLE ezpending_actions (
+    id integer DEFAULT nextval('ezpending_actions_s'::text) NOT NULL,
     "action" character varying(64) DEFAULT ''::character varying NOT NULL,
     created integer,
     param text
@@ -2332,14 +2369,14 @@ CREATE TABLE ezproductcollection (
 
 CREATE TABLE ezproductcollection_item (
     contentobject_id integer DEFAULT 0 NOT NULL,
-    discount double precision,
+    discount real,
     id integer DEFAULT nextval('ezproductcollection_item_s'::text) NOT NULL,
     is_vat_inc integer,
     item_count integer DEFAULT 0 NOT NULL,
     name character varying(255) DEFAULT ''::character varying NOT NULL,
-    price double precision DEFAULT 0::double precision,
+    price real DEFAULT 0::real,
     productcollection_id integer DEFAULT 0 NOT NULL,
-    vat_value double precision
+    vat_value real
 );
 
 
@@ -2354,7 +2391,7 @@ CREATE TABLE ezproductcollection_item_opt (
     name character varying(255) DEFAULT ''::character varying NOT NULL,
     object_attribute_id integer,
     option_item_id integer DEFAULT 0 NOT NULL,
-    price double precision DEFAULT 0::double precision NOT NULL,
+    price real DEFAULT 0::real NOT NULL,
     value character varying(255) DEFAULT ''::character varying NOT NULL
 );
 
@@ -2483,7 +2520,7 @@ CREATE TABLE ezsearch_object_word_link (
     contentclass_attribute_id integer DEFAULT 0 NOT NULL,
     contentclass_id integer DEFAULT 0 NOT NULL,
     contentobject_id integer DEFAULT 0 NOT NULL,
-    frequency double precision DEFAULT 0::double precision NOT NULL,
+    frequency real DEFAULT 0::real NOT NULL,
     id integer DEFAULT nextval('ezsearch_object_word_link_s'::text) NOT NULL,
     identifier character varying(255) DEFAULT ''::character varying NOT NULL,
     integer_value integer DEFAULT 0 NOT NULL,
@@ -2823,7 +2860,7 @@ CREATE TABLE ezvatrule_product_category (
 CREATE TABLE ezvattype (
     id integer DEFAULT nextval('ezvattype_s'::text) NOT NULL,
     name character varying(255) DEFAULT ''::character varying NOT NULL,
-    percentage double precision
+    percentage real
 );
 
 
@@ -3143,23 +3180,7 @@ CREATE INDEX ezcontentobject_status ON ezcontentobject USING btree (status);
 
 
 
-CREATE INDEX ezcontentobject_attr_id ON ezcontentobject_attribute USING btree (id);
-
-
-
-
-
-
-
 CREATE INDEX ezcontentobject_attribute_co_id_ver_lang_code ON ezcontentobject_attribute USING btree (contentobject_id, "version", language_code);
-
-
-
-
-
-
-
-CREATE INDEX ezcontentobject_attribute_contentobject_id ON ezcontentobject_attribute USING btree (contentobject_id);
 
 
 
@@ -3200,14 +3221,6 @@ CREATE INDEX ezco_link_from ON ezcontentobject_link USING btree (from_contentobj
 
 
 CREATE INDEX ezco_link_to_co_id ON ezcontentobject_link USING btree (to_contentobject_id);
-
-
-
-
-
-
-
-CREATE INDEX ezcontentobject_name_co_id ON ezcontentobject_name USING btree (contentobject_id);
 
 
 
@@ -3367,14 +3380,6 @@ CREATE INDEX ezcurrencydata_code ON ezcurrencydata USING btree (code);
 
 
 
-CREATE INDEX ezenumobjectvalue_co_attr_id_co_attr_ver ON ezenumobjectvalue USING btree (contentobject_attribute_id, contentobject_attribute_version);
-
-
-
-
-
-
-
 CREATE INDEX ezenumvalue_co_cl_attr_id_co_class_att_ver ON ezenumvalue USING btree (contentclass_attribute_id, contentclass_attribute_version);
 
 
@@ -3391,7 +3396,7 @@ CREATE INDEX ezforgot_password_user ON ezforgot_password USING btree (user_id);
 
 
 
-CREATE UNIQUE INDEX ezgeneral_digest_user_settings_address ON ezgeneral_digest_user_settings USING btree (address);
+CREATE UNIQUE INDEX ezgeneral_digest_user_settings_user_id ON ezgeneral_digest_user_settings USING btree (user_id);
 
 
 
@@ -3463,22 +3468,6 @@ CREATE INDEX ezkeyword_keyword ON ezkeyword USING btree (keyword);
 
 
 
-CREATE INDEX ezkeyword_keyword_id ON ezkeyword USING btree (keyword, id);
-
-
-
-
-
-
-
-CREATE INDEX ezkeyword_attr_link_keyword_id ON ezkeyword_attribute_link USING btree (keyword_id);
-
-
-
-
-
-
-
 CREATE INDEX ezkeyword_attr_link_kid_oaid ON ezkeyword_attribute_link USING btree (keyword_id, objectattribute_id);
 
 
@@ -3520,14 +3509,6 @@ CREATE INDEX ezmultipricedata_coa_version ON ezmultipricedata USING btree (conte
 
 
 CREATE INDEX ezmultipricedata_currency_code ON ezmultipricedata USING btree (currency_code);
-
-
-
-
-
-
-
-CREATE INDEX eznode_assignment_co_id ON eznode_assignment USING btree (contentobject_id);
 
 
 
@@ -3720,14 +3701,6 @@ CREATE INDEX authcode_client_id ON ezprest_authcode USING btree (client_id);
 
 
 CREATE INDEX client_user ON ezprest_authorized_clients USING btree (rest_client_id, user_id);
-
-
-
-
-
-
-
-CREATE INDEX client_id ON ezprest_clients USING btree (client_id);
 
 
 
@@ -4015,22 +3988,6 @@ CREATE INDEX ezurlalias_ml_act_org ON ezurlalias_ml USING btree ("action", is_or
 
 
 
-CREATE INDEX ezurlalias_ml_action ON ezurlalias_ml USING btree ("action", id, link);
-
-
-
-
-
-
-
-CREATE INDEX ezurlalias_ml_actt ON ezurlalias_ml USING btree (action_type);
-
-
-
-
-
-
-
 CREATE INDEX ezurlalias_ml_actt_org_al ON ezurlalias_ml USING btree (action_type, is_original, is_alias);
 
 
@@ -4047,7 +4004,7 @@ CREATE INDEX ezurlalias_ml_id ON ezurlalias_ml USING btree (id);
 
 
 
-CREATE INDEX ezurlalias_ml_par_act_id_lnk ON ezurlalias_ml USING btree (parent, "action", id, link);
+CREATE INDEX ezurlalias_ml_par_act_id_lnk ON ezurlalias_ml USING btree ("action", id, link, parent);
 
 
 
@@ -4055,15 +4012,7 @@ CREATE INDEX ezurlalias_ml_par_act_id_lnk ON ezurlalias_ml USING btree (parent, 
 
 
 
-CREATE INDEX ezurlalias_ml_par_lnk_txt ON ezurlalias_ml USING btree (parent, link, text);
-
-
-
-
-
-
-
-CREATE INDEX ezurlalias_ml_par_txt ON ezurlalias_ml USING btree (parent, text);
+CREATE INDEX ezurlalias_ml_par_lnk_txt ON ezurlalias_ml USING btree (parent, text, link);
 
 
 
@@ -4080,6 +4029,14 @@ CREATE INDEX ezurlalias_ml_text ON ezurlalias_ml USING btree (text, id, link);
 
 
 CREATE INDEX ezurlalias_ml_text_lang ON ezurlalias_ml USING btree (text, lang_mask, parent);
+
+
+
+
+
+
+
+CREATE INDEX ezuser_login ON ezuser USING btree (login);
 
 
 
@@ -4190,7 +4147,7 @@ ALTER TABLE ONLY ezcobj_state_group
 
 
 ALTER TABLE ONLY ezcobj_state_group_language
-    ADD CONSTRAINT ezcobj_state_group_language_pkey PRIMARY KEY (contentobject_state_group_id, language_id);
+    ADD CONSTRAINT ezcobj_state_group_language_pkey PRIMARY KEY (contentobject_state_group_id, real_language_id);
 
 
 
@@ -4666,6 +4623,15 @@ ALTER TABLE ONLY ezorder
 
 
 
+ALTER TABLE ONLY ezorder_nr_incr
+    ADD CONSTRAINT ezorder_nr_incr_pkey PRIMARY KEY (id);
+
+
+
+
+
+
+
 ALTER TABLE ONLY ezorder_item
     ADD CONSTRAINT ezorder_item_pkey PRIMARY KEY (id);
 
@@ -4713,6 +4679,15 @@ ALTER TABLE ONLY ezpaymentobject
 
 ALTER TABLE ONLY ezpdf_export
     ADD CONSTRAINT ezpdf_export_pkey PRIMARY KEY (id, "version");
+
+
+
+
+
+
+
+ALTER TABLE ONLY ezpending_actions
+    ADD CONSTRAINT ezpending_actions_pkey PRIMARY KEY (id);
 
 
 

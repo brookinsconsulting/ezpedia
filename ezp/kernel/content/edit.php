@@ -1,28 +1,10 @@
 <?php
-//
-// Created on: <17-Apr-2002 10:34:48 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $Module = $Params['Module'];
 require 'kernel/content/node_edit.php';
@@ -33,10 +15,29 @@ require 'kernel/content/section_edit.php';
 initializeSectionEdit( $Module );
 require 'kernel/content/state_edit.php';
 initializeStateEdit( $Module );
+
+$http = eZHTTPTool::instance();
+
 $obj = eZContentObject::fetch( $ObjectID );
 
 if ( !$obj )
     return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
+
+if ( $http->hasPostVariable( 'ChangeSectionOnly' ) )
+{
+    if ( $http->hasPostVariable( 'SelectedSectionId' ) )
+    {
+        $section = eZSection::fetch( (int)$http->postVariable( 'SelectedSectionId' ) );
+        if ( $section instanceof eZSection )
+            $section->applyTo( $obj );
+    }
+    $Module->redirectTo(
+        $Module->hasActionParameter( 'RedirectRelativeURI' )
+        ? $Module->actionParameter( 'RedirectRelativeURI' )
+        : '/'
+    );
+    return eZModule::HOOK_STATUS_CANCEL_RUN;
+}
 
 // If the object has status Archived (trash) we redirect to content/restore
 // which can handle this status properly.
@@ -53,7 +54,6 @@ eZSSLZone::checkObject( 'content', 'edit', $obj );
 $isAccessChecked = false;
 $classID = $obj->attribute( 'contentclass_id' );
 $class = eZContentClass::fetch( $classID );
-$http = eZHTTPTool::instance();
 
 // Action for the edit_draft.tpl/edit_languages.tpl page.
 // CancelDraftButton is set for the Cancel button.
@@ -209,7 +209,7 @@ if ( $http->hasPostVariable( 'NewDraftButton' ) )
 if ( $http->hasPostVariable( 'LanguageSelection' ) )
 {
     $selectedEditLanguage = $http->postVariable( 'EditLanguage' );
-    $selectedFromLanguage = $http->postVariable( 'FromLanguage' );
+    $selectedFromLanguage = $http->hasPostVariable( 'FromLanguage' ) ? $http->postVariable( 'FromLanguage' ) : '';
     if ( in_array( $selectedEditLanguage, $obj->availableLanguages() ) )
     {
         $selectedFromLanguage = false;
@@ -686,12 +686,15 @@ if ( !function_exists( 'checkContentActions' ) )
 
             eZDebug::accumulatorStart( 'publish', '', 'publish' );
             $oldObjectName = $object->name();
+            $db = eZDB::instance();
 
             $behaviour = new ezpContentPublishingBehaviour();
             $behaviour->isTemporary = true;
             $behaviour->disableAsynchronousPublishing = false;
             ezpContentPublishingBehaviour::setBehaviour( $behaviour );
 
+            // Getting the current transaction counter to check if all transactions are committed during content/publish operation (see below)
+            $transactionCounter = $db->transactionCounter();
             $operationResult = eZOperationHandler::execute( 'content', 'publish', array( 'object_id' => $object->attribute( 'id' ),
                                                                                          'version' => $version->attribute( 'version' ) ) );
             eZDebug::accumulatorStop( 'publish' );
@@ -699,6 +702,17 @@ if ( !function_exists( 'checkContentActions' ) )
             if ( ( array_key_exists( 'status', $operationResult ) && $operationResult['status'] != eZModuleOperationInfo::STATUS_CONTINUE ) )
             {
                 eZDebug::writeDebug( $operationResult, __FILE__ );
+
+                // Check if publication related transaction counter is clean.
+                // If not, operation is probably in STATUS_CANCELLED, STATUS_HALTED, STATUS_REPEAT or STATUS_QUEUED
+                // and final commit was not done as it's part of the operation body (see commit-transaction action in content/publish operation definition).
+                // Important note: Will only be committed transactions that weren't closed during the content/publish operation
+                $transactionDiff = $db->transactionCounter() - $transactionCounter;
+                for ( $i = 0; $i < $transactionDiff; ++$i )
+                {
+                    $db->commit();
+                }
+
                 switch( $operationResult['status'] )
                 {
                     case eZModuleOperationInfo::STATUS_REPEAT:

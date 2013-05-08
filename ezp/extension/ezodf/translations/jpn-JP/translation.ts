@@ -2,10 +2,33 @@
 <!DOCTYPE TS>
 <TS version="2.0">
 <context>
+    <name>design/ezodf/import</name>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create or update the translation in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Existing translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>extension/ezodf</name>
     <message>
         <source>Upload file</source>
-        <translation>ファイルをアップロード</translation>
+        <translation type="obsolete">ファイルをアップロード</translation>
     </message>
     <message>
         <source>Error</source>
@@ -70,6 +93,14 @@ the appropriate class during the import, you get a notice about this after the i
 Images are placed in the media library so you can re-use them in other articles.</source>
         <translation>OpenOffice.org WriterドキュメントをeZ Publishへインポートします。ドキュメントの配置先を指定して下さい。
 インポート完了後に通知が表示されます。画像はメディアリソースに保存されますので、後に再利用が可能です。</translation>
+    </message>
+    <message>
+        <source>The imported document is waiting for an approbation to be published.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import document</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

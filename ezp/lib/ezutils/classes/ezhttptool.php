@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZHTTPTool class
-//
-// Created on: <18-Apr-2002 14:05:21 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZHTTPTool class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package lib
+ */
 
 /*! \defgroup eZHTTP HTTP utilities
     \ingroup eZUtils */
@@ -46,12 +28,6 @@ class eZHTTPTool
     function eZHTTPTool()
     {
         $this->UseFullUrl = false;
-        $magicQuote = get_magic_quotes_gpc();
-
-        if ( $magicQuote == 1 )
-        {
-            eZHTTPTool::removeMagicQuotes();
-        }
     }
 
     /*!
@@ -243,7 +219,7 @@ class eZHTTPTool
         if ( $uriPort && !$port )
             $port = $uriPort;
         else if ( !$port )
-            $port = 80;
+            $port = ( $protocol === 'https://' ? 443 : 80 );
 
         if ( !$path )
         {
@@ -585,7 +561,7 @@ class eZHTTPTool
             }
         }
         if ( $parameters['override_protocol'] )
-            $host = $parameters['override_protocol'];
+            $protocol = $parameters['override_protocol'];
 
         $uri = $protocol . '://';
         if ( $parameters['override_username'] )
@@ -650,46 +626,6 @@ class eZHTTPTool
         header( $headerName .': '. $headerData );
     }
 
-    static function removeMagicQuotes()
-    {
-        foreach ( array_keys( $_POST ) as $key )
-        {
-            if ( !is_array( $_POST[$key] ) )
-            {
-                $_POST[$key] = str_replace( "\'", "'", $_POST[$key] );
-                $_POST[$key] = str_replace( '\"', '"', $_POST[$key] );
-                $_POST[$key] = str_replace( '\\\\', '\\', $_POST[$key] );
-            }
-            else
-            {
-                foreach ( array_keys( $_POST[$key] ) as $arrayKey )
-                {
-                    $_POST[$key][$arrayKey] = str_replace( "\'", "'", $_POST[$key][$arrayKey] );
-                    $_POST[$key][$arrayKey] = str_replace( '\"', '"', $_POST[$key][$arrayKey] );
-                    $_POST[$key][$arrayKey] = str_replace( '\\\\', '\\', $_POST[$key][$arrayKey] );
-                }
-            }
-        }
-        foreach ( array_keys( $_GET ) as $key )
-        {
-            if ( !is_array( $_GET[$key] ) )
-            {
-                $_GET[$key] = str_replace( "\'", "'", $_GET[$key] );
-                $_GET[$key] = str_replace( '\"', '"', $_GET[$key] );
-                $_GET[$key] = str_replace( '\\\\', '\\', $_GET[$key] );
-            }
-            else
-            {
-                foreach ( array_keys( $_GET[$key] ) as $arrayKey )
-                {
-                    $_GET[$key][$arrayKey] = str_replace( "\'", "'", $_GET[$key][$arrayKey] );
-                    $_GET[$key][$arrayKey] = str_replace( '\"', '"', $_GET[$key][$arrayKey] );
-                    $_GET[$key][$arrayKey] = str_replace( '\\\\', '\\', $_GET[$key][$arrayKey] );
-                }
-            }
-        }
-    }
-
     function createPostVarsFromImageButtons()
     {
         foreach ( array_keys( $_POST ) as $key )
@@ -716,29 +652,6 @@ class eZHTTPTool
                 }
             }
         }
-    }
-
-    /**
-     * Return the session id
-     *
-     * @deprecated Since 4.4, use ->sessionID instead!
-     * @return string
-     */
-    function getSessionKey()
-    {
-        return session_id();
-    }
-
-    /**
-     * Sets a new session id
-     *
-     * @deprecated Since 4.4, use ->setSessionID instead!
-     * @param string $sessionKey Allowed characters in the range a-z A-Z 0-9 , (comma) and - (minus)
-     * @return string Current(old) session id
-    */
-    function setSessionKey( $sessionKey )
-    {
-        return session_id( $sessionKey );
     }
 
     /**
@@ -821,6 +734,14 @@ class eZHTTPTool
         if ( extension_loaded( 'curl' ) )
         {
             $ch = curl_init( $url );
+            // Options used to perform in a similar way than PHP's fopen()
+            curl_setopt_array(
+                $ch,
+                array(
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_SSL_VERIFYPEER => false
+                )
+            );
             if ( $justCheckURL )
             {
                 curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 2 );

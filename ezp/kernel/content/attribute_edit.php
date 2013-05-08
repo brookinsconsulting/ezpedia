@@ -1,31 +1,12 @@
 <?php
-//
-// Created on: <17-Apr-2002 10:34:48 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
-  \file
   This file is a shared code file which is used by different parts of the system
   to edit objects. This file only implements editing of attributes and uses
   hooks to allow external code to add functionality.
@@ -317,12 +298,16 @@ if ( $storingAllowed && $hasObjectInput)
         $Module->setExitStatus( eZModule::STATUS_OK );
 
     $db = eZDB::instance();
-    if ( $inputValidated and count( $attributeInputMap ) > 0 )
+    if ( !empty( $attributeInputMap ) )
     {
-        if ( $Module->runHooks( 'pre_commit', array( $class, $object, $version, $contentObjectAttributes, $EditVersion, $EditLanguage, $FromLanguage ) ) )
-            return;
+        if ( $inputValidated )
+        {
+            if ( $Module->runHooks( 'pre_commit', array( $class, $object, $version, $contentObjectAttributes, $EditVersion, $EditLanguage, $FromLanguage ) ) )
+                return;
+            $version->setAttribute( 'status', eZContentObjectVersion::STATUS_DRAFT );
+        }
+
         $version->setAttribute( 'modified', time() );
-        $version->setAttribute( 'status', eZContentObjectVersion::STATUS_DRAFT );
 
         $db->begin();
         $version->store();
@@ -411,6 +396,14 @@ if ( $inputValidated == true )
             return;
     }
 }
+else if ( $http->hasPostVariable( 'PublishAfterConflict' ) )
+{
+    if ( $http->postVariable( 'PublishAfterConflict' ) == 1 )
+    {
+        if ( $Module->runHooks( 'action_check', array( $class, $object, $version, $contentObjectAttributes, $EditVersion, $EditLanguage, $FromLanguage, &$Result  ) ) )
+            return;
+    }
+}
 
 if ( isset( $Params['TemplateObject'] ) )
     $tpl = $Params['TemplateObject'];
@@ -467,9 +460,15 @@ if ( !isset( $OmitSectionSetting ) )
 if ( $OmitSectionSetting !== true )
 {
     $sectionID = $object->attribute( 'section_id' );
+    $sectionIdentifier = '';
     $section = eZSection::fetch( $sectionID );
+    if ( $section instanceof eZSection )
+    {
+        $sectionIdentifier = $section->attribute( 'identifier' );
+    }
+
     $res->setKeys( array( array( 'section', $object->attribute( 'section_id' ) ),
-                          array( 'section_identifier', $section->attribute( 'identifier' ) ) ) );
+                          array( 'section_identifier', $sectionIdentifier ) ) );
 }
 
 $object->setCurrentLanguage( $EditLanguage );

@@ -1,28 +1,10 @@
 <?php
-//
-// Created on: <17-Apr-2002 11:05:08 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $Module = array( 'name' => 'eZContentObject',
                  'variable_params' => true );
@@ -57,7 +39,8 @@ $ViewList['edit'] = array(
     'post_action_parameters' => array( 'EditLanguage' => array( 'SelectedLanguage' => 'EditSelectedLanguage' ),
                                        'FromLanguage' => array( 'FromLanguage' => 'FromLanguage' ),
                                        'TranslateLanguage' => array( 'SelectedLanguage' => 'EditSelectedLanguage' ),
-                                       'UploadFileRelation' => array( 'UploadRelationLocation' => 'UploadRelationLocationChoice' ) ),
+                                       'UploadFileRelation' => array( 'UploadRelationLocation' => 'UploadRelationLocationChoice' ),
+                                       'SectionEdit' => array( 'RedirectRelativeURI' => 'RedirectRelativeURI' ) ),
     'post_actions' => array( 'BrowseActionName' ),
     'script' => 'edit.php',
     'params' => array( 'ObjectID', 'EditVersion', 'EditLanguage', 'FromLanguage' ) );
@@ -489,6 +472,7 @@ $ViewList['translation'] = array(
 
 $ViewList['treemenu'] = array(
     'functions' => array( 'read' ),
+    'ui_context' => 'ajax',
     'script' => 'treemenu.php',
     'default_navigation_part' => 'ezmynavigationpart',
     'params' => array( 'NodeID', 'Modified', 'Expiry', 'Perm' ) );
@@ -509,8 +493,6 @@ $ViewList['queued'] = array(
 $ClassID = array(
     'name'=> 'Class',
     'values'=> array(),
-    'path' => 'classes/',
-    'file' => 'ezcontentclass.php',
     'class' => 'eZContentClass',
     'function' => 'fetchList',
     'parameter' => array( 0, false, false, array( 'name' => 'asc' ) )
@@ -519,8 +501,6 @@ $ClassID = array(
 $ParentClassID = array(
     'name'=> 'ParentClass',
     'values'=> array(),
-    'path' => 'classes/',
-    'file' => 'ezcontentclass.php',
     'class' => 'eZContentClass',
     'function' => 'fetchList',
     'parameter' => array( 0, false, false, array( 'name' => 'asc' ) )
@@ -529,8 +509,6 @@ $ParentClassID = array(
 $SectionID = array(
     'name'=> 'Section',
     'values'=> array(),
-    'path' => 'classes/',
-    'file' => 'ezsection.php',
     'class' => 'eZSection',
     'function' => 'fetchList',
     'parameter' => array( false )
@@ -539,8 +517,6 @@ $SectionID = array(
 $VersionStatusRead = array(
     'name'=> 'Status',
     'values'=> array(),
-    'path' => 'classes/',
-    'file' => 'ezcontentobjectversion.php',
     'class' => 'eZContentObjectVersion',
     'function' => 'statusList',
     'parameter' => array( 'read' )
@@ -549,8 +525,6 @@ $VersionStatusRead = array(
 $VersionStatusRemove = array(
     'name'=> 'Status',
     'values'=> array(),
-    'path' => 'classes/',
-    'file' => 'ezcontentobjectversion.php',
     'class' => 'eZContentObjectVersion',
     'function' => 'statusList',
     'parameter' => array( 'remove' )
@@ -559,8 +533,6 @@ $VersionStatusRemove = array(
 $Language = array(
     'name'=> 'Language',
     'values'=> array(),
-    'path' => 'classes/',
-    'file' => 'ezcontentlanguage.php',
     'class' => 'eZContentLanguage',
     'function' => 'fetchLimitationList',
     'parameter' => array( false )
@@ -611,8 +583,6 @@ $ParentAssignedGroup = array(
 $ParentDepth = array(
     'name' => 'ParentDepth',
     'values' => array(),
-    'path' => 'classes/',
-    'file' => 'ezcontentobjecttreenode.php',
     'class' => 'eZContentObjectTreeNode',
     'function' => 'parentDepthLimitationList',
     'parameter' => array( false )
@@ -668,7 +638,7 @@ $FunctionList['edit'] = array( 'Class' => $ClassID,
                                'Group' => $AssignedGroup,
                                'Node' => $Node,
                                'Subtree' => $Subtree,
-                               'Language' => $Language);
+                               'Language' => $Language );
 $FunctionList['edit'] = array_merge( $FunctionList['edit'], $stateLimitations );
 
 $FunctionList['manage_locations'] = array( 'Class' => $ClassID,
@@ -676,7 +646,13 @@ $FunctionList['manage_locations'] = array( 'Class' => $ClassID,
                                            'Owner' => $Assigned,
                                            'Subtree' => $Subtree );
 
-$FunctionList['hide'] = array( 'Subtree' => $Subtree );
+$FunctionList['hide'] = array( 'Class' => $ClassID,
+                               'Section' => $SectionID,
+                               'Owner' => $AssignedEdit,
+                               'Group' => $AssignedGroup,
+                               'Node' => $Node,
+                               'Subtree' => $Subtree,
+                               'Language' => $Language );
 
 $FunctionList['reverserelatedlist'] = array();
 

@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZModuleOperationInfo class
-//
-// Created on: <06-Oct-2002 16:27:36 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZModuleOperationInfo class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package lib
+ */
 
 /*!
   \class eZModuleOperationInfo ezmoduleoperationinfo.php
@@ -151,17 +130,17 @@ class eZModuleOperationInfo
             return null;
         }
         $operationDefinition = $this->OperationList[$operationName];
-        if ( !isset( $operationName['default_call_method'] ) )
+        if ( !isset( $operationDefinition['default_call_method'] ) )
         {
             eZDebug::writeError( "No call method defined for operation '$operationName' in module '$moduleName'", __METHOD__ );
             return null;
         }
-        if ( !isset( $operationName['body'] ) )
+        if ( !isset( $operationDefinition['body'] ) )
         {
             eZDebug::writeError( "No body for operation '$operationName' in module '$moduleName'", __METHOD__ );
             return null;
         }
-        if ( !isset( $operationName['parameters'] ) )
+        if ( !isset( $operationDefinition['parameters'] ) )
         {
             eZDebug::writeError( "No parameters defined for operation '$operationName' in module '$moduleName'", __METHOD__ );
             return null;
@@ -178,17 +157,12 @@ class eZModuleOperationInfo
                 $operationKeys = $operationDefinition['keys'];
             $operationParameterDefinitions = $operationDefinition['parameters'];
 
-            $db = eZDB::instance();
-            $db->begin();
-
             $this->storeOperationMemento( $operationKeys, $operationParameterDefinitions, $operationParameters, $bodyCallCount, $operationName );
 
             $runOperation = true;
             if ( $mementoData === null )
             {
                 $keyArray = $this->makeOperationKeyArray( $operationDefinition, $operationParameters );
-                $http = eZHTTPTool::instance();
-                $keyArray['session_key'] = $http->getSessionKey();
                 $mainMemento = null;
                 if ( $this->UseTriggers )
                     $mainMemento = eZOperationMemento::fetchMain( $keyArray );
@@ -200,6 +174,7 @@ class eZModuleOperationInfo
                     if ( isset( $mementoOperationData['loop_run'] ) )
                         $bodyCallCount['loop_run'] = $mementoOperationData['loop_run'];
                 }
+
 
                 $mementoList = null;
                 if ( $this->UseTriggers )
@@ -277,8 +252,6 @@ class eZModuleOperationInfo
             }
             */
             $this->Memento = null;
-
-            $db->commit();
         }
         else
         {
@@ -669,8 +642,6 @@ class eZModuleOperationInfo
         if ( $this->Memento === null )
         {
             $keyArray = $this->makeKeyArray( $operationKeys, $operationParameterDefinitions, $operationParameters );
-            $http = eZHTTPTool::instance();
-            $keyArray['session_key'] = $http->getSessionKey();
             $mementoData['loop_run'] = $bodyCallCount['loop_run'];
             $memento = eZOperationMemento::create( $keyArray, $mementoData, true );
             $this->Memento = $memento;
@@ -711,7 +682,7 @@ class eZModuleOperationInfo
 
         $keyArray = $this->makeKeyArray( $operationKeys, $operationParameterDefinitions, $operationParameters );
         $http = eZHTTPTool::instance();
-        $keyArray['session_key'] = $http->getSessionKey();
+        $keyArray['session_key'] = $http->sessionID();
         $mementoData = array();
         $mementoData['name'] = $bodyName;
         $mementoData['parameters'] = $operationParameters;
@@ -851,15 +822,6 @@ class eZModuleOperationInfo
 
         return $GLOBALS['eZModuleOperationClassObjectList'][$className] = new $className();
     }
-
-    /**
-     * @deprecated use call_user_func_array() instead
-     */
-    function callClassMethod( $methodName, $classObject, $parameterArray )
-    {
-        return call_user_func_array( array( $classObject, $methodName ), $parameterArray );
-    }
-
 
     /// \privatesection
     public $ModuleName;

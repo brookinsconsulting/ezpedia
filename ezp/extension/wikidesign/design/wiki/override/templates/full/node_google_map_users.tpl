@@ -13,10 +13,9 @@
     ))
     $mapCount=0
 }
-
 {if $users|count|gt(0)}
 
-<script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key={ezini('SiteSettings','GMapsKey')}" type="text/javascript"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={ezini('SiteSettings','GMapsKey')}&sensor={ezini('GMapSettings', 'UseSensor', 'ezgmaplocation.ini')}" type="text/javascript"></script>
 <script type="text/javascript">
     {literal}
     var mapid = 'map';
@@ -33,10 +32,13 @@
 
     function createMarker( lat, lng, info, bounds, icon)
     {
-      var point = new GLatLng(lat, lng)
-      var marker = new GMarker( point, icon );
-      GEvent.addListener(marker, "click", function() {
-        marker.openInfoWindowHtml(info);
+      var point = new google.maps.LatLng(lat, lng);
+      var marker = new google.maps.Marker({ position: point, draggable: false, map: map });
+      google.maps.event.addListener(marker, "click", function() {
+        // var infoWindow = new google.maps.InfoWindow();
+        // infoWindow.setContent(info);
+        // infoWindow.open(marker);
+        // marker.openInfoWindowHtml(info);
       });
       bounds.extend(point);
       return marker;
@@ -48,28 +50,56 @@
         {
                 gmapExistingOnload(ev);
         }
-        if (GBrowserIsCompatible()) {
-          map = new GMap2(document.getElementById(mapid));
+        // if (GBrowserIsCompatible()) {
+        var myOptions = {
+          center: new google.maps.LatLng(38.5, -40.5),
+          zoom: 1,
+          mapTypeId: google.maps.MapTypeId.SATELLITE,
+          // Add controls
+          mapTypeControl: true,
+          scaleControl: true,
+          overviewMapControl: true,
+          overviewMapControlOptions: {
+            opened: true
+          }
+        };
 
-          map.addControl(new GSmallMapControl());
-          map.addControl(new GMapTypeControl());
-          map.setCenter(new GLatLng(0,0), 0);
-          var bounds = new GLatLngBounds();
+          map = new google.maps.Map(document.getElementById(mapid), myOptions);
+
+          // map.addControl(new GSmallMapControl());
+          // map.addControl(new GMapTypeControl());
+          // map.setCenter(new GLatLng(0,0), 0);
+
+          var bounds = new google.maps.LatLngBounds();
     {/literal}
-{foreach $users as $index=>$user}
-{if and($user.data_map.location.content.latitude,$user.data_map.location.content.longitude)}
+{foreach $users as $index => $user}
+{* // <b>{$user.data_map.location.content|attribute(show)}</b> *}
 {set $mapCount=$mapCount|inc}
+{if and($user.data_map.location.content.latitude,$user.data_map.location.content.longitude)}
           var popupwindow_{$index}=document.getElementById('user_{$index}').innerHTML;
-          map.addOverlay(createMarker('{$user.data_map.location.content.latitude}','{$user.data_map.location.content.longitude}',popupwindow_{$index}, bounds));
+          // map.addOverlay(createMarker('{$user.data_map.location.content.latitude}','{$user.data_map.location.content.longitude}',popupwindow_{$index}, bounds));
+
+          var overlay = createMarker('{$user.data_map.location.content.latitude}','{$user.data_map.location.content.longitude}',popupwindow_{$index}, bounds);
+	  overlay.setMap(map);
+
+          var infoWindow = new google.maps.InfoWindow();
+    {literal}
+          google.maps.event.addListener(overlay, 'click', function () {
+    {/literal}
+            infoWindow.setContent( popupwindow_{$index} );
+    {literal} 
+            infoWindow.open(map);
+          });
+    {/literal}
+
+          
 {/if}
 {/foreach}
 
     {literal}
-
-          map.setMapType(G_SATELLITE_MAP);
-          map.setCenter(bounds.getCenter(), (map.getBoundsZoomLevel(bounds) - 1));
-
-        }
+          // map.setMapType(G_SATELLITE_MAP);
+          // map.setCenter(bounds.getCenter(), (map.fitBounds(bounds) - 1));
+        //}
     };
 
     {/literal}

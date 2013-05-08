@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZTemplatedesignresource class
-//
-// Created on: <14-Sep-2002 15:37:17 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZTemplateDesignResource class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*!
   \class eZTemplatedesignresource eztemplatedesignresource.php
@@ -288,7 +267,7 @@ class eZTemplateDesignResource extends eZTemplateFileResource
         $this->KeyStack[] = $this->Keys;
         $this->Keys = $matchKeys;
 
-        eZDebug::accumulatorStart( 'override_cache', 'override', 'Cache load' );
+        eZDebug::accumulatorStart( 'override_cache', 'Override', 'Cache load' );
 
         if( !isset( $GLOBALS['eZOverrideTemplateCacheMap'] ) )
         {
@@ -688,22 +667,10 @@ class eZTemplateDesignResource extends eZTemplateFileResource
             }
         }
 
-        $designLocationCache = false;
-        $ini = eZINI::instance( 'site.ini' );
-        if( $ini->variable( 'DesignSettings', 'DesignLocationCache' ) == 'enabled' )
-            $designLocationCache = true;
-
-        /*
-         * We disable design cache in case of DB clustering
-         * because it will add 2 SQL queries per HTTP request
-         */
-        $ini = eZINI::instance( 'file.ini' );
-        if( $ini->variable( 'ClusteringSettings', 'FileHandler' ) == 'eZDBFileHandler')
-            $designLocationCache = false;
-
-        if( $designLocationCache )
+        if ( eZINI::instance( 'site.ini' )->variable( 'DesignSettings', 'DesignLocationCache' ) === 'enabled' )
         {
-            $siteAccessName = $GLOBALS['eZCurrentAccess']['name'];
+            // Using current SA if none given
+            $siteAccessName = $siteAccess !== false ? $siteAccess : $GLOBALS['eZCurrentAccess']['name'];
 
             $cachePath = eZSys::cacheDirectory()
                          . '/'
@@ -722,7 +689,7 @@ class eZTemplateDesignResource extends eZTemplateFileResource
             else
             {
                 // find design locations
-                $designBaseList = self::findDesignBase( $ini, $siteAccess );
+                $designBaseList = self::findDesignBase( eZINI::instance( 'file.ini' ), $siteAccess );
 
                 // stores it on the disk
                 $clusterFileHandler->fileStoreContents( $cachePath,
@@ -736,7 +703,7 @@ class eZTemplateDesignResource extends eZTemplateFileResource
         else
         {
             // find design locations
-            $designBaseList = self::findDesignBase( $ini, $siteAccess );
+            $designBaseList = self::findDesignBase( eZINI::instance( 'file.ini' ), $siteAccess );
 
             self::savesMemoryCache( $designBaseList, $siteAccess );
         }
@@ -876,7 +843,7 @@ class eZTemplateDesignResource extends eZTemplateFileResource
         // Generate match cache for all templates
 
         // Build arrays of available files, start with standard design and end with most prefered design
-        $matchFilesArray = array();
+        $matchFileArray = array();
 
         $reverseBases = array_reverse( $bases );
 

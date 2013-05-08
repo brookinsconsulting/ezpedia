@@ -50,6 +50,7 @@ define( 'EZP_USE_BUNDLED_COMPONENTS', true );
    More on supported timezones : http://www.php.net/manual/en/timezones.php
 */
 //date_default_timezone_set( 'Europe/Paris' );
+date_default_timezone_set( 'America/Chicago' );
 
 /*
     INI FILES OPTIMIZATIONS

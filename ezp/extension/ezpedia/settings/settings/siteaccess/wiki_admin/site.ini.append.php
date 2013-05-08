@@ -27,6 +27,15 @@ ShowHiddenNodes=true
 
 [DesignSettings]
 SiteDesign=admin2
+AdditionalSiteDesignList[]=admin2
+AdditionalSiteDesignList[]=admin
+AdditionalSiteDesignList[]=wiki
+AdditionalSiteDesignList[]=standard
+AdditionalSiteDesignList[]=base
+AdditionalSiteDesignList[]=plain_site
+AdditionalSiteDesignList[]=ezpedia
+
+
 
 [RegionalSettings]
 Locale=eng-GB

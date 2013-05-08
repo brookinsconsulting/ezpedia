@@ -1,30 +1,12 @@
 <?php
-//
-// Definition of eZImageManager class
-//
-// Created on: <01-Mar-2002 14:23:49 amos>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZImageManager class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package lib
+ */
 
 /*! \defgroup eZImage Image conversion and scaling */
 
@@ -955,6 +937,11 @@ class eZImageManager
 
                     $convertHandler->endCacheGeneration( false );
 
+                    // Notify about image alias generation. Parameters are alias
+                    // url and alias name.
+                    ezpEvent::getInstance()->notify( 'image/alias', array( $currentAliasData['url'],
+                                                                           $currentAliasData['name'] ) );
+                    
                     return true;
                 }
                 // conversion failed, we abort generation
@@ -1041,7 +1028,7 @@ class eZImageManager
     function convert( $sourceMimeData, &$destinationMimeData, $aliasName = false, $parameters = array() )
     {
         // if the local file doesn't exist, we need to fetch it locally
-        if ( !file_exists( $sourceMimeData['url'] ) )
+        if ( is_array( $sourceMimeData ) && isset( $sourceMimeData['url'] ) && !file_exists( $sourceMimeData['url'] ) )
         {
             $sourceFileHandler = eZClusterFileHandler::instance( $sourceMimeData['url'] );
             $sourceFileHandler->fetch();
@@ -1246,6 +1233,10 @@ class eZImageManager
                         $result = false;
                         break;
                     }
+                    // store the converted file to cluster if the conversion is between mime name
+                    $fileHandler = eZClusterFileHandler::instance();
+                    $fileHandler->fileStore( $nextMimeData['url'], 'image', false, $nextMimeData['name']  );
+
                     $currentMimeData = $nextMimeData;
                 }
                 $filters = $leftoverFilters;

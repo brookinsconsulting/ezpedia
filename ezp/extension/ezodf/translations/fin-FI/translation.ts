@@ -2,10 +2,33 @@
 <!DOCTYPE TS>
 <TS version="2.0">
 <context>
+    <name>design/ezodf/import</name>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create or update the translation in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Existing translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>extension/ezodf</name>
     <message>
         <source>Upload file</source>
-        <translation>Lataa tiedosto</translation>
+        <translation type="obsolete">Lataa tiedosto</translation>
     </message>
     <message>
         <source>Error</source>
@@ -72,6 +95,14 @@ Images are placed in the media library so you can re-use them in other articles.
 kysytään minne haluat sijoittaa asiakirjan ja eZ Publish tekee loput. Asiakirja käännetään
 oikeaan luokkaan tuonnin aikana ja saat ilmoituksen, kun vienti on valmis.
 Kuvat on sijoitettu mediakirjastoon, joten voit käyttää niitä uudelleen muissa artikkeleissa.</translation>
+    </message>
+    <message>
+        <source>The imported document is waiting for an approbation to be published.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import document</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

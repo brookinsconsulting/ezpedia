@@ -1,35 +1,13 @@
 <?php
-//
-// Created on: <04-Jul-2002 13:06:30 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $http = eZHTTPTool::instance();
 $module = $Params['Module'];
-
-/* We retrieve the class ID for users as this is used in many places in this
- * code in order to be able to cleanup the user-policy cache. */
-$userClassIDArray = eZUser::contentClassIDs();
 
 if ( $module->hasActionParameter( 'LanguageCode' ) )
     $languageCode = $module->actionParameter( 'LanguageCode' );
@@ -408,7 +386,6 @@ else if ( $module->isCurrentAction( 'SwapNode' ) )
     if ( !$object )
         return $module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel', array() );
     $objectID = $object->attribute( 'id' );
-    $objectVersion = $object->attribute( 'current_version' );
 
     if ( $module->hasActionParameter( 'NewNode' ) )
     {
@@ -438,8 +415,6 @@ else if ( $module->isCurrentAction( 'SwapNode' ) )
     eZContentCacheManager::clearContentCacheIfNeeded( $objectID );
 
     $selectedObject = $selectedNode->object();
-    $selectedObjectID = $selectedObject->attribute( 'id' );
-    $selectedObjectVersion = $selectedObject->attribute( 'current_version' );
     $selectedNodeParentNodeID = $selectedNode->attribute( 'parent_node_id' );
 
 
@@ -1022,7 +997,6 @@ else if ( $http->hasPostVariable( 'MoveButton' ) )
             if ( !$parentObject )
                 return $module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel', array() );
             $parentObjectID = $parentObject->attribute( 'id' );
-            $parentClass = $parentObject->contentClass();
 
             $ignoreNodesSelect = array_unique( $ignoreNodesSelect );
             $ignoreNodesSelectSubtree = array_unique( $ignoreNodesSelectSubtree );
@@ -1150,8 +1124,6 @@ else if ( $http->hasPostVariable( "ActionAddToNotification" ) )
 else if ( $http->hasPostVariable( "ContentObjectID" )  )
 {
     $objectID = $http->postVariable( "ContentObjectID" );
-    $action = $http->postVariable( "ContentObjectID" );
-
 
     // Check which action to perform
     if ( $http->hasPostVariable( "ActionAddToBasket" ) )
@@ -1170,8 +1142,7 @@ else if ( $http->hasPostVariable( "ContentObjectID" )  )
     }
     else if ( $http->hasPostVariable( "ActionAddToWishList" ) )
     {
-        $user = eZUser::currentUser();
-        if ( !$user->isLoggedIn() )
+        if ( !eZUser::isCurrentUserRegistered() )
             return $module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
 
         $shopModule = eZModule::exists( "shop" );

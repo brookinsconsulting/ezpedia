@@ -32,17 +32,23 @@ PreferredLibrary=yui3
 # List of external JavaScript YUI / jQuery libraries with their CDN URL
 ExternalScripts[yui3]=http://yui.yahooapis.com/3.1.2/build/yui/yui-min.js
 ExternalScripts[yui2]=http://yui.yahooapis.com/2.8.1/build/yuiloader/yuiloader-min.js
-ExternalScripts[jquery]=http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js
+# ExternalScripts[jquery]=http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js
+ExternalScripts[jquery]=http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js
 
 # List of local JavaScript YUI / jQuery libraries, optionally start with "/" to signal that its in
 # root of design folder and not in /javascript sub folder
-LocalScripts[yui3]=/lib/yui/3.1.2/build/yui/yui-min.js
-LocalScripts[yui2]=/lib/yui/2.8.1/build/yuiloader/yuiloader-min.js
-LocalScripts[jquery]=jquery-1.4.2.min.js
+## LocalScripts[yui3]=/lib/yui/3.1.2/build/yui/yui-min.js
+## LocalScripts[yui2]=/lib/yui/2.8.1/build/yuiloader/yuiloader-min.js
+LocalScripts[yui3]=/lib/yui/3.7.1/build/yui/yui-min.js
+LocalScripts[yui2]=/lib/yui/2.8.2/build/yuiloader/yuiloader-min.js
+## LocalScripts[jquery]=jquery-1.4.2.min.js
+LocalScripts[jquery]=jquery-1.8.1.min.js
 
 # Local base script path, needed for yui scripts (YUILoader)
-LocalScriptBasePath[yui3]=lib/yui/3.1.2/build/
-LocalScriptBasePath[yui2]=lib/yui/2.8.1/build/
+## LocalScriptBasePath[yui3]=lib/yui/3.1.2/build/
+LocalScriptBasePath[yui3]=lib/yui/3.7.1/build/
+## LocalScriptBasePath[yui2]=lib/yui/2.8.1/build/
+LocalScriptBasePath[yui2]=lib/yui/2.8.2/build/
 
 
 [Packer]

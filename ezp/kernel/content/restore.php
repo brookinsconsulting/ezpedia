@@ -1,31 +1,10 @@
 <?php
-//
-// Created on: <03-May-2002 15:17:01 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-
-
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $objectID = $Params['ObjectID'];
 $module = $Params['Module'];
@@ -53,44 +32,10 @@ $class = $object->contentClass();
 $version = $object->attribute( 'current' );
 
 $location = null;
-$assignments = $version->attribute( 'node_assignments' );
-foreach ( $assignments as $assignment )
+$trashNode = eZContentObjectTrashNode::fetchByContentObjectID( $objectID );
+if ( $trashNode instanceof eZContentObjectTrashNode )
 {
-    $opCode = $assignment->attribute( 'op_code' );
-    $opCode &= ~1;
-    // We only include assignments which create or nops.
-    if ( $opCode == eZNodeAssignment::OP_CODE_CREATE_NOP ||
-         $opCode == eZNodeAssignment::OP_CODE_NOP )
-    {
-        $node = $assignment->attribute( 'parent_node_obj' );
-        if ( !$node )
-        {
-            continue;
-        }
-        if ( $assignment->attribute( 'is_main' ) )
-        {
-            $parentNode = $assignment->attribute( 'parent_node_obj' );
-            $parentNodeObject = $parentNode->attribute( 'object' );
-            $canCreate = $parentNode->checkAccess( 'create', $class->attribute( 'id' ), $parentNodeObject->attribute( 'contentclass_id' ) ) == 1;
-            if ( !$canCreate )
-            {
-                continue;
-            }
-            $location = $assignment;
-            break;
-        }
-        else if ( !$location )
-        {
-            $parentNode = $assignment->attribute( 'parent_node_obj' );
-            $parentNodeObject = $parentNode->attribute( 'object' );
-            $canCreate = $parentNode->checkAccess( 'create', $class->attribute( 'id' ), $parentNodeObject->attribute( 'contentclass_id' ) ) == 1;
-            if ( !$canCreate )
-            {
-                continue;
-            }
-            $location = $assignment;
-        }
-    }
+    $location = $trashNode->attribute( 'original_parent' );
 }
 
 if ( $module->isCurrentAction( 'Confirm' ) )
@@ -98,7 +43,7 @@ if ( $module->isCurrentAction( 'Confirm' ) )
     $type = $module->actionParameter( 'RestoreType' );
     if ( $type == 1 )
     {
-        $selectedNodeIDArray = array( $location->attribute( 'parent_node' ) );
+        $selectedNodeIDArray = array( $location->attribute( 'node_id' ) );
         $module->setCurrentAction( 'AddLocation' );
     }
     elseif ( $type == 2 )
@@ -141,7 +86,6 @@ if ( $module->isCurrentAction( 'AddLocation' ) )
     $db = eZDB::instance();
     $db->begin();
     $locationAdded = false;
-    $mainNodeID = false;
 
     $newLocationList    = array();
     $failedLocationList = array();
@@ -154,13 +98,10 @@ if ( $module->isCurrentAction( 'AddLocation' ) )
 
         if ( $canCreate )
         {
-            if ( $mainNodeID === false )
-            {
-                $isMain = true;
-            }
-            $newLocationList[] = array( 'parent_node_id' => $selectedNodeID,
-                                        'is_main'        => $isMain );
-
+            $newLocationList[] = array(
+                'parent_node_id' => $selectedNodeID,
+                'is_main' => !$locationAdded
+            );
             $locationAdded = true;
         }
         else
@@ -191,6 +132,8 @@ if ( $module->isCurrentAction( 'AddLocation' ) )
     $object->store();
     $version->setAttribute( 'status', eZContentObjectVersion::STATUS_DRAFT );
     $version->store();
+
+    $object->restoreObjectAttributes();
 
     $user = eZUser::currentUser();
     $operationResult = eZOperationHandler::execute( 'content', 'publish', array( 'object_id' => $objectID,

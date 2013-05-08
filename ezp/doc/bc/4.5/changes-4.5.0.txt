@@ -23,7 +23,7 @@ Change of behavior
   as part of instance key. Instead of changing this causing all code that potentialy uses
   ::isLoaded() and ::resetGlobals() to need to change, all other parameter on this function
   will if not default value cause a new instance instead of a shared instance to be returned.
-  So for clearity it is recomended to use "new eZINI()" instead if want to specify any of
+  So for clarity it is recommended to use "new eZINI()" instead if want to specify any of
   these parameters manually.
 
 - eZScript
@@ -140,3 +140,8 @@ Deprecated
 
   This feature has been deprecated as it creates issue by loading
   template.ini before siteaccess and extension settings are loaded.
+
+- shop
+
+  Shop module has been deprecated and will in the near future be moved out of the kernel into it's own community
+  extension.

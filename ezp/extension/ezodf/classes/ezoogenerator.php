@@ -6,9 +6,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -174,15 +174,15 @@ class eZOOGenerator
              " <office:font-face-decls/>" .
              " <office:automatic-styles>" .
              "  <text:list-style style:name='bulletlist'>" .
-             "   <text:list-level-style-bullet text:level='1' text:style-name='Bullet_20_Symbols' style:num-suffix='.' text:bullet-char='●'>" .
+             "   <text:list-level-style-bullet text:level='1' text:style-name='Bullet_20_Symbols' style:num-suffix='.' text:bullet-char='???'>" .
              "      <style:list-level-properties text:space-before='0.25in' text:min-label-width='0.25in'/>" .
              "       <style:text-properties style:font-name='StarSymbol'/>" .
              "   </text:list-level-style-bullet>" .
-             "   <text:list-level-style-bullet text:level='2' text:style-name='Bullet_20_Symbols' style:num-suffix='.' text:bullet-char='○'>" .
+             "   <text:list-level-style-bullet text:level='2' text:style-name='Bullet_20_Symbols' style:num-suffix='.' text:bullet-char='???'>" .
              "      <style:list-level-properties text:space-before='0.5in' text:min-label-width='0.25in'/>" .
              "       <style:text-properties style:font-name='StarSymbol'/>" .
              "   </text:list-level-style-bullet>" .
-             "   <text:list-level-style-bullet text:level='3' text:style-name='Bullet_20_Symbols' style:num-suffix='.' text:bullet-char='■'>" .
+             "   <text:list-level-style-bullet text:level='3' text:style-name='Bullet_20_Symbols' style:num-suffix='.' text:bullet-char='???'>" .
              "      <style:list-level-properties text:space-before='0.75in' text:min-label-width='0.25in'/>" .
              "       <style:text-properties style:font-name='StarSymbol'/>" .
              "   </text:list-level-style-bullet>" .

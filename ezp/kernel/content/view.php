@@ -1,32 +1,10 @@
 <?php
-//
-// Created on: <24-Apr-2002 11:18:59 bf>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-
-
-$http = eZHTTPTool::instance();
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $tpl = eZTemplate::factory();
 
@@ -68,6 +46,15 @@ if ( $NodeID < 2 )
 }
 
 $ini = eZINI::instance();
+
+// Be able to filter node id for general use
+$NodeID = ezpEvent::getInstance()->filter( 'content/view', $NodeID, $ini );
+
+$testingHandler = new ezpMultivariateTest( ezpMultivariateTest::getHandler() );
+
+if ( $testingHandler->isEnabled() )
+    $NodeID = $testingHandler->execute( $NodeID );
+
 $viewCacheEnabled = ( $ini->variable( 'ContentSettings', 'ViewCaching' ) == 'enabled' );
 
 if ( isset( $Params['ViewCache'] ) )
@@ -169,34 +156,36 @@ if ( ( isset( $operationResult['status'] ) && $operationResult['status'] != eZMo
 }
 else
 {
-    $localVars = array( "cacheFileArray", "NodeID",   "Module", "tpl",
-                        "LanguageCode",   "ViewMode", "Offset", "ini",
-                        "cacheFileArray", "viewParameters",  "collectionAttributes",
-                        "validation" );
+    $args = compact(
+        array(
+            "NodeID", "Module", "tpl", "LanguageCode", "ViewMode", "Offset", "ini", "viewParameters", "collectionAttributes", "validation"
+        )
+    );
     if ( $viewCacheEnabled )
     {
-        $user = eZUser::currentUser();
+        $cacheFileArray = eZNodeviewfunctions::generateViewCacheFile(
+            eZUser::currentUser(),
+            $NodeID,
+            $Offset,
+            $layout,
+            $LanguageCode,
+            $ViewMode,
+            $viewParameters,
+            false
+        );
 
-        $cacheFileArray = eZNodeviewfunctions::generateViewCacheFile( $user, $NodeID, $Offset, $layout, $LanguageCode, $ViewMode, $viewParameters, false );
-
-        $cacheFilePath = $cacheFileArray['cache_path'];
-
-        $cacheFile = eZClusterFileHandler::instance( $cacheFilePath );
-        $args = compact( $localVars );
-        $Result = $cacheFile->processCache( array( 'eZNodeviewfunctions', 'contentViewRetrieve' ),
-                                            array( 'eZNodeviewfunctions', 'contentViewGenerate' ),
-                                            null,
-                                            null,
-                                            $args );
-        return $Result;
+        return eZClusterFileHandler::instance( $cacheFileArray['cache_path'] )
+            ->processCache(
+                array( 'eZNodeviewfunctions', 'contentViewRetrieve' ),
+                array( 'eZNodeviewfunctions', 'contentViewGenerate' ),
+                null,
+                null,
+                $args
+            );
     }
-    else
-    {
-        $cacheFileArray = array( 'cache_dir' => false, 'cache_path' => false );
-        $args = compact( $localVars );
-        $data = eZNodeviewfunctions::contentViewGenerate( false, $args ); // the false parameter will disable generation of the 'binarydata' entry
-        return $data['content']; // Return the $Result array
-    }
+
+    $data = eZNodeviewfunctions::contentViewGenerate( false, $args ); // the false parameter will disable generation of the 'binarydata' entry
+    return $data['content']; // Return the $Result array
 }
 
 // Looking for some view-cache code?

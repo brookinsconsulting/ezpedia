@@ -77,5 +77,6 @@ $FunctionList = array( );
 $FunctionList['feed'] = array();
 $FunctionList['feedupdated'] = array();
 $FunctionList['edit'] = array();
+$FunctionList['list'] = array();
 
 ?>

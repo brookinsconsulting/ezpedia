@@ -4,4 +4,6 @@
 AvailableSiteDesignList[]
 AvailableSiteDesignList[]=plain_site
 AvailableSiteDesignList[]=admin
+AvailableSiteDesignList[]=wiki_admin
+
 */ ?>

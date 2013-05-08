@@ -1,29 +1,10 @@
 <?php
-//
-// Created on: <19-Jan-2004 20:18:59 kk>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
+/**
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 $NodeID = $Params['NodeID'];
 $Module = $Params['Module'];
@@ -72,17 +53,7 @@ if ( isset( $Params['AttributeValidation'] ) )
     $validation = $Params['AttributeValidation'];
 
 // Check if read operations should be used
-$workflowINI = eZINI::instance( 'workflow.ini' );
-$operationList = $workflowINI->variableArray( 'OperationSettings', 'AvailableOperations' );
-$operationList = array_unique( array_merge( $operationList, $workflowINI->variable( 'OperationSettings', 'AvailableOperationList' ) ) );
-if ( in_array( 'content_read', $operationList ) )
-{
-    $useTriggers = true;
-}
-else
-{
-    $useTriggers = false;
-}
+$useTriggers = in_array( 'content_read', array_unique( eZINI::instance( 'workflow.ini' )->variable( 'OperationSettings', 'AvailableOperationList' ) ) );
 
 $res = eZTemplateDesignResource::instance();
 $keys = $res->keys();
@@ -238,7 +209,7 @@ function contentPDFPassthrough( $cacheFile )
 
     if( !$file->exists() )
     {
-        eZDebug::writeEror( "Cache-file for pdf doesn't exist", 'content::pdf::contentPDFPassthrough' );
+        eZDebug::writeError( "Cache-file for pdf doesn't exist", 'content::pdf::contentPDFPassthrough' );
         return;
     }
 
@@ -250,7 +221,7 @@ function contentPDFPassthrough( $cacheFile )
     header( 'Cache-Control: ' );
     /* Set cache time out to 10 seconds, this should be good enough to work around an IE bug */
     header( "Expires: ". gmdate( 'D, d M Y H:i:s', time() + 10 ) . ' GMT' );
-    header( 'X-Powered-By: eZ Publish' );
+    header( 'X-Powered-By: ' . eZPublishSDK::EDITION );
 
     header( 'Content-Length: '. $file->size() );
     header( 'Content-Type: application/pdf' );

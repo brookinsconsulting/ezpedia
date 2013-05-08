@@ -1,40 +1,21 @@
 <?php
-//
-// Definition of eZModuleParamsOperator class
-//
-// Created on: <29-juli-2003 18:42:38 admin>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
+/**
+ * File containing the eZModuleParamsOperator class.
+ *
+ * @copyright Copyright (C) 1999-2013 eZ Systems AS. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+ * @version  2013.4
+ * @package kernel
+ */
 
 /*
 If you want to have autoloading of this operator you should create
 a eztemplateautoload.php file and add the following code to it.
-The autoload file must be placed somewhere specified in AutoloadPath
+The autoload file must be placed somewhere specified in AutoloadPathList
 under the group TemplateSettings in settings/site.ini
 
 $eZTemplateOperatorArray = array();
-$eZTemplateOperatorArray[] = array( 'script' => 'templatemoduleparamsoperator.php',
-                                    'class' => '$full_class_name',
+$eZTemplateOperatorArray[] = array( 'class' => '$full_class_name',
                                     'operator_names' => array( 'module_params' ) );
 
 By using module_params you can ...
@@ -81,7 +62,7 @@ class eZModuleParamsOperator
     /*!
      Executes the PHP function for the operator cleanup and modifies \a $operatorValue.
     */
-    function modify( $tpl, $operatorName, $operatorParameters, $rootNamespace, $currentNamespace, &$operatorValue, $namedParameters )
+    function modify( $tpl, $operatorName, $operatorParameters, $rootNamespace, $currentNamespace, &$operatorValue, $namedParameters, $placement )
     {
         switch ( $operatorName )
         {

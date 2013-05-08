@@ -1,10 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-require('autoload.php');
-
-/* include_once( 'kernel/classes/ezscript.php' );
-include_once( 'lib/ezutils/classes/ezcli.php' ); */
+include_once( 'kernel/classes/ezscript.php' );
+include_once( 'lib/ezutils/classes/ezcli.php' );
 
 $cli = eZCLI::instance();
 

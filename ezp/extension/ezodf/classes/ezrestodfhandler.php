@@ -4,9 +4,9 @@
 //
 // ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
 // SOFTWARE NAME: eZ Publish Community Project
-// SOFTWARE RELEASE:  4.2011
-// COPYRIGHT NOTICE: Copyright (C) 1999-2011 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
+// SOFTWARE RELEASE:  2013.4
+// COPYRIGHT NOTICE: Copyright (C) 1999-2013 eZ Systems AS
+// SOFTWARE LICENSE: GNU General Public License v2
 // NOTICE: >
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2.0  of the GNU General
@@ -578,7 +578,7 @@ class eZRESTODFHandler extends eZRESTBaseHandler
      * @return DOMElement NameList DOMDocument, example:
      *
      *     <OODocument base64Encoded="1" filename="My article.odt">
-     *         <![CDATA[ ad lkøjsdaølfhadsø fiuancfivn søgsbdnvsahfø ]]>
+     *         <![CDATA[ ad lk??jsda??lfhads?? fiuancfivn s??gsbdnvsahf?? ]]>
      *     </OODocument>
      */
     protected function createOODOMElement( DOMDocument $domDocument, eZContentObjectTreeNode $node )
@@ -595,7 +595,7 @@ class eZRESTODFHandler extends eZRESTBaseHandler
         // Add odt document to DOMElement
         $ooDocumentElement->setAttribute( 'base64Encoded', '1' );
         $ooDocumentElement->setAttribute( 'filename', $node->attribute( 'name' ) . '.odt' );
-        $ooDocumentElement->appendChild( $domDocument->createCDATASection( base64_encode( eZFile::getContents( $fileName ) ) ) );
+        $ooDocumentElement->appendChild( $domDocument->createCDATASection( base64_encode( file_get_contents( $fileName ) ) ) );
 
         unlink( $fileName );
 
@@ -613,7 +613,7 @@ class eZRESTODFHandler extends eZRESTBaseHandler
      * @return DOMElement NameList DOMDocument, example:
      *
      *     <OODocument base64Encoded="1" filename="My article.doc">
-     *         <![CDATA[ ad lkøjsdaølfhadsø fiuancfivn søgsbdnvsahfø ]]>
+     *         <![CDATA[ ad lk??jsda??lfhads?? fiuancfivn s??gsbdnvsahf?? ]]>
      *     </OODocument>
      */
     protected function createDocDOMElement( DOMDocument $domDocument, eZContentObjectTreeNode $node )

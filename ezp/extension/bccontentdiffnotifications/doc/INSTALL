@@ -16,8 +16,5 @@ In case you are using your own subtree notification template, then add the follo
 
 Add the above template code into the template, design/[your_design]/templates/notification/handler/ezsubtree/view/plain.tpl
 
+
 Clear Cache
-
-Test cli
-
-host:/web# php extension/bccontentdiffnotifications/bin/php/test_html_mail.php graham@grahambrookins.com graham@brookinsconsulting.com 53437 1 9
