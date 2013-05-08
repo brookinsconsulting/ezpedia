@@ -1,9 +1,15 @@
+# .svn dirs of git
+.git/
 # .svn dirs of subversion
 .svn/
 # desktop services store file on mac os x
 \.DS_Store
 # jedit backup files
 \#*#
+# emacs backup files
+*~
+# vi backup files
+*.swp
 # jedit marker files
 \.*.marks
 # unix user trash dirs
