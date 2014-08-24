@@ -49,6 +49,7 @@ ActiveExtensions[]=bccontentdiffnotifications
 ActiveExtensions[]=bcfetchxml
 ActiveExtensions[]=bcsoapsearch
 ActiveExtensions[]=ezfind
+ActiveExtensions[]=ezjscore
 ActiveExtensions[]=all2egooglesitemaps
 ActiveExtensions[]=ezpedia
 ActiveExtensions[]=wrapoperator
@@ -61,7 +62,5 @@ TransformationGroup=urlalias_compat
 
 [MailSettings]
 AdminEmail=info@ezpedia.org
-
-
 
 */ ?>
