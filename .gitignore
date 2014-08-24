@@ -24,12 +24,12 @@
 .settings/
 
 ### eZp related //start
-ezp/var
-ezp/extension/ezpedia/settings/settings/override/site.ini
-ezp/extension/ezpedia/settings/settings/override/solr.ini
-ezp/extension/ezfind/java/logs
-ezp/extension/ezpedia/sql/ezpedia.dump.auto.sql
-ezp/extension/ezpedia/sql/ezpedia.dump.auto.sql.tar.gz
-ezp/sitemap_en.xml
-ezp/download
+ezp/ezpublish_legacy/var
+ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/site.ini
+ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/solr.ini
+ezp/ezpublish_legacy/extension/ezfind/java/logs
+ezp/ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql
+ezp/ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql.tar.gz
+ezp/ezpublish_legacy/sitemap_en.xml
+ezp/ezpublish_legacy/download
 ### eZp related //end
