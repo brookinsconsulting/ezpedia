@@ -1,6 +1,0 @@
-<?php /*
-
-[EditSettings]
-GroupedInput[]=ezgmaplocation
-
-*/ ?>

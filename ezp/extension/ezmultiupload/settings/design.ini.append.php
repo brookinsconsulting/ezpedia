@@ -1,6 +1,0 @@
-<?php /*
-
-[ExtensionSettings]
-DesignExtensions[]=ezmultiupload
-
-*/ ?>
