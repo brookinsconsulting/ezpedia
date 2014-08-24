@@ -6,9 +6,9 @@
         //given string $data, will return the first $issue string in that string
 	$ret = false;
 
-	$split = split( "#", $data );
+	$split = preg_split( "/#/", $data );
 	if( isset( $split[1] ) )
-          $splitTestForZero = split( "0", $split[1] );
+          $splitTestForZero = preg_split( "/0/", $split[1] );
 	else
           $splitTestForZero = null;
 
