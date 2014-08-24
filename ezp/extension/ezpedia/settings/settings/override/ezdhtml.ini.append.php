@@ -1,6 +1,0 @@
-<?php /*
-
-[SystemSettings]
-RelativeURL=disabled
-
-*/>

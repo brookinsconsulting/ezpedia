@@ -1,8 +1,0 @@
-<?php
-/*
-
-[ExtensionSettings]
-DesignExtensions[]=changelog
-
-*/
-?>

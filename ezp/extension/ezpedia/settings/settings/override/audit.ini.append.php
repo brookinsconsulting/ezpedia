@@ -1,6 +1,0 @@
-<?php /*
-
-[AudtiSettings]
-Audit=enabled
-
-*/ ?>

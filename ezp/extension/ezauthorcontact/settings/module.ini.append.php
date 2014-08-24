@@ -1,6 +1,0 @@
-<?php /*
-
-[ModuleSettings]
-ExtensionRepositories[]=ezauthorcontact
-
-*/ ?>

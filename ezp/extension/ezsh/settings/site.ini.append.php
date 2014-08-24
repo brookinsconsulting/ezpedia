@@ -1,6 +1,0 @@
-<?php /*
- 
-[TemplateSettings]
-ExtensionAutoloadPath[]=ezsh
-
-*/ ?>

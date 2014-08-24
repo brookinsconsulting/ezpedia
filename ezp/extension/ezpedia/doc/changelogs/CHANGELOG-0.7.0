@@ -1,5 +1,0 @@
-CHANGELOG 0.7.0
-
-- Added: Changelog for 0.7.0 in doc/changelogs/CHANGELOG-0.7.0
-- Added: Basic site/extension installation intsructions documentation
-- Added: Added basic database and var directory export shell scripts
