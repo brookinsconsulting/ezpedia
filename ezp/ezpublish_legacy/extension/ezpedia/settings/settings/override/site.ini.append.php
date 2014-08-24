@@ -36,7 +36,7 @@ HostMatchMapItems[]
 
 [ExtensionSettings]
 ActiveExtensions[]=ezoe
-ActiveExtensions[]=ezgeshi
+ActiveExtensions[]=ezsh
 ActiveExtensions[]=bcauthorconnect
 ActiveExtensions[]=changelog
 ActiveExtensions[]=bcredirect
