@@ -1,0 +1,1 @@
+<input type="button" value="{$content|wash}" onclick="javascript:window.external.AddSearchProvider('{$url}');" />

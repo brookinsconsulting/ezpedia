@@ -1,0 +1,11 @@
+# Action for finding placement for toolbar node
+[ExtractionSubtree]
+StartNode=users
+SelectionType=single
+ReturnType=NodeID
+Class[]=
+Class[]=user_group
+Class[]=folder
+TopLevelNodes[]
+TopLevelNodes[]=users
+TopLevelNodes[]=

@@ -1,0 +1,58 @@
+README
+
+INSTALLATION
+
+- Install eZ Publish
+- Install extension, nusoap
+- Install settings override file, settings/override/nusoap.ini.append.php 
+- Match similar settings in above settings file
+
+# NuSOAP services configuration file
+
+[GeneralSettings]
+# Available NuSOAP services
+# AvailableServices[]
+# AvailableServices[]=helloworld
+AvailableServices[]=bcsoapsearch
+# enable or disable NuSOAP server
+EnableSOAP=true
+# enable or disable NuSOAP server logging
+EnableLog=true
+# example service bcsoapsearch
+[Service_bcsoapsearch]
+# name of the service
+ServiceName=BcSoapSearch
+# namespace of the service
+ServiceNamespace=urn:bcsoapsearch
+# SOAPExtensions[]
+SOAPExtensions[bcsoapsearch]=bcsoapsearch
+
+- Add vhost configuration for soap.example.com
+- Install nusoap mod rewrite rule
+
+RewriteCond %{HTTP_HOST} ^soap\..*
+RewriteRule ^(.*) /nusoap.php [L]
+
+- Install extension, bcsoapsearch
+- Install settings override file, settings/override/bcsoapsearch.ini.append.php 
+- Match similar settings in above settings file
+
+[BcSoapSearchSettings]
+DocumentUrlPrefix=http://example.com/eng/
+
+
+TESTING
+
+Testing the service
+
+./extension/bcsoapsearch/bin/php/bcsoapsearchclient.php http://soap.example.com/bcsoapsearch?wsdl searchString searchLimitNumeric searchOffset 
+
+./extension/bcsoapsearch/bin/php/bcsoapsearchclient.php http://soap.example.com/bcsoapsearch?wsdl Cache 1 0
+./extension/bcsoapsearch/bin/php/bcsoapsearchclient.php http://soap.example.com/bcsoapsearch?wsdl Cache 1 2
+./extension/bcsoapsearch/bin/php/bcsoapsearchclient.php http://soap.example.com/bcsoapsearch?wsdl Cache 2 2
+./extension/bcsoapsearch/bin/php/bcsoapsearchclient.php http://soap.example.com/bcsoapsearch?wsdl Cache 1 4
+
+-- Testing the search via psudo cronjob (to get access to the eZ ENV)
+--- symlink, cronjobs/ezsearchtestclient.php to extension/bcsoapsearch/services/bcsoapsearch.ez.php
+--- run, php runcronjobs.php -s ezwebin_site_user -d ezsearchtestclient| less
+

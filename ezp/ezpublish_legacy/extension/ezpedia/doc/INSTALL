@@ -1,0 +1,380 @@
+eZpedia extension INSTALL
+
+Introduction
+============
+
+1. What is the eZpedia extension?
+   ------------------------------------------------
+
+   eZpedia is a true eZ Publish extension
+   that provides commandline script, module views,
+   kernel overrides classes, design templates and
+   settings that make up the wiki site http://ezpedia.org
+
+
+   For more information about this extension please read the README file.
+
+1. Copyright
+   ---------
+
+   eZpedia extension is copyright 2010-2013 Brookins Consulting
+
+   See: doc/COPYRIGHT for more information on the terms of the copyright and license
+
+1.1. License
+     -------
+
+     eZpedia (Extension) is licensed under the GNU General Public License.
+    
+     The complete license agreement is included in the doc/LICENSE file.
+    
+     eZpedia (Extension) is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 2 of the License, or
+     (at your option) any later version.
+    
+     eZpedia (Extension) is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+    
+     The GNU GPL gives you the right to use, modify and redistribute
+     eZpedia (Extension) under certain conditions. The GNU GPL license
+     is distributed with the software, see the file doc/LICENSE.
+    
+     It is also available at http://www.gnu.org/licenses/gpl.txt
+    
+     You should have received a copy of the GNU General Public License
+     along with eZpedia (Extension) in doc/LICENSE.  If not, see http://www.gnu.org/licenses/.
+    
+     Using eZpedia (Extension) under the terms of the GNU GPL is free (as in freedom).
+    
+     For more information or questions please contact
+     license@brookinsconsulting.com
+
+2. Requirements
+   ------------
+
+   The following requirements exists for using eZpedia extension:
+
+   o  eZ Publish version:
+
+      Make sure you use eZ Publish version 4.x (required) or higher.
+
+      eZ Publish 4.6.x+ (Community Build, 2011.11+) is recommended.
+
+   o  PHP version:
+
+      Make sure you have PHP 5.x or higher.
+
+   o  Extensions:
+
+      Make sure you have the extesions documented here, http://ezpedia.org/en/about/this_wiki
+
+      You will also require the wikidesign extension by default.
+
+      eZpedia uses the following extensions for additional functionality:
+
+      - wrapoperator, https://github.com/brookinsconsulting/wrapoperator
+
+      - nusoap, https://github.com/brookinsconsulting/nusoap
+
+      - ezapprove2, http://projects.ez.no/ezapprove2
+                    https://github.com/brookinsconsulting/approve2
+
+      - ezadmin, http://projects.ez.no/ezadmin
+
+      - bcsoapsearch, https://github.com/brookinsconsulting/bcsoapsearch
+
+      - bcfetchxml, https://github.com/brookinsconsulting/bcfetchxml
+
+      - bccontentdiffnotifications, https://github.com/brookinsconsulting/bccontentdiffnotifications
+
+      - all2egoooglesitemaps, https://github.com/brookinsconsulting/all2egooglesitemaps
+
+      - str_replace, http://projects.ez.no/string_replace_operator
+
+      - gmaplocation, http://projects.ez.no/google_maps_location_datatype
+
+      - wikidesign, https://github.com/brookinsconsulting/ezpedia
+
+      - bccreatecopy, https://github.com/brookinsconsulting/bccreatecopy
+
+      - bcredirect, https://github.com/brookinsconsulting/bcredirect
+
+      - ezgeshi, https://github.com/gggeek/ezgeshi
+
+      - bcauthorconnect, https://github.com/brookinsconsulting/bcauthorconnect
+
+      - Changelog, http://projects.ez.no/changelog
+
+      - Extract, http://projects.ez.no/extract
+
+      eZpedia also uses the following extensions provided by default in most recent editions of eZ Publish
+
+      - eZ Find
+      - eZ OE
+      - eZ Gmaplocation
+
+
+Getting eZ Publish
+==================
+
+You can download a version of eZ Publish from share.ez.no,
+you will find the various versions at:
+
+http://share.ez.no/download
+
+NOTE: You will only require eZ Publish 4.x or higher (if you have a more recent version)
+
+Information on the installation of eZ Publish can be found at:
+http://doc.ez.no/eZ-Publish/Technical-manual/4.6/Installation
+and
+http://doc.ez.no
+http://share.ez.no
+
+
+Installing eZpedia extension
+==============================================
+
+eZpedia installation is also documented online at the following locations:
+
+   o  http://ezpedia/en/help/installation
+
+   o  http://ezpedia/en/project/ezpedia_quick_installation
+
+
+1. Copy the extension files into the extension directory
+   ===========================
+
+   Copy the package into the `extension' directory
+   in the root of your eZ Publish installation.
+
+
+2. Unpack the extension package files into the extension directory
+   ===========================
+
+   Unpack the files in the distribution. The command
+   necessary is depends on the file you downloaded.
+
+   [tar.gz]
+   tar -zxvf ezpedia-0_7_0.tar.gz
+
+   [zip]
+   unzip ezpedia-0_7_0.tar.zip
+
+
+3. (Optional) Git clone the latest GitHub brookinsconsulting ezpeida extension sources into the extension directory
+   ===========================
+
+   You can optionaly fetch the latest extension source code from GitHub brookinsconsulting ezpedia repository into the extension directory
+
+cd /path/to/ezpublish;
+cd extension;
+
+mkdir ezpedia;
+cd ezpedia;
+
+git clone git@github.com:brookinsconsulting/ezpedia.git . ;
+
+sudo chmod -R 777 ../ezpedia;
+
+
+3.1. (Optional) Git download the latest GitHub brookinsconsulting ezpedia extension sources into the extension directory
+     ===========================
+
+     You can optionaly fetch the latest extension source code from GitHub brookinsconsulting ezpedia repository into the extension directory
+
+cd /path/to/ezpublish;
+cd extension;
+
+mkdir ezpedia;
+cd ezpedia;
+
+wget https://github.com/brookinsconsulting/ezpedia/tarball/master;
+
+or
+
+wget https://github.com/brookinsconsulting/ezpedia/zipball/master
+
+tar -zxf brookinsconsulting-ezpedia-d1d1411.tar.gz;
+
+or 
+
+unzip brookinsconsulting-ezpedia-d1d1411.tar.gz;
+
+sudo chmod -R 777 ../ezpedia;
+
+
+4. We must now enable the extension(s) in eZ Publish.
+   ===========================
+
+   To do this edit site.ini.append(.php) in the folder
+   /path/to/ezpublish/settings/override/. If this file does not exist;
+   create it. Locate (or add) the block
+
+   [ExtensionSettings] and add the lines:
+   ActiveExtensions[]=ezoe
+   ActiveExtensions[]=ezsh
+   ActiveExtensions[]=bcauthorconnect
+   ActiveExtensions[]=changelog
+   ActiveExtensions[]=bcredirect
+   ActiveExtensions[]=wikidesign
+   ActiveExtensions[]=ezgmaplocation
+   ActiveExtensions[]=ezjscore
+   ActiveExtensions[]=str_replace
+   ActiveExtensions[]=bccontentdiffnotifications
+   ActiveExtensions[]=bcfetchxml
+   ActiveExtensions[]=bcsoapsearch
+   ActiveExtensions[]=ezfind
+   ActiveExtensions[]=all2egooglesitemaps
+   ActiveExtensions[]=ezpedia
+   ActiveExtensions[]=wrapoperator
+
+   If you run several sites using only one distribution
+   and only some of the sites should use the extension,
+   make the changes in the override file of that siteaccess.
+
+   E.g /path/to/ezpublish/settings/siteaccess/ezwebin_site_user/site.ini.append(.php)
+   But instead of using ActiveExtensions you must add these lines instead:
+
+   [ExtensionSettings]
+   ActiveAccessExtensions[]=ezpedia
+   ActiveAccessExtensions[]=ezoe
+   ActiveAcccessExtensions[]=ezsh
+   ActiveAccessExtensions[]=bcauthorconnect
+   ActiveAccessExtensions[]=changelog
+   ActiveAccessExtensions[]=bcredirect
+   ActiveAccessExtensions[]=wikidesign
+   ActiveAccessExtensions[]=ezgmaplocation
+   ActiveAccessExtensions[]=ezjscore
+   ActiveAccessExtensions[]=str_replace
+   ActiveAccessExtensions[]=bccontentdiffnotifications
+   ActiveAccessExtensions[]=bcfetchxml
+   ActiveAccessExtensions[]=bcsoapsearch
+   ActiveAccessExtensions[]=ezfind
+   ActiveAccessExtensions[]=all2egooglesitemaps
+   ActiveAccessExtensions[]=ezpedia
+   ActiveAccessExtensions[]=wrapoperator
+
+
+5. Regenerate eZ Publish class autoloads
+   ===========================
+
+   You must regenerate autoloads for extension classes to be available via eZ Publish autoloads. This may mean running the following different commands.
+
+cd /path/to/ezpublish;
+
+php bin/php/ezpgenerateautoloads.php -v -e;
+
+
+6. Install website document root files
+   ===========================
+
+   There are optional but highly recommended
+
+   cd /path/to/ezpublish;
+
+   cp -vrp extension/ezpedia/files/* .;
+
+
+6.1. Install optional kernel class replacements
+
+    Remember to remove (completely) the default 'rss' and 'search' modules:
+
+    rm -vrf kernel/search;
+    rm -vrf kernel/rss;
+
+   eZpedia uses patched custom override modules by the same name.
+
+   cd /path/to/ezpublish;
+
+   cp -vrp extension/ezpedia/kernel/* kernel/;
+
+
+7. Enable kernel overrides
+   ===========================
+
+7.1 Kernel Override Requirements
+
+    Kernel Class Overrides based on eZ Publish 4.6.x >= 4.6 ( Community Build, 2011.11+ ).
+
+    While eZpedia (Extension) by default requires both kernel overrides to provide the features within eZ Publish. 
+
+    Though based on your usage (like what version of eZ Publish are you using ezpedia extension with?) of the ezpedia extension (which parts of the extension do you require, which do you not require?) you may be able to avoid using the provided kernel overrides entirely.
+
+
+7.2 Enable eZ Publish Kernel Overrides
+
+    Remember to edit your config.php and enable this line:
+
+define( 'EZP_AUTOLOAD_ALLOW_KERNEL_OVERRIDE', true );
+
+
+8. Install Settings
+   ===========================
+
+   Install the available settings overrides
+
+   cd /path/to/ezpublish/settings;
+
+   ln -s extension/ezpedia/settings/override .;
+
+   cd /path/to/ezpublish/settings/siteaccess;
+
+   ln -s extension/ezpedia/settings/siteaccess/* .;
+
+
+9. Regenerate eZ Publish class kernel override autoloads
+   ===========================
+
+    You must remove autoloads, regenerate autoloads and clear all caches for extension kernel override classes to be available via eZ Publish autloads. This may mean running the following different commands.
+
+    cd /path/to/ezpublish;
+
+    rm -vrf var/autoload/ezp_*;
+
+    php ./bin/php/ezpgenerateautoloads.php -v -o;
+    php ./bin/php/ezpgenerateautoloads.php -v -e;
+    php ./bin/php/ezpgenerateautoloads.php -v -k;
+
+    php ./bin/php/ezcache.php --clear-all
+
+
+10. (Optional) Install the current eZpedia database data
+   ===========================
+
+   Load the databaae data export into your mysql database.
+
+   You can download the database from eZpedia: http://ezpedia.org/download/
+
+
+11. (Optional) Install the current eZpedia var directory files
+   ===========================
+
+   Load the ezpedia var directory storage files into your site.
+
+   You can download the var directory storage files from eZpedia: http://ezpedia.org/download/
+
+
+Features
+===========================
+
+Extension features documentation is included in the file doc/FEATURES.
+
+
+Troubleshooting
+===============
+
+1. Read the FAQ
+   ------------
+
+   Some problems are more common than others. The most common ones are listed
+   in the the doc/FAQ.
+
+2. Support
+   -------
+
+   If you have find any problems not handled by this document or the FAQ you
+   can contact Brookins Consulting trough the support system:
+   http://brookinsconsulting.com/contact

@@ -1,0 +1,20 @@
+INSTALL
+
+Enable Extension
+
+Make sure you are sending out HTML mail, by modifying site.ini.append.php:
+
+[MailSettings]
+ContentType=text/html
+
+In case you are using your own subtree notification template, then add the following code to it.
+
+{def $last_version=fetch( bccontentdiffnotifications, last_archived_version, hash( id, $object.id ) )
+     $diff=fetch( bccontentdiffnotifications, diff_versions, hash( object, $object, lastversion, $last_version ) )}
+{$diff}
+{undef $last_version $diff}
+
+Add the above template code into the template, design/[your_design]/templates/notification/handler/ezsubtree/view/plain.tpl
+
+
+Clear Cache
