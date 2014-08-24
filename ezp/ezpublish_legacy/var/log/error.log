@@ -1,4 +1,0 @@
-[ Aug 07 2014 17:34:38 ] [] eZDir::recursiveDelete:
-The path: var/cache/template/compiled is not a folder
-[ Aug 07 2014 17:34:38 ] [] eZDir::recursiveDelete:
-The path: var/cache/override is not a folder
