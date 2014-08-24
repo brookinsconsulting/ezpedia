@@ -1,4 +1,12 @@
 <?php
+/**
+ * File containing the RSS function definitions.
+ *
+ * @copyright Copyright (C) eZ Systems AS. All rights reserved.
+ * @license For full copyright and license information view LICENSE file distributed with this source code.
+ * @version 2014.07.0
+ * @package kernel
+ */
 
 $FunctionList = array();
 
@@ -37,6 +45,5 @@ $FunctionList['subtree_list'] = array( 'name' => 'subtree_list',
                                                               array( 'name' => 'max_depth',
                                                                      'type' => 'integer',
                                                                      'required' => false ) ) );
-
 
 ?>

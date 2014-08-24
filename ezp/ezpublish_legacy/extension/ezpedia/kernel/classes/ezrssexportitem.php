@@ -313,7 +313,6 @@ class eZRSSExportItem extends eZPersistentObject
             $nodeList = null;
         return $nodeList;
     }
-
 }
 
 ?>

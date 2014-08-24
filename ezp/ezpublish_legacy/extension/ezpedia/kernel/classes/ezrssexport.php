@@ -318,6 +318,7 @@ class eZRSSExport extends eZPersistentObject
      */
     function rssXmlContent()
     {
+
         try
         {
             $rssUpdateInclusions=array( 'ez','solution','project','historical','updated', 'changelog', 'about', 'discussion', 'snippet', 'learning' );
@@ -368,7 +369,6 @@ class eZRSSExport extends eZPersistentObject
     */
     function fetchUpdatedRSS2_0( $id = null )
     {
-
         if ( $id != null )
         {
             $rssExport = eZRSSExport::fetch( $id );
