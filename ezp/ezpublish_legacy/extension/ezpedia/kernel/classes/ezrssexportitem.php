@@ -1,33 +1,12 @@
 <?php
-//
-// Definition of eZRSSExportItem class
-//
-// Created on: <18-Sep-2003 13:13:56 kk>
-//
-// ## BEGIN COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-// SOFTWARE NAME: eZ Publish
-// SOFTWARE RELEASE: 4.4.0
-// COPYRIGHT NOTICE: Copyright (C) 1999-2010 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-// 
-//   This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-// 
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-// ## END COPYRIGHT, LICENSE AND WARRANTY NOTICE ##
-//
-
-/*! \file
-*/
+/**
+ * File containing the eZRSSExportItem class.
+ *
+ * @copyright Copyright (C) eZ Systems AS. All rights reserved.
+ * @license For full copyright and license information view LICENSE file distributed with this source code.
+ * @version 2014.07.0
+ * @package kernel
+ */
 
 /*!
   \class eZRSSExportItem ezrssexportitem.php
@@ -287,7 +266,7 @@ class eZRSSExportItem extends eZPersistentObject
         return $nodeList;
     }
 
-    /*!
+   /*!
      Get the N last published nodes matching the specifications of this RSS Export item
 
      \param number of objects to fetch
