@@ -19,6 +19,7 @@
    config.php can set the components path like:
 */
 //ini_set( 'include_path', ini_get( 'include_path' ). PATH_SEPARATOR . '../ezcomponents/trunk' );
+ini_set( 'include_path', ini_get( 'include_path' ). PATH_SEPARATOR . 'vendor/zetacomponents' );
 
 /*
     USING BUNDLED COMPONENTS
@@ -30,7 +31,7 @@
     present, they will be used. If you're using the bundled eZ Components it's recommended
     to define EZP_USE_BUNDLED_COMPONENTS as a boolean true anyway, for optimal speed.
 */
-define( 'EZP_USE_BUNDLED_COMPONENTS', true );
+define( 'EZP_USE_BUNDLED_COMPONENTS', false );
 
 
 /*
@@ -42,6 +43,7 @@ define( 'EZP_USE_BUNDLED_COMPONENTS', true );
 */
 //define( 'EZC_BASE_PATH', '/usr/lib/ezc/Base/base.php' );
 
+
 /*
    TIMEZONES
    ---------
@@ -50,7 +52,7 @@ define( 'EZP_USE_BUNDLED_COMPONENTS', true );
    More on supported timezones : http://www.php.net/manual/en/timezones.php
 */
 //date_default_timezone_set( 'Europe/Paris' );
-date_default_timezone_set( 'America/Chicago' );
+//date_default_timezone_set( 'America/Chicago' );
 
 /*
     INI FILES OPTIMIZATIONS
