@@ -20,7 +20,7 @@
      <div style="list-style-type: none;font-size: xx-small;margin-top:10px;">
      <a style="font-size: small" href={concat( $child.link, '')}>{$child.title|wash}</a></div>
      <span style="font-size: xx-small;"> 
-	  {set $issue=wrap_user_func('getIssueFromGitCommitMessage', array( $child.title ) )}
+	  {set $issue=wrap_user_func('getIssueFromGitCommitMessage', array( $child ) )}
           {if $issue|ne('')}<div align="right" style="margin-right:4%; position:relative; top:+07px;"><span style="text-decoration: underline; font-weight: bold; font-size: small; color: #00000;"><a href="https://jira.ez.no/browse/EZP-{$issue}">Related issue</a></span><span style="font-size:xx-small">:</span><br /><span style="font-size:small; font-weight:bold;"> <a href="https://jira.ez.no/browse/EZP-{$issue}"><img src="{"images/icons/issue/issue.png"|ezdesign('no')}" border="0" height="15" width="16" />&nbsp;EZP-{$issue}</a></span></div>{/if}
           <span style="font-size: xx-small">{$child.updated}</span>
           <span style="font-size: xx-small">{$child.content}</span>
