@@ -1,0 +1,6 @@
+data/
+java/logs
+.project
+java/solr-webapp
+java/solr/lib/classes
+
