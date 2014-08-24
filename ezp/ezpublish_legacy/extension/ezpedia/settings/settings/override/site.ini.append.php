@@ -35,9 +35,8 @@ CheckValidity=false
 HostMatchMapItems[]
 
 [ExtensionSettings]
-# ActiveExtensions[]=ezdhtml
 ActiveExtensions[]=ezoe
-ActiveExtensions[]=ezsh
+ActiveExtensions[]=ezgeshi
 ActiveExtensions[]=bcauthorconnect
 ActiveExtensions[]=changelog
 ActiveExtensions[]=bcredirect
