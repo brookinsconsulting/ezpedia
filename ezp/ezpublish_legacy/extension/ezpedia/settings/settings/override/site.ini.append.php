@@ -4,10 +4,10 @@
 DebugOutput=disabled
 
 [TemplateSettings]
-ShowUsedTemplates=enabled
+ShowUsedTemplates=disabled
 
 [DatabaseSettings]
-DatabaseImplementation=ezmysql
+DatabaseImplementation=ezmysqli
 #PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Server=localhost
 #PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#User=someuser
 #PLEASE_USE_A_FILE_site.ini_TO_OVERRIDE_THIS#Password=somepassword
@@ -38,6 +38,7 @@ HostMatchMapItems[]
 ActiveExtensions[]=ezoe
 ActiveExtensions[]=ezsh
 ActiveExtensions[]=bcauthorconnect
+ActiveExtensions[]=nxc_social_networks
 ActiveExtensions[]=changelog
 ActiveExtensions[]=bcredirect
 ActiveExtensions[]=wikidesign
