@@ -106,7 +106,7 @@ QuickSettingsList[]=TemplateSettings;TemplateCache;site.ini;Templace cache
 QuickSettingsList[]=ContentSettings;ViewCaching;site.ini;View cache
 QuickSettingsList[]
 
-DebugOutput=disabled
+DebugOutput=enabled
 DebugByIP=disabled
 DebugIPList[]
 DebugIPList[]=82.226.58.101

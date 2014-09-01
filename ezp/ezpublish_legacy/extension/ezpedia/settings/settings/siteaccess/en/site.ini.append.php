@@ -1,7 +1,7 @@
 <?php /* #?ini charset="utf-8"?
 
 [DatabaseSettings]
-DatabaseImplementation=ezmysql
+DatabaseImplementation=ezmysqli
 Server=localhost
 User=publish
 Password=portals
