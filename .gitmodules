@@ -1,3 +1,6 @@
 [submodule "ezp/ezpublish_legacy/extension/nxc_social_networks"]
 	path = ezp/ezpublish_legacy/extension/nxc_social_networks
 	url = git@github.com:brookinsconsulting/nxc_social_networks.git
+[submodule "ezp/ezpublish_legacy/extension/OWSimpleOperator"]
+	path = ezp/ezpublish_legacy/extension/OWSimpleOperator
+	url = git@github.com:brookinsconsulting/OWSimpleOperator.git

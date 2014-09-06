@@ -37,6 +37,7 @@ HostMatchMapItems[]
 [ExtensionSettings]
 ActiveExtensions[]=ezoe
 ActiveExtensions[]=ezsh
+ActiveExtensions[]=OWSimpleOperator
 ActiveExtensions[]=bcauthorconnect
 ActiveExtensions[]=nxc_social_networks
 ActiveExtensions[]=changelog
