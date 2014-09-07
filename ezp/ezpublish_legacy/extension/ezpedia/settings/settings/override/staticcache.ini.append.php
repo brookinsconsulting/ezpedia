@@ -39,6 +39,12 @@ CachedURLArray[]=/updated/*
 CachedSiteAccesses[]
 CachedSiteAccesses[]=en
 CachedSiteAccesses[]=fr
+CachedSiteAccesses[]=de
+CachedSiteAccesses[]=cn
+CachedSiteAccesses[]=es
+CachedSiteAccesses[]=nl
+CachedSiteAccesses[]=pl
+CachedSiteAccesses[]=pt
 
 # A list of locations that will be updated whenever an object is published. You
 # can NOT use a wildcard here.
