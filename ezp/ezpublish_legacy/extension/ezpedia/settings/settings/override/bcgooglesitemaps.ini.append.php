@@ -1,20 +1,26 @@
-<?php /*
+<?php /* #?ini charset="utf-8"?
 
-[all2eGoogleSitemapSettings]
+[BCGoogleSitemapSettings]
 # Define Subtree to create Sitempa from
 SitemapRootNodeID=2
 # Define the XML file
 Filename=sitemap
 Filesuffix=.xml
-# related to the eZ Publish root directory
-Path=
+# Relative to the eZ Publish root directory
+Path=.
 
 [SiteAccessSettings]
 # here you need to specify every siteaccess a sitemap shall be created for
 # if no siteaccessarray is given, the default siteaccess will be used for generation
 # SiteAccessArray[]
-# SiteAccessArray[]=de
-# SiteAccessArray[]=en
+SiteAccessArray[]=en
+#SiteAccessArray[]=cn
+#SiteAccessArray[]=de
+#SiteAccessArray[]=pl
+#SiteAccessArray[]=pt
+#SiteAccessArray[]=fr
+#SiteAccessArray[]=nl
+#SiteAccessArray[]=es
 
 [Classes]
 # include or exclude objects of classes listed in ClassFilterArray
@@ -32,6 +38,5 @@ ClassFilterArray[]
 # set false to include only main node of content object in sitemap
 # set true to include all nodse of content object in sitemap
 Main_Node_Only=false
-
 
 */ ?>

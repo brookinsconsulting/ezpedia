@@ -4,3 +4,6 @@
 [submodule "ezp/ezpublish_legacy/extension/OWSimpleOperator"]
 	path = ezp/ezpublish_legacy/extension/OWSimpleOperator
 	url = git@github.com:brookinsconsulting/OWSimpleOperator.git
+[submodule "ezp/ezpublish_legacy/extension/bcgooglesitemaps"]
+	path = ezp/ezpublish_legacy/extension/bcgooglesitemaps
+	url = git@github.com:brookinsconsulting/bcgooglesitemaps.git

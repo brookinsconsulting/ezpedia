@@ -54,7 +54,7 @@ ActiveExtensions[]=bcfetchxml
 ActiveExtensions[]=bcsoapsearch
 ActiveExtensions[]=ezfind
 ActiveExtensions[]=ezjscore
-ActiveExtensions[]=all2egooglesitemaps
+ActiveExtensions[]=bcgooglesitemaps
 ActiveExtensions[]=ezpedia
 ActiveExtensions[]=wrapoperator
 
