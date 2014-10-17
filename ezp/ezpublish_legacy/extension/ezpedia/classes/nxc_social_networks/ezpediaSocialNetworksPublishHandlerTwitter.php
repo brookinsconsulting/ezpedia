@@ -10,43 +10,9 @@ class ezpediaSocialNetworksPublishHandlerTwitter extends nxcSocialNetworksPublis
 
     public function publish( eZContentObject $object, $message ) {
         $options = $this->getOptions();
-
-        $messageIntro = 'The article "';
-        $messageBody = $message;
-        $messageEnd = ( $object->attribute( 'current_version' ) == 1 ) ? '" was published.' : '" was updated.';
-        $messageOutro = " #ezpublish";
-
         $messageLength = 140;
-        $url = false;
-        if(
-            isset( $options['include_url'] )
-            && (bool) $options['include_url'] === true
-        ) {
-            $url = $object->attribute( 'main_node' )->attribute( 'url_alias' );
-            eZURI::transformURI( $url, true, 'full' );
 
-            if(
-                isset( $options['shorten_url'] )
-                && (bool) $options['shorten_url'] === true
-            ) {
-                $urlReturned = $this->shorten( $url );
-                if( is_string( $urlReturned ) ) {
-                    $url = $urlReturned;
-                }
-            }
-
-            $messageLength = $messageLength - strlen( $url ) - strlen( $messageIntro ) - strlen( $messageEnd ) - strlen( $messageOutro ) - 1;
-        }
-
-        $messageBody = mb_substr( $messageBody, 0, $messageLength );
-
-        $message = $messageIntro . $messageBody . $messageEnd;
-
-        if( $url ) {
-            $message .= ' ' . $url;
-        }
-
-        $message .= $messageOutro;
+        $message = $this->message( $this, $object, $message, $messageLength, $options, $options['message_handler'] );
 
         //print_r( 'Len: ' . strlen( $message ) ); echo "<hr />";
 
