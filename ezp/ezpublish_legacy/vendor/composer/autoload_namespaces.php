@@ -7,5 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'eZ\\Publish\\Composer' => array($vendorDir . '/ezsystems/ezpublish-legacy-installer/src'),
-    'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
 );

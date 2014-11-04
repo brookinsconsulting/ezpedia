@@ -1,0 +1,291 @@
+<?php
+/**
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
+ * @version //autogentag//
+ * @filesource
+ * @package PersistentObject
+ * @subpackage Tests
+ */
+
+require_once 'test_case.php';
+
+/**
+ * Tests the load facilities of ezcPersistentSession.
+ *
+ * @package PersistentObject
+ * @subpackage Tests
+ */
+class ezcPersistentSessionLoadTest extends ezcPersistentSessionTest
+{
+    public static function suite()
+    {
+        return new PHPUnit_Framework_TestSuite( __CLASS__ );
+    }
+
+    // loadIfExists
+
+    public function testLoadIfExistsValid()
+    {
+        $object = $this->session->loadIfExists( 'PersistentTestObject', 1 );
+        $this->assertEquals( 'PersistentTestObject', get_class( $object ) );
+    }
+
+    public function testLoadIfExistsInvalid()
+    {
+        $object = $this->session->loadIfExists( 'NoSuchClass', 1 );
+        $this->assertEquals( null, $object );
+    }
+
+    public function testLoadIfExistsNoSuchObject()
+    {
+        $object = $this->session->loadIfExists( 'PersistentTestObject', 999 );
+        $this->assertEquals( null, $object );
+    }
+
+    // load
+
+    public function testLoadValid()
+    {
+        $object = $this->session->load( 'PersistentTestObject', "1" );
+        $this->assertEquals( 'PersistentTestObject', get_class( $object ) );
+    }
+
+    public function testLoadInvalid()
+    {
+        try
+        {
+            $object = $this->session->load( 'NoSuchClass', 1 );
+            $this->fail( "load() called with invalid class. Did not get an exception" );
+        }
+        catch ( ezcPersistentDefinitionNotFoundException $e ) {}
+    }
+
+    public function testLoadNoSuchObject()
+    {
+        try
+        {
+            $object = $this->session->load( 'PersistentTestObject', 999 );
+            $this->fail( "load() called with invalid object id. Did not get an exception" );
+        }
+        catch ( ezcPersistentObjectNotFoundException $e )
+        {
+            $this->assertEquals(
+                "A query failed internally in Persistent Object: No object of class 'PersistentTestObject' with id '999'.",
+                $e->getMessage()
+            );
+            return;
+        }
+    }
+
+    public function testConversionOnLoad()
+    {
+        $q = $this->session->createFindQuery( 'PersistentTestObjectConverter' );
+        $q->where(
+            $q->expr->eq( 
+                $this->session->database->quoteIdentifier( 'type_varchar' ),
+                $q->bindValue( 'Germany' )
+            )
+        );
+        $arr = $this->session->find( $q, 'PersistentTestObjectConverter' );
+
+        $this->assertEquals(
+            1,
+            count( $arr )
+        );
+        $this->assertNotNull(
+            $arr[4]
+        );
+
+        $this->assertInstanceOf(
+            'DateTime',
+            $arr[4]->integer
+        );
+
+        $this->assertEquals(
+            '82443000',
+            $arr[4]->integer->format( 'U' )
+        );
+    }
+
+    public function testConversionNullOnLoad()
+    {
+        $q = $this->session->database->createInsertQuery();
+        $q->insertInto( $this->session->database->quoteIdentifier( 'PO_test' ) );
+        $q->set( $this->session->database->quoteIdentifier( 'type_varchar' ), $q->bindValue( 'foo' ) );
+        $q->set( $this->session->database->quoteIdentifier( 'type_integer' ), $q->bindValue( 23 ) );
+        // null!
+        // $q->set( $this->session->database->quoteIdentifier( 'type_decimal' ), $q->bindValue( 42.23 ) );
+        $q->set( $this->session->database->quoteIdentifier( 'type_text' ), $q->bindValue( 'foo bar' ) );
+
+        $stmt = $q->prepare();
+        $stmt->execute();
+
+        $q = $this->session->createFindQuery( 'PersistentTestObjectConverter' );
+        $q->where(
+            $q->expr->eq( 
+                $this->session->database->quoteIdentifier( 'type_varchar' ),
+                $q->bindValue( 'foo' )
+            )
+        );
+        $arr = $this->session->find( $q, 'PersistentTestObjectConverter' );
+
+        $this->assertEquals(
+            1,
+            count( $arr )
+        );
+
+        $obj = current( $arr );
+
+        $this->assertEquals( 42.23, $obj->decimal );
+    }
+
+    // loadIntoObject
+    
+    public function testLoadIntoObjectValid()
+    {
+        $object = new PersistentTestObject();
+        $object->varchar = 'Finland';
+        $object->integer = 42;
+        $object->decimal = 1.42;
+        $object->text = "Finland has Nokia!";
+        $this->session->save( $object );
+        $this->assertEquals( 5, $object->id );
+
+        $object2 = new PersistentTestObject();
+        $this->session->loadIntoObject( $object2, 5 );
+        $this->assertEquals( 'Finland', $object2->varchar );
+        $this->assertEquals( 42, (int)$object2->integer );
+        $this->assertEquals( 1.42, (float)$object2->decimal );
+        $this->assertEquals( 'Finland has Nokia!', $object2->text );
+    }
+
+    public function testLoadIntoObjectInvalid()
+    {
+        try
+        {
+            $object = $this->session->loadIntoObject( new Exception(), 1 );
+            $this->fail( "loadIntoObject() called with invalid class. Did not get an exception" );
+        }
+        catch ( ezcPersistentDefinitionNotFoundException $e )
+        {
+            return;    
+        }
+    }
+
+    public function testLoadIntoObjectNoSuchObject()
+    {
+        try
+        {
+            $object = $this->session->loadIntoObject( new PersistentTestObject(), 999 );
+            $this->fail( "loadIntoObject() called with invalid class. Did not get an exception" );
+        }
+        catch ( ezcPersistentQueryException $e )
+        {
+            $this->assertEquals(
+                "A query failed internally in Persistent Object: No object of class 'PersistentTestObject' with id '999'.",
+                $e->getMessage()
+            );
+        }
+    }
+
+    // refresh
+
+    public function testRefreshValid()
+    {
+        $object = new PersistentTestObject();
+        $object->varchar = 'Finland';
+        $object->integer = 42;
+        $object->decimal = 1.42;
+        $object->text = "Finland has Nokia!";
+        $this->session->save( $object );
+
+        $object->integer = 101;
+        $this->session->refresh( $object );
+        $this->assertEquals( 42, (int)$object->integer );
+    }
+
+    public function testRefreshInvalid()
+    {
+        try
+        {
+            $this->session->refresh( new Exception() );
+            $this->fail( "refresh of non-persistent object did not throw exception" );
+        }
+        catch ( ezcPersistentDefinitionNotFoundException $e ) {}
+    }
+
+    public function testRefreshNotPersistent()
+    {
+        try
+        {
+            $this->session->refresh( new PersistentTestObject() );
+            $this->fail( "refresh of non-persistent object did not throw exception" );
+        }
+        catch ( ezcPersistentObjectNotPersistentException $e ) {}
+    }
+
+
+    // sub-select
+
+    public function testSubSelectDifferentClass()
+    {
+        RelationTestPerson::setupTables( $this->session->database );
+        RelationTestPerson::insertData( $this->session->database );
+
+        $q = $this->session->createFindQuery( 'RelationTestPerson' );
+
+        $subQ = $this->session->createSubQuery( $q, 'RelationTestBirthday' );
+        $subQ->select( 'person' );
+
+        $q->where(
+            $q->expr->in( 'id', $subQ )
+        );
+
+        $stmt = $q->prepare();
+        $this->assertTrue( $stmt->execute() );
+
+        $this->assertEquals( 2, count( $stmt->fetchAll() ) );
+        RelationTestPerson::cleanup( $this->session->database );
+    }
+
+    public function testSubSelectSameClass()
+    {
+        MultiRelationTestPerson::setupTables( $this->session->database );
+        MultiRelationTestPerson::insertData( $this->session->database );
+
+        $q = $this->session->createFindQuery( 'MultiRelationTestPerson' );
+
+        $subQ = $this->session->createSubQuery( $q, 'MultiRelationTestPerson' );
+        $subQ->select( 'mother' );
+
+        $q->where(
+            $q->expr->in( 'id', $subQ )
+        );
+
+        $stmt = $q->prepare();
+        $this->assertTrue( $stmt->execute() );
+
+        $this->assertEquals( 1, count( $stmt->fetchAll() ) );
+        MultiRelationTestPerson::cleanup( $this->session->database );
+    }
+}
+
+?>

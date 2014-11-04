@@ -2,10 +2,26 @@
 /**
  * File containing the ezcImageAnalyzerImagemagickHandler class.
  *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
  * @package ImageAnalysis
  * @version //autogentag//
- * @copyright Copyright (C) 2005-2008 eZ systems as. All rights reserved.
- * @license http://ez.no/licenses/new_bsd New BSD License
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
  * @filesource
  */
 
@@ -210,7 +226,8 @@ class ezcImageAnalyzerImagemagickHandler extends ezcImageAnalyzerHandler
      */
     public function analyzeType( $file )
     {
-        $parameters = '-format ' . escapeshellarg( '%m|' ) . ' ' . escapeshellarg( $file );
+        $format = ( ezcBaseFeatures::os() === 'Windows' ? '"%m|"' : escapeshellarg( '%m|' ) );
+        $parameters = '-format ' . $format . ' ' . escapeshellarg( $file );
         $res = ezcImageAnalyzerImagemagickHandler::runCommand( $parameters, $outputString, $errorString );
         if ( $res !== 0 || $errorString !== '' )
         {
@@ -263,7 +280,8 @@ class ezcImageAnalyzerImagemagickHandler extends ezcImageAnalyzerHandler
         // Animated Cog]*"
         // --------------------------------
 
-        $command = '-format ' . escapeshellarg( '[%m|%b|%w|%h|%k|%r|%c]*' ) . ' ' . escapeshellarg( $file );
+        $formatString = ( ezcBaseFeatures::os() === 'Windows' ? '"[%m|%b|%w|%h|%k|%r|%c]*"' : escapeshellarg( '[%m|%b|%w|%h|%k|%r|%c]*' ) );
+        $command = '-format ' . $formatString . ' ' . escapeshellarg( $file );
 
         // Execute ImageMagick
         $return = $this->runCommand( $command, $outputString, $errorString );
@@ -558,32 +576,14 @@ class ezcImageAnalyzerImagemagickHandler extends ezcImageAnalyzerHandler
     {
         if ( !isset( $this->options['binary'] ) )
         {
-            switch ( PHP_OS )
-            {
-                case 'Linux':
-                case 'Unix':
-                case 'FreeBSD':
-                case 'MacOS':
-                case 'Darwin':
-                case 'SunOS':
-                    $this->binary = 'identify';
-                    break;
-                case 'Windows':
-                case 'WINNT':
-                case 'WIN32':
-                    $this->binary = 'identify.exe';
-                    break;
-                default:
-                    throw new ezcImageAnalyzerInvalidHandlerException( 'ezcImageAnalyzerImagemagickHandler' );
-                    break;
-            }
+            $this->binary = ezcBaseFeatures::getImageIdentifyExecutable();
         }
-        else
+        else if ( file_exists( $this->options['binary'] ) )
         {
             $this->binary = $this->options['binary'];
         }
 
-        return ezcBaseFeatures::hasImageIdentify();
+        return ( $this->binary !== null );
     }
 
     /**
@@ -602,7 +602,8 @@ class ezcImageAnalyzerImagemagickHandler extends ezcImageAnalyzerHandler
      */
     protected function runCommand( $parameters, &$stdOut, &$errOut, $stripNewlines = true )
     {
-        $command = escapeshellcmd( $this->binary ) . ( $parameters !== '' ?  ' ' . $parameters : '' );
+        $command = ( ezcBaseFeatures::os() === 'Windows' ? $this->binary : escapeshellcmd( $this->binary ) )
+            . ( $parameters !== '' ?  ' ' . $parameters : '' );
         // Prepare to run ImageMagick command
         $descriptors = array(
             array( 'pipe', 'r' ),
