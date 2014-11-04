@@ -1,1 +1,17 @@
+User-agent: *
+Disallow: /content/search/
+Disallow: /Content/Search/
+Disallow: /content/advancedsearch/
+Disallow: /Content/Advancedsearch/
+Disallow: /content/tipafriend/
+Disallow: /Content/Tipafriend/
+Disallow: /layout/set/print/
+Disallow: /Layout/Set/Print/
+Disallow: /media/
+Disallow: /Media/
+Disallow: /ezinfo/
+Disallow: /Ezinfo/
+Disallow: /test-area/
+Disallow: /Test-Area/
+
 Sitemap: http://ezpedia.org/sitemap_en.xml
