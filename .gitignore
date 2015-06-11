@@ -27,6 +27,7 @@
 ezp/ezpublish_legacy/var
 ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/site.ini
 ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/solr.ini
+ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/nxcsocialnetworks.ini
 ezp/ezpublish_legacy/extension/ezfind/java/logs
 ezp/ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql
 ezp/ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql.tar.gz
