@@ -7,3 +7,6 @@
 [submodule "ezp/ezpublish_legacy/extension/bcgooglesitemaps"]
 	path = ezp/ezpublish_legacy/extension/bcgooglesitemaps
 	url = git@github.com:brookinsconsulting/bcgooglesitemaps.git
+[submodule "ezp/ezpublish_legacy/extension/bccontentdiffnotifications"]
+	path = ezp/ezpublish_legacy/extension/bccontentdiffnotifications
+	url = git@github.com:brookinsconsulting/bccontentdiffnotifications.git
