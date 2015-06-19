@@ -4,7 +4,7 @@
  *
  * @copyright Copyright (C) eZ Systems AS. All rights reserved.
  * @license For full copyright and license information view LICENSE file distributed with this source code.
- * @version 2014.07.0
+ * @version //autogentag//
  * @package kernel
  */
 
@@ -229,24 +229,6 @@ class eZRSSExport extends eZPersistentObject
 
     /*!
      \static
-      Fetches -Updated-  RSS Export by feed access url and is active.
-
-     \param RSS Export access url
-    */
-    static function fetchUpdatedByName( $access_url, $asObject = true )
-    {
-        /* return eZPersistentObject::fetchObject( eZRSSExport::definition(),
-                                                null,
-                                                array( 'access_url' => $access_url,
-                                                       'active' => 1,
-                                                       'status' => 1 ),
-                                                $asObject ); */
-
-        return eZRSSExport::fetchByName( $access_url, $asObject );
-    }
-
-    /*!
-     \static
       Fetches complete list of RSS Exports.
     */
     static function fetchList( $asObject = true )
@@ -318,15 +300,8 @@ class eZRSSExport extends eZPersistentObject
      */
     function rssXmlContent()
     {
-
         try
         {
-            $rssUpdateInclusions=array( 'ez','solution','project','historical','updated', 'changelog', 'about', 'discussion', 'snippet', 'learning' );
-            if( in_array( $this->attribute( 'access_url' ), $rssUpdateInclusions ) ) {
-               // return $this->fetchRSS2_0();
-               return $this->fetchUpdatedRSS2_0();
-            } else {
-
             switch ( $this->attribute( 'rss_version' ) )
             {
                 case '1.0':
@@ -349,8 +324,6 @@ class eZRSSExport extends eZPersistentObject
                     return null;
                 } break;
             }
-
-            }
         }
         catch ( ezcFeedException $e )
         {
@@ -358,203 +331,6 @@ class eZRSSExport extends eZPersistentObject
         }
 
         return null;
-    }
-
-    /*!
-     Get a RSS xml document based on the RSS 2.0 standard based on the RSS Export settings defined by this object
-
-     \param
-
-     \return RSS 2.0 XML document
-    */
-    function fetchUpdatedRSS2_0( $id = null )
-    {
-        if ( $id != null )
-        {
-            $rssExport = eZRSSExport::fetch( $id );
-            return $rssExport->fetchRSS2_0();
-        }
-
-        $locale = eZLocale::instance();
-
-        // Get URL Translation settings.
-        $config = eZINI::instance();
-        if ( $config->variable( 'URLTranslator', 'Translation' ) == 'enabled' )
-        {
-            $useURLAlias = true;
-        }
-        else
-        {
-            $useURLAlias = false;
-        }
-
-        if ( $this->attribute( 'url' ) == '' )
-        {
-            //include_once( 'lib/ezutils/classes/ezuri.php' );
-            $baseItemURL = '';
-            eZURI::transformURI( $baseItemURL, false, 'full' );
-            $baseItemURL .= '/';
-        }
-        else
-        {
-            $baseItemURL = $this->attribute( 'url' ).'/'; //.$this->attribute( 'site_access' ).'/';
-        }
-
-        $doc = new DOMDocument( '1.0', 'utf-8' );
-        $doc->formatOutput = true;
-        $root = $doc->createElement( 'rss' );
-        $root->setAttribute( 'version', '2.0' );
-        $root->setAttribute( 'xmlns:atom', 'http://www.w3.org/2005/Atom' );
-        $doc->appendChild( $root );
-
-        $channel = $doc->createElement( 'channel' );
-        $root->appendChild( $channel );
-
-        $atomLink = $doc->createElement( 'atom:link' );
-        $atomLink->setAttribute( 'href', $baseItemURL . "rss/feed/" . $this->attribute( 'access_url' ) );
-        $atomLink->setAttribute( 'rel', 'self' );
-        $atomLink->setAttribute( 'type', 'application/rss+xml' );
-        $channel->appendChild( $atomLink );
-
-        $channelTitle = $doc->createElement( 'title' );
-        $channelTitle->appendChild( $doc->createTextNode( $this->attribute( 'title' ) ) );
-        $channel->appendChild( $channelTitle );
-
-        $channelLink = $doc->createElement( 'link' );
-        $channelLink->appendChild( $doc->createTextNode( $this->attribute( 'url' ) ) );
-        $channel->appendChild( $channelLink );
-
-        $channelDescription = $doc->createElement( 'description' );
-        $channelDescription->appendChild( $doc->createTextNode( $this->attribute( 'description' ) ) );
-        $channel->appendChild( $channelDescription );
-
-        $channelLanguage = $doc->createElement( 'language' );
-        $channelLanguage->appendChild( $doc->createTextNode( $locale->httpLocaleCode() ) );
-        $channel->appendChild( $channelLanguage );
-
-        $imageURL = $this->fetchImageURL();
-        if ( $imageURL !== false )
-        {
-            $image = $doc->createElement( 'image' );
-
-            $imageUrlNode = $doc->createElement( 'url' );
-            $imageUrlNode->appendChild( $doc->createTextNode( $imageURL ) );
-            $image->appendChild( $imageUrlNode );
-
-            $imageTitle = $doc->createElement( 'title' );
-            $imageTitle->appendChild( $doc->createTextNode( $this->attribute( 'title' ) ) );
-            $image->appendChild( $imageTitle );
-
-            $imageLink = $doc->createElement( 'link' );
-            $imageLink->appendChild( $doc->createTextNode( $this->attribute( 'url' ) ) );
-            $image->appendChild( $imageLink );
-
-            $channel->appendChild( $image );
-        }
-
-        $cond = array(
-                    'rssexport_id'  => $this->ID,
-                    'status'        => $this->Status
-                    );
-        $rssSources = eZRSSExportItem::fetchFilteredList( $cond );
-
-        $nodeArray = eZRSSExportItem::fetchUpdatedNodeList( $rssSources, $this->getObjectListFilter() );
-
-        if ( is_array( $nodeArray ) && count( $nodeArray ) )
-        {
-            $attributeMappings = eZRSSExportItem::getAttributeMappings( $rssSources );
-
-            foreach ( $nodeArray as $node )
-            {
-                $object = $node->attribute( 'object' );
-                $dataMap = $object->dataMap();
-                if ( $useURLAlias === true )
-                {
-                    $nodeURL = $this->urlEncodePath( $baseItemURL . $node->urlAlias() );
-                }
-                else
-                {
-                    $nodeURL = $baseItemURL . 'content/view/full/' . $node->attribute( 'node_id' );
-                }
-
-                // keep track if there's any match
-                $doesMatch = false;
-                // start mapping the class attribute to the respective RSS field
-                foreach ( $attributeMappings as $attributeMapping )
-                {
-                    // search for correct mapping by path
-                    if ( $attributeMapping[0]->attribute( 'class_id' ) == $object->attribute( 'contentclass_id' ) and
-                         in_array( $attributeMapping[0]->attribute( 'source_node_id' ), $node->attribute( 'path_array' ) ) )
-                    {
-                        // found it
-                        $doesMatch = true;
-                        // now fetch the attributes
-                        $title =  $dataMap[$attributeMapping[0]->attribute( 'title' )];
-                        $description =  $dataMap[$attributeMapping[0]->attribute( 'description' )];
-                        break;
-                    }
-                }
-
-                if( !$doesMatch )
-                {
-                    // no match
-                    eZDebug::writeWarning( __METHOD__ . ': Cannot find matching RSS source node for content object in '.__FILE__.', Line '.__LINE__ );
-                    $retValue = null;
-                    return $retValue;
-                }
-
-                $item = $doc->createElement( 'item' );
-
-                // title RSS element with respective class attribute content
-                $titleContent =  $title->attribute( 'content' );
-                if ( $titleContent instanceof eZXMLText )
-                {
-                    $outputHandler = $titleContent->attribute( 'output' );
-                    $itemTitleText = $outputHandler->attribute( 'output_text' );
-                }
-                else
-                {
-                    $itemTitleText = $titleContent;
-                }
-
-                $itemTitle = $doc->createElement( 'title' );
-                $itemTitle->appendChild( $doc->createTextNode( $itemTitleText ) );
-                $item->appendChild( $itemTitle );
-
-                $itemLink = $doc->createElement( 'link' );
-                $itemLink->appendChild( $doc->createTextNode( $nodeURL ) );
-                $item->appendChild( $itemLink );
-
-                $itemGuid = $doc->createElement( 'guid' );
-                $itemGuid->appendChild( $doc->createTextNode( $nodeURL ) );
-                $item->appendChild( $itemGuid );
-
-                // description RSS element with respective class attribute content
-                $descriptionContent =  $description->attribute( 'content' );
-                if ( $descriptionContent instanceof eZXMLText )
-                {
-                    $outputHandler =  $descriptionContent->attribute( 'output' );
-                    $itemDescriptionText = $outputHandler->attribute( 'output_text' );
-                }
-                else
-                {
-                    $itemDescriptionText = $descriptionContent;
-                }
-
-                $itemDescription = $doc->createElement( 'description' );
-                $itemDescription->appendChild( $doc->createTextNode( $itemDescriptionText ) );
-                $item->appendChild( $itemDescription );
-
-                $itemPubDate = $doc->createElement( 'pubDate' );
-                $itemPubDate->appendChild( $doc->createTextNode( gmdate( 'D, d M Y H:i:s', $object->attribute( 'modified' ) ) .' GMT' ) );
-
-                $item->appendChild( $itemPubDate );
-
-                $channel->appendChild( $item );
-            }
-        }
-
-        return $doc;
     }
 
     /*!

@@ -2,7 +2,7 @@
 /**
  * @copyright Copyright (C) eZ Systems AS. All rights reserved.
  * @license For full copyright and license information view LICENSE file distributed with this source code.
- * @version 2014.07.0
+ * @version //autogentag//
  * @package kernel
  */
 
@@ -47,14 +47,9 @@ $ViewList['feed'] = array(
     'functions' => array( 'feed' ),
     'params' => array ( 'RSSFeed' ) );
 
-$ViewList['updated'] = array(
-    'script' => 'updated.php',
-    'functions' => array( 'feedupdate' ),
-    'params' => array ( 'RSSFeed' ) );
 
 $FunctionList = array( );
 $FunctionList['feed'] = array();
-$FunctionList['feedupdated'] = array();
 $FunctionList['edit'] = array();
 
 ?>

@@ -4,7 +4,7 @@
  *
  * @copyright Copyright (C) eZ Systems AS. All rights reserved.
  * @license For full copyright and license information view LICENSE file distributed with this source code.
- * @version 2014.07.0
+ * @version //autogentag//
  * @package kernel
  */
 
@@ -266,53 +266,6 @@ class eZRSSExportItem extends eZPersistentObject
         return $nodeList;
     }
 
-   /*!
-     Get the N last published nodes matching the specifications of this RSS Export item
-
-     \param number of objects to fetch
-
-     \return list of Nodes
-    */
-    static function fetchUpdatedNodeList( $rssSources, $objectListFilter )
-    {
-        // compose parameters for several subtrees
-        if( is_array( $rssSources ) && count( $rssSources ) )
-        {
-            foreach( $rssSources as $rssSource )
-            {
-                // Do not include subnodes
-                if ( !intval( $rssSource->Subnodes ) )
-                {
-                    $depth = 1;
-                }
-                else // Fetch objects even from subnodes
-                {
-                    $depth = 0;
-                }
-
-                $nodesParams[] = array( 'ParentNodeID' => $rssSource->SourceNodeID,
-                                        'ResultID' => $rssSource->ID,
-                                        'Depth' => $depth,
-                                        'DepthOperator' => 'eq',
-                                        'MainNodeOnly' => $objectListFilter['main_node_only'],
-                                        'ClassFilterType' => 'include',
-                                        'ClassFilterArray' => array( intval( $rssSource->ClassID ) )
-                                       );
-            }
-
-//            $listParams = array( 'Limit' => $objectListFilter['number_of_objects'],
-//                                 'SortBy' => array( 'published', false )
-            $listParams = array( 'Limit' => 100,
-                                 'SortBy' => array( 'modified', false )
-                                );
-
-            //include_once( "kernel/classes/ezcontentobjecttreenode.php" );
-            $nodeList = eZContentObjectTreeNode::subTreeMultiPaths( $nodesParams, $listParams );
-        }
-        else
-            $nodeList = null;
-        return $nodeList;
-    }
 }
 
 ?>
