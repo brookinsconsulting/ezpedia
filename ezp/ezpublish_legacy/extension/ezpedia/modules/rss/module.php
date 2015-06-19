@@ -49,7 +49,7 @@ $ViewList['feed'] = array(
 
 $ViewList['updated'] = array(
     'script' => 'updated.php',
-    'functions' => array( 'feedupdate' ),
+    'functions' => array( 'feedupdated' ),
     'params' => array ( 'RSSFeed' ) );
 
 $FunctionList = array( );

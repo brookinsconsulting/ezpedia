@@ -1,28 +1,10 @@
 <?php
-//
-// Created on: <19-Sep-2002 16:45:08 kk>
-//
-// SOFTWARE NAME: eZ Publish
-// SOFTWARE RELEASE: 4.0.3
-// BUILD VERSION: 22993
-// COPYRIGHT NOTICE: Copyright (C) 1999-2008 eZ Systems AS
-// SOFTWARE LICENSE: GNU General Public License v2.0
-// NOTICE: >
-//   This program is free software; you can redistribute it and/or
-//   modify it under the terms of version 2.0  of the GNU General
-//   Public License as published by the Free Software Foundation.
-//
-//   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-//
-//   You should have received a copy of version 2.0 of the GNU General
-//   Public License along with this program; if not, write to the Free
-//   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//   MA 02110-1301, USA.
-//
-//
+/**
+ * @copyright Copyright (C) eZ Systems AS. All rights reserved.
+ * @license For full copyright and license information view LICENSE file distributed with this source code.
+ * @version 2014.07.0
+ * @package kernel
+ */
 
 $Module = $Params['Module'];
 
@@ -31,8 +13,6 @@ if ( !isset ( $Params['RSSFeed'] ) )
     eZDebug::writeError( 'No RSS feed specified' );
     return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
 }
-
-//include_once( 'kernel/classes/ezrssexport.php' );
 
 $feedName = $Params['RSSFeed'];
 $RSSExport = eZRSSExport::fetchUpdatedByName( $feedName );
@@ -44,14 +24,16 @@ if ( !$RSSExport )
     return $Module->handleError( eZError::KERNEL_NOT_AVAILABLE, 'kernel' );
 }
 
-//include_once( 'kernel/classes/ezrssexportitem.php' );
-
 $config = eZINI::instance( 'site.ini' );
 $cacheTime = intval( $config->variable( 'RSSSettings', 'CacheTime' ) );
 
+$lastModified = gmdate( 'D, d M Y H:i:s', time() ) . ' GMT';
+
+eZURI::setTransformURIMode( 'full' );
+
 if ( $cacheTime <= 0 )
 {
-    $xmlDoc = $RSSExport->attribute( 'rss-xml' );
+    $xmlDoc = $RSSExport->attribute( 'rss-xml-content' );
     $rssContent = $xmlDoc->saveXML();
 }
 else
@@ -65,31 +47,58 @@ else
         eZDir::mkdir( dirname( $cacheFilePath ), false, true );
     }
 
-    require_once( 'kernel/classes/ezclusterfilehandler.php' );
     $cacheFile = eZClusterFileHandler::instance( $cacheFilePath );
 
     if ( !$cacheFile->exists() or ( time() - $cacheFile->mtime() > $cacheTime ) )
     {
-        $xmlDoc = $RSSExport->attribute( 'rss-xml' );
+        $xmlDoc = $RSSExport->attribute( 'rss-xml-content' );
+        $xmlDoc = $xmlDoc->saveXML();
         // Get current charset
-        //include_once( 'lib/ezi18n/classes/eztextcodec.php' );
         $charset = eZTextCodec::internalCharset();
-        $rssContent = $xmlDoc->saveXML();
+        $rssContent = trim( $xmlDoc );
         $cacheFile->storeContents( $rssContent, 'rsscache', 'xml' );
     }
     else
     {
+        $lastModified = gmdate( 'D, d M Y H:i:s', $cacheFile->mtime() ) . ' GMT';
+
+        if( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) )
+        {
+            $ifModifiedSince = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+
+            // Internet Explorer specific
+            $pos = strpos($ifModifiedSince,';');
+            if ( $pos !== false )
+                $ifModifiedSince = substr( $ifModifiedSince, 0, $pos );
+
+            if( strcmp( $lastModified, $ifModifiedSince ) == 0 )
+            {
+                header( 'HTTP/1.1 304 Not Modified' );
+                header( 'Last-Modified: ' . $lastModified );
+                header( 'X-Powered-By: ' . eZPublishSDK::EDITION );
+                eZExecution::cleanExit();
+           }
+        }
         $rssContent = $cacheFile->fetchContents();
     }
 }
 
 // Set header settings
 $httpCharset = eZTextCodec::httpCharset();
-header( 'Content-Type: text/xml; charset=' . $httpCharset );
-header( 'Content-Length: '.strlen($rssContent) );
-header( 'X-Powered-By: eZ Publish' );
+header( 'Last-Modified: ' . $lastModified );
 
-while ( @ob_end_clean() );
+if ( $RSSExport->attribute( 'rss_version' ) === 'ATOM' )
+    header( 'Content-Type: application/xml; charset=' . $httpCharset );
+else
+    header( 'Content-Type: application/rss+xml; charset=' . $httpCharset );
+
+header( 'Content-Length: ' . strlen( $rssContent ) );
+header( 'X-Powered-By: ' . eZPublishSDK::EDITION );
+
+for ( $i = 0, $obLevel = ob_get_level(); $i < $obLevel; ++$i )
+{
+    ob_end_clean();
+}
 
 echo $rssContent;
 
