@@ -11,6 +11,8 @@ class ezpediaSocialNetworksMessageHandlerDefault extends nxcSocialNetworksMessag
     public static function message( $publishHandler, eZContentObject $object, $message, $messageLength = null, $options ) {
         $url = false;
 
+        $messageLength = 139;
+
         if( $object->attribute( 'class_identifier' ) == 'article'
             || $object->attribute( 'class_identifier' ) == 'wiki_article' )
         {
