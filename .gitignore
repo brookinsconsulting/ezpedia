@@ -33,5 +33,6 @@ ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql
 ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql.tar.gz
 ezpublish_legacy/sitemap_en.xml
 ezpublish_legacy/download
+ezpublish_legacy/extension/nxc_social_networks
 ezpublish_legacy/extension/nxc_social_networks/classes
 ### eZp related //end
