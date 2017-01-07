@@ -24,13 +24,14 @@
 .settings/
 
 ### eZp related //start
-ezp/ezpublish_legacy/var
-ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/site.ini
-ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/solr.ini
-ezp/ezpublish_legacy/extension/ezpedia/settings/settings/override/nxcsocialnetworks.ini
-ezp/ezpublish_legacy/extension/ezfind/java/logs
-ezp/ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql
-ezp/ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql.tar.gz
-ezp/ezpublish_legacy/sitemap_en.xml
-ezp/ezpublish_legacy/download
+ezpublish_legacy/var
+ezpublish_legacy/extension/ezpedia/settings/settings/override/site.ini
+ezpublish_legacy/extension/ezpedia/settings/settings/override/solr.ini
+ezpublish_legacy/extension/ezpedia/settings/settings/override/nxcsocialnetworks.ini
+ezpublish_legacy/extension/ezfind/java/logs
+ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql
+ezpublish_legacy/extension/ezpedia/sql/ezpedia.dump.auto.sql.tar.gz
+ezpublish_legacy/sitemap_en.xml
+ezpublish_legacy/download
+ezpublish_legacy/extension/nxc_social_networks/classes
 ### eZp related //end
