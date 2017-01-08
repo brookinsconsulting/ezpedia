@@ -31,6 +31,7 @@ PHP=/usr/bin/php
 # We run the frequent cronjob part much more frequently than the default
 */5 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -s en -q --logfiles frequent;
 
-
+# We arc .. do you?
+40 23 * * * cd $EZPUBLISHROOT && extension/ezpedia/bin/shell/exportMirrorEzpediaData.sh 2>&1
 
 ########################################
