@@ -1,0 +1,36 @@
+########################################
+# eZpedia : eZ Publish Default Cronjob Configuration
+########################################
+
+# This must be set to the directory where eZ Publish is installed.
+EZPUBLISHROOT=/data/ezpedia-ezpublish/www-data/vhosts/www.ezpedia.org/ezp/ezpublish_legacy
+
+# Location of the PHP Command Line Interface binary.
+PHP=/usr/bin/php
+
+########################################
+# eZpedia : eZ Publish Default Cronjobs 
+########################################
+
+# Instruct cron to run the main set of cronjobs
+# at 6:35am every day
+35 6 * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -q 2>&1
+
+# Instruct cron to run the "infrequent" set of cronjobs
+# at 5:20am every Monday
+20 5 * * 1 cd $EZPUBLISHROOT && $PHP runcronjobs.php -q infrequent 2>&1
+
+# Instruct cron to run the "frequent" set of cronjobs
+# every 15 minutes
+# 0,15,30,45 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -q frequent 2>&1
+
+########################################
+# eZpedia : Custom site specific cronjobs
+########################################
+
+# We run the frequent cronjob part much more frequently than the default
+*/5 * * * * cd $EZPUBLISHROOT && $PHP runcronjobs.php -s en -q --logfiles frequent;
+
+
+
+########################################
