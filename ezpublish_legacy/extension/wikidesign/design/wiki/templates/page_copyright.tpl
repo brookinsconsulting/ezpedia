@@ -9,5 +9,5 @@ Article provided by <a href="http://ezpedia.org">eZpedia</a>
 Powered by <a href="http://ez.no/" target="_blank">eZ Publish</a> {* $ezinfo.version *} {* fetch( 'setup', 'version' ) *}{$site.version}
 </p>
 <p>
-Hosted by <a href="http://www.ymc.ch/loesungen/ez_publish">Swiss eZ Publish partner YMC</a>
+Hosted by <a href="http://brookinsconsulting.com">USA eZ Publish Community Partner : Brookins Consulting</a>
 </p>
