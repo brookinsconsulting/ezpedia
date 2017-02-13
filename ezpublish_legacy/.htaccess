@@ -31,6 +31,10 @@ RewriteRule ^robots\.txt - [L]
 # eZpedia Mirror Download Folder
 RewriteRule ^download - [L]
 
+# eZpedia Mirror Download Folder
+RewriteRule ^.well-known/acme-challenge - [L]
+RewriteRule ^\.well-known/acme-challenge - [L]
+
 # Uncomment the following lines when using popup style debug.
 # RewriteRule ^var/cache/debug\.html.* - [L]
 # RewriteRule ^var/[^/]+/cache/debug\.html.* - [L]
